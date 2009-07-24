@@ -1,0 +1,136 @@
+<%inherit file="admin/base_site.html"/>
+<%namespace name="admin" module="django.contrib.admin.templatetags.adminmedia" />
+
+<%def name="block_extrahead()">
+<script type="text/javascript" src="../../../jsi18n/"></script>
+<style type="text/css">
+  #id_name {width: 200px;}
+</style>
+
+<!-- media -->
+</%def>${self.block_extrahead()}
+
+${self.block_stylesheet()}<%def name="block_stylesheet()">${admin.admin_media_prefix()}css/forms.css</%def>
+
+${self.block_coltype()}<%def name="block_coltype()">
+% if ordered_objects:
+colMS
+% else:
+colM
+% endif
+</%def>
+
+${self.block_bodyclass()}<%def name="block_bodyclass()">${opts.app_label}-${opts.object_name.lower()} change-form</%def>
+
+${self.block_breadcrumbs()}<%def name="block_breadcrumbs()">
+% if not is_popup:
+
+<div class="breadcrumbs">
+     <a href="../../../">${trans("Home")}</a> &rsaquo;
+     <a href="../../">${ capfirst(app_label)|escape }</a> &rsaquo; 
+     <a href="../">${capfirst(opts.verbose_name_plural)}</a> &rsaquo;
+     
+% if add:
+${trans("Add")} ${opts.verbose_name}
+% else:
+${ original }
+% endif
+
+</div>
+
+% endif
+</%def>
+
+<%def name="block_content()"><div id="content-main">
+<%def name="block_object_tools()">
+% if change:
+
+% if not is_popup:
+
+  <ul class="object-tools"><li><a href="history/" class="historylink">${trans("History")}</a></li>
+  
+% if has_absolute_url:
+<li><a href="../../../r/${content_type_id}/${object_id}/" class="viewsitelink">${trans("View on site")}</a></li>
+% endif
+
+  </ul>
+
+% endif
+
+% endif
+
+</%def>${ block_object_tools() }
+<form 
+% if has_file_field:
+enctype="multipart/form-data" 
+% endif
+action="${form_url or ''}" method="post" id="${opts.module_name}_form"><%def name="block_form_top()"></%def>
+<div>
+
+% if is_popup:
+<input type="hidden" name="_popup" value="1" />
+% endif
+
+
+% if save_on_top:
+{% submit_row %}
+% endif
+
+
+% if errors:
+
+    <p class="errornote">
+    <%def name="blocktrans()"><!-- blocktrans count errors.items|length as counter -->Please correct the error${'s' if len(errors)>1 else ''} below.</%def>${blocktrans()}
+    </p>
+    <ul class="errorlist">
+% for error in adminform.form.non_field_errors():
+<li>${error}</li>
+% endfor
+</ul>
+
+% endif
+
+% if adminform:
+<%namespace file="admin/includes/fieldset.html" name="fs"/>
+% for fieldset in adminform:
+    ${ fs.fieldsets(fieldset) }
+% endfor
+% endif
+
+<%def name="block_after_field_sets()"></%def>${self.block_after_field_sets() if hasattr(self,'block_after_field_sets') else ''}
+
+% if inline_admin_formsets:
+% for inline_admin_formset in inline_admin_formsets:
+
+    {% include inline_admin_formset.opts.template %}
+
+% endfor
+% endif
+
+<%def name="block_after_related_objects()"></%def>${block_after_related_objects()}
+
+
+<%namespace file="admin/submit_line.html" name="sl"/>
+<%
+    from django.contrib.admin.templatetags.admin_modify import submit_row
+%>
+
+${ sl.submit_line( submit_row(context) ) }
+
+
+% if add and adminform:
+
+   <script type="text/javascript">document.getElementById("${adminform.first_field().auto_id}").focus();</script>
+
+% endif
+
+<%namespace file="admin/prepopulated_fields_js.html" name="ppf"/>
+<%
+    from django.contrib.admin.templatetags.admin_modify import prepopulated_fields_js
+%>
+
+${ ppf.prepopulated_fields(*prepopulated_fields_js(context)) }
+
+</div>
+</form></div>
+</%def>

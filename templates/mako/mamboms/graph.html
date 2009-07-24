@@ -1,0 +1,175 @@
+<html>
+<head>
+    <title>Graph displayer</title>
+    <link rel="stylesheet" type="text/css" href="site_media/css/main.css"></link>
+    <script type="text/javascript" src="site_media/scripts/cropper/lib/prototype.js" language="javascript" ></script>
+    <script type="text/javascript" src="site_media/scripts/cropper/lib/scriptaculous.js?load=builder,dragdrop" language="javascript" ></script>
+    <script type="text/javascript" src="site_media/scripts/cropper/cropper.js" language="javascript"></script>
+    <script type="text/javascript" language="javascript">
+        var ImageManager = {
+            cropper: null,
+
+            init: function(compoundId) {
+                this.imageInfoHistory = new Array();
+                this.compoundId = compoundId;
+                this.drawStartImage();
+                this.cropper = new Cropper.Img(
+                    'graph_img',
+                    {
+                        minHeight: $('graph_img').height,
+                        onEndCrop: onEndCrop
+                    }
+                );
+                //gi = document.getElementById('graph_img').parentNode
+                //insert graphnav divs 
+                //var lnavdiv = document.createElement("div");
+                //lnavdiv.style.cssText = "position:absolute; z-index: 2; float: left; top:0px; left: 0px; width: 100px; height: 100px; background-color:#444; cursor: wait;";
+                //gi.appendChild(lnavdiv);
+                //var rnavdiv = document.createElement("div");
+                //rnavdiv.style.cssText = "position:relative; z-index: 2; float:left; top:0px; left:300px; width: 100px; height: 100px; background-color:#444; cursor: wait;";
+                //gi.appendChild(rnavdiv);
+            },
+
+            redrawCallback: function(transport) {
+                response = transport.responseText.evalJSON(true);
+                this.curImageInfo = response;
+                this.ImageManager.curImageInfo = response;
+                this.ImageManager.setImage(this.curImageInfo);
+            },
+
+            getMyDiv: function() {
+                //Change the cusor to 'wait'
+                //var alldivs = document.getElementsByTagName('div');
+                //for (i=0; i<alldivs.length; i++){
+                //    if (alldivs[i].style.classname == 'imgCrop_wrap'){
+                //        return alldivs[i];
+                //    }
+                //    else {
+                //        alert(alldivs[i].style.classname);
+                //    }
+                //}
+                //alert('returning default doc :( ');
+                return document;
+            },
+
+            redraw: function(request) {
+                //Change the cusor to 'wait'
+                //var d = ImageManager.getMyDiv();
+                //alert(d.className)
+                //d.style.cursor = 'wait';
+                new Ajax.Request('../imageaction/', {
+                    postBody: Object.toJSON(request),
+                    onSuccess: this.redrawCallback
+                });
+            },
+
+            drawStartImage: function() {
+                ImageManager.redraw(
+                    ImageManager.buildRequest('startImage'));
+            },
+
+            crop: function(xstart, xend) {
+                xmin = this.curImageInfo.xstart;
+                xmax = this.curImageInfo.xend;
+                if (xstart < xmin && xend < xmin) {
+                    request = this.buildRequest('moveLeft');
+                } else if (xstart > xmax && xend > xmax) {
+                    request = this.buildRequest('moveRight');
+                } else if (xend-xstart < 5) {
+                    request = this.buildRequest('startImage');
+                } else {
+                    request = this.buildRequest('zoom', {
+                                newxstart: xstart,
+                                newxend:   xend
+                            });
+                }
+                this.redraw(request);
+            },
+
+            moveLeft: function() {
+                ImageManager.redraw(
+                    ImageManager.buildRequest('moveLeft'));
+            },
+
+            moveRight: function() {
+                ImageManager.redraw(
+                    ImageManager.buildRequest('moveRight'));
+            },
+
+            buildRequest: function(actionName,extraParams) { 
+                request = {
+                    compoundId: this.compoundId,
+                    action: actionName,
+                };                          
+                if (this.curImageInfo) {
+                    request.datastart = this.curImageInfo.datastart;
+                    request.dataend = this.curImageInfo.dataend;
+                }
+                if (extraParams) {
+                    for (prop in extraParams) {
+                        request[prop] = extraParams[prop];
+                    }
+                }
+                return request;
+            },
+
+            setImage: function(imgInfo) {
+                ImageManager.imageInfoHistory.push(imgInfo)
+                $( 'graph_img' ).src = '../image/' 
+                        + imgInfo['compoundId'] + '/' 
+                        + imgInfo['datastart'] + '/' 
+                        + imgInfo['dataend'] + '/' 
+                this.cropper.reset();
+            },
+
+            historyBack: function() {
+                if (ImageManager.imageInfoHistory.length >= 2) {
+                    imgInfoCur = ImageManager.imageInfoHistory.pop();
+                    imgInfoPrev = ImageManager.imageInfoHistory.pop();
+                    ImageManager.curImageInfo = imgInfoPrev;
+                    ImageManager.setImage(imgInfoPrev);
+                }
+            }
+            
+        };
+
+        function onEndCrop(coords, dimensions)
+        {
+            // if the cropper was reset
+            if (coords.x1 == 0 && coords.x2 == 0) {
+                return;
+            }
+            ImageManager.crop(coords.x1, coords.x2);
+            
+        }
+
+        function onLoad() {
+            ImageManager.init(${compound.id});
+            
+            Event.observe('back', 'click', ImageManager.historyBack);
+            Event.observe('reset', 'click', ImageManager.drawStartImage);
+            Event.observe('moveleft', 'click', ImageManager.moveLeft );
+            Event.observe('moveright', 'click', ImageManager.moveRight );
+
+
+        }
+ 
+        Event.observe(window, 'load', onLoad);
+    </script>
+</head>
+<body>
+<div id="north"><div id="appTitle">Mambo-MS: Mass Spectrometer Data Viewer</div>
+<div id="compound"><div style='float:left'><b>Compound:</b></div><div style='text-align: right;'>${compound.name}</div></div>
+<div id="img_container" style='clear:both; width: 700px; height: 300px; padding-left: 100px; padding-top: 30px'>
+    <div style='clear:both;'>
+        <img id="graph_img" width="700" height="300" />
+    </div>
+    <div id="buttons" align='center'>
+        <input id="moveleft" class='buttonstyle' type="button" value="<<" />
+        <input id="back" class='buttonstyle' type="button" value="previous" />
+        <input id="reset" class='buttonstyle' type="button" value="reset" />
+        <input id="moveright" class='buttonstyle' type="button" value=">>" />
+    </div>
+</div>
+</body>
+</html>
