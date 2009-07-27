@@ -13,8 +13,10 @@ from django.utils.webhelpers import url
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+#A tuple of tuples, containing names and email addresses of people to be alerted of
+#email exceptions.
 ADMINS = (
-    ('Tech Alerts', 'alerts@ccg.murdoch.edu.au')
+    ('<Email Exceeption Recipient Name>', '<email_exception_recipient_address>'),
 )
 
 MANAGERS = ADMINS
