@@ -31,6 +31,19 @@ body
 	font-size: 180%;
 }
 
+#appTitleLink {
+    color: white;
+}
+
+#appTitleLink:visited {
+    color: white;
+}
+
+#appTitleLink:hover {
+    text-decoration: none;
+}
+
+
 #compound
 {
     padding-bottom: 1px;
@@ -61,6 +74,21 @@ body
 	padding-right: 20px;
 	padding-top: 4px;
 }
+
+#headermenu
+{
+    float: right;
+    color: #FFFFFF;
+    text-align: right; 
+    font-size: 12px; 
+    text-shadow: none; 
+    font-weight: normal; 
+    padding: 3px;
+}
+
+div#headermenu a:visited {color: white;}
+div#headermenu a:link {color: white;}
+div#headermenu a:hover {text-decoration: underline;}
 
 .buttonstyle
 {

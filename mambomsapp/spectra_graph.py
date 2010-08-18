@@ -1,87 +1,120 @@
 from mamboms.mambomsapp.models import Compound, Point
+import graph_labels as labels
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import math
 
+
 class SpectraGraph:
-    def __init__(self, compound):
-        self.compound = compound
-        self.labelthreshold = 0.01
-        print 'Initing labelsOn to False'
-        self.labelsOn = False
+    @staticmethod
+    def build_graph(spectrum):
+        graph = SpectraGraph(spectrum)
+        graph.initialize()
+        return graph
+
+    @staticmethod
+    def build_map_graph(spectrum):
+        graph = SpectraGraph(spectrum, 
+                    figsize          = (9,1.5), 
+                    show_title       = False, 
+                    show_bar_labels  = False, 
+                    axis_labels_size = 8)
+        graph.initialize()
+        return graph
+
+    def __init__(self, spectrum, **kwargs):
+        '''Use build_grap to create a graph or build_map_graph to build the map graph.'''
+        self.spectrum = spectrum
+        self.compound = self.spectrum.compound
+        self.figsize = (9,3)
+        self.show_title = True
+        self.show_bar_labels = True
+        self.axis_labels_size = None 
+        for prop in kwargs:
+            setattr(self, prop, kwargs[prop])
+
+    def initialize(self):
         self.create_bar_graph()
-        self._px_ratio = None
-        self._xstart = self._xend = None
-        self.set_newdatarange(self.mindata, self.maxdata)
+        self.save_initial_range()
+        self.set_newdatarange(self.axmin, self.axmax)
+
+    def save_initial_range(self):
+        self.axmin = math.floor(self.ax.axis()[0])
+        self.axmax = math.ceil(self.ax.axis()[1])
+        self.aymin = math.floor(self.ax.axis()[2])
+        self.aymax = math.ceil(self.ax.axis()[3]) * 1.1 # add 10%
+        self.axminx = int(self.ax.transData.transform_point([self.axmin, 0])[0])
+        self.axmaxx = int(self.ax.transData.transform_point([self.axmax, 0])[0])
 
     def create_bar_graph(self):
-        self.figure = plt.figure(figsize=(7,3))
+        self.figure = plt.figure(figsize=self.figsize)
         self.ax = self.figure.add_subplot(111)
-        self.rects = self.ax.bar(self.compound.xs, self.compound.ys, color="red", align='center')
-                
-        t = self.compound.name
-        if len(t) > 60:
-            lt = len(t)
-            title = t[0:25] + '  ...  ' + t[lt-25:]
-        else:
-            title = t
+        self.set_title(self.compound.cas_name)
+        bars = self.ax.bar(self.spectrum.xs, self.spectrum.ys, 
+                           color="red", align='center')
+        self.add_labels_to(bars)
+        self.set_axis_labels_size()
+
+    def set_title(self, title):
+        if not self.show_title: return
+        if len(title) > 60:
+            title = title[:25] + '  ...  ' + title[-25:]
         self.ax.set_title(title)
-        
-        #create labels
-        print 'labelsOn - ', self.labelsOn
-        #create a label subplot
-        self.labels = []
 
-        print dir(self.ax)
-        for rect in self.rects:
-            print 'labelling'
-            height = rect.get_height()
-            self.labels.append(self.ax.text(rect.get_x()+rect.get_width()/2., height + 30, '%d'%(height), ha='center', va='bottom' ) )
-       
-        #now, remove them all:
-        for l in self.labels:
-            self.ax.texts.remove(l)
-
-    def enable_labels(self, state):
-        dir(self.ax)
-        if state:
-            self.labelsOn = True
-            for l in self.labels:
-                self.ax.texts.append(l)
+    def add_labels_to(self, bars):
+        if not self.show_bar_labels: return
+        if self.compound.is_lcma:
+            self.labels = labels.BarLabels(self.ax, bars, precision=4)
         else:
-            self.labelsOn = False
-            for l in self.labels:
-                try:
-                    self.ax.texts.remove(l)
-                except:
-                    #happens when we remove a label that isnt there.
-                    #no big deal. 
-                    pass
+            self.labels = labels.BarLabels(self.ax, bars)
+        self.labels.create_labels()
+
+    def set_axis_labels_size(self):
+        if not self.axis_labels_size: return
+        axis_labels = self.ax.get_xticklabels() + self.ax.get_yticklabels()
+        for label in axis_labels:
+            label.set_size(self.axis_labels_size)
+
+    def move_ticks_outside_graph(self):
+        self.move_left_ticks_outside_graph()
+        self.move_bottom_ticks_outside_graph()
+
+    def move_bottom_ticks_outside_graph(self):
+        lines = self.ax.get_xticklines()
+        labels = self.ax.get_xticklabels()
+        for line in lines:
+            line.set_marker(matplotlib.lines.TICKDOWN)
+        for label in labels:
+            label.set_y(-0.02)
+
+    def move_left_ticks_outside_graph(self):
+        lines = self.ax.get_yticklines()
+        labels = self.ax.get_yticklabels()
+        for line in lines:
+            line.set_marker(matplotlib.lines.TICKLEFT)
+        for label in labels:
+            label.set_x(-0.02)
 
     @property
     def px_ratio(self):
-        if self._px_ratio is None:
-            # TODO 700px hardcoded
-            self._px_ratio = self.figure.canvas.get_width_height()[0] / 700.0 
-        return self._px_ratio
-
-    @property
-    def mindata(self):
-        return math.ceil(self.ax.xaxis.get_data_interval()[0])
-
-    @property
-    def maxdata(self):
-        return math.floor(self.ax.xaxis.get_data_interval()[1])
+        # TODO 900px hardcoded
+        return self.figure.canvas.get_width_height()[0] / 900.0 
 
     @property
     def datastart(self):
-        return math.floor(self.ax.xaxis.get_view_interval()[0])
+        return self._datastart
+
+    def set_datastart(self,value):
+        self._datastart = max(value, self.axmin)
 
     @property
     def dataend(self):
-        return math.ceil(self.ax.xaxis.get_view_interval()[1])
+        return self._dataend
+
+    def set_dataend(self,value):
+        self._dataend = min(value, self.axmax)
 
     @property
     def datarange(self):
@@ -89,79 +122,107 @@ class SpectraGraph:
 
     @property
     def xstart(self):
-        if self._xstart is None:
-            self._xstart = int(self.ax.transData.transform_point([self.datastart, 0])[0])
-        return self._xstart
+        return int(self.ax.transData.transform_point([self.datastart, 0])[0])
 
     @property
     def xend(self):
-        if self._xend is None:
-            self._xend = int(self.ax.transData.transform_point([self.dataend, 0])[0])
-        return self._xend
+        return int(self.ax.transData.transform_point([self.dataend, 0])[0])
 
-    def matplot_to_real_pixel(self, matplot_pixel):
+    @property
+    def xrange(self):
+        return self.xend - self.xstart
+
+    @property
+    def mapxstart(self):
+        xrange = self.axmaxx - self.axminx
+        return math.floor(self.axminx + (self.datastart-self.axmin)*xrange/(self.axmax-self.axmin)) 
+
+    @property
+    def mapxend(self):
+        xrange = self.axmaxx - self.axminx
+        return math.ceil(self.axminx + (self.dataend-self.axmin)*xrange/(self.axmax-self.axmin)) 
+
+    def to_real_pixel(self, matplot_pixel):
         return matplot_pixel / self.px_ratio
 
-    def real_to_matplot_pixel(self, real_pixel):
+    def to_matplot_pixel(self, real_pixel):
         return real_pixel * self.px_ratio
 
-    def zoom_to(self, newxstart, newxend):
-        newxstart = self.real_to_matplot_pixel(newxstart)
-        newxend = self.real_to_matplot_pixel(newxend)
+    def zoom_range_to(self, rangestart, rangeend, newxstart, newxend):
+        newxstart = self.to_matplot_pixel(newxstart)
+        newxend = self.to_matplot_pixel(newxend)
 
-        data_range = self.dataend - self.datastart
-        x_range = self.xend - self.xstart
+        data_range = rangeend - rangestart
         relative_xstart = newxstart - self.xstart
         relative_xend = newxend - self.xstart
-        
-        newdatastart = math.floor( self.datastart + relative_xstart * data_range / x_range )
-        newdataend   = math.ceil ( self.datastart + relative_xend   * data_range / x_range )
-
+   
+        newdatastart = math.floor(rangestart + relative_xstart * data_range / self.xrange )
+        newdataend   = math.ceil (rangestart + relative_xend   * data_range / self.xrange )
         self.set_newdatarange(newdatastart, newdataend)
-        
+
+    def mapzoom_to(self, newxstart, newxend):
+        self.zoom_range_to(self.axmin, self.axmax, newxstart, newxend)
+
+    def zoom_to(self, newxstart, newxend):
+        self.zoom_range_to(self.datastart, self.dataend, newxstart, newxend)
+
     def set_newdatarange(self, datastart, dataend):
-        aymin, aymax = self.ax.get_ylim()
-        self.ax.axis([ 
-            float(max(datastart, self.mindata)), 
-            float(min(dataend, self.maxdata)), 
-            aymin, aymax
-        ])
-        self.labelTest(datastart, dataend)
+        datastart, dataend = enlarge_to_minlength(datastart, dataend, 10)
+        self.set_datastart(datastart)
+        self.set_dataend(dataend)
+
+        self.set_axis()
+
+        self.move_ticks_outside_graph() 
+        if self.show_bar_labels:        
+            self.labels.show_labels_between(self.datastart, self.dataend)
+
+    def set_axis(self):
+        # adding a padding of 0.5 to avoid clipping half bars
+        ds = max(self.datastart - 0.5, self.axmin)
+        de = min(self.dataend + 0.5, self.axmax)
+        self.ax.axis([ds, de, self.aymin, self.aymax ])
 
     def move_left(self):
-        newdatastart = max(self.datastart - self.datarange, self.mindata)
-        newdataend = newdatastart + self.datarange
-        self.set_newdatarange(newdatastart,newdataend)
+        datarange = self.datarange
+        self.set_datastart(self.datastart - datarange)
+        self.set_newdatarange(self.datastart, self.datastart + datarange)
 
     def move_right(self):
-        newdataend = min(self.dataend + self.datarange, self.maxdata)
-        newdatastart = newdataend - self.datarange
-        self.set_newdatarange(newdatastart, newdataend)
+        datarange = self.datarange
+        self.set_dataend(self.dataend + datarange)
+        self.set_newdatarange(self.dataend - datarange, self.dataend)
 
     def to_imageinfo(self):
         return {
-            'compoundId': self.compound.id,
+            'spectrumId': self.spectrum.id,
             'datastart': int(self.datastart),
             'dataend':  int(self.dataend),
-            'xstart': int(self.matplot_to_real_pixel(self.xstart)),
-            'xend': int(self.matplot_to_real_pixel(self.xend))
+            'xstart': int(self.to_real_pixel(self.xstart)),
+            'xend': int(self.to_real_pixel(self.xend)),
+            'mapxstart': int(self.to_real_pixel(self.mapxstart)),
+            'mapxend': int(self.to_real_pixel(self.mapxend))
         }
 
-    def labelTest(self, datastart, dataend ):
-        #Turn on labels if we are less than 10% of the total data range
-        newdatarange = dataend - datastart
-        total_data_range = self.maxdata - self.mindata
-        ratio_of_total = newdatarange / total_data_range
-        if ratio_of_total < self.labelthreshold:
-            print 'Turning Labels On:'
-            self.enable_labels(True) 
-        else:
-            print 'Turning Labels Off'
-            self.enable_labels(False)
-        print 'Ratio: ', ratio_of_total, 'labelsOn: ', self.labelsOn
-
-
     def write(self, stream):
+        # We need a renderer to calculate which labels overlap, but a
+        # renderer is assigned only when the figure is saved, so we have 
+        # to save the figure, remove the overlapping labels and then 
+        # save the figure again for real.
+        # Another option was to change matplotlib backend files
+        # (according to the matplotlib mailing list) which would have 
+        # caused packaging and deploying headaches.
+        if self.show_bar_labels: 
+            import StringIO
+            self.figure.savefig(StringIO.StringIO())
+            self.labels.remove_overlapping_labels()
         self.figure.savefig(stream)
 
-
+def enlarge_to_minlength(start, end, minlength):
+    start = int(start)
+    end = int(end)
+    while end-start < minlength:
+        start -= 1
+        end += 1
+    if end-start == minlength+1: start -= 1
+    return (start, end)

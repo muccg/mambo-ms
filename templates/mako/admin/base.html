@@ -4,9 +4,21 @@
 dir="rtl"
 % endif
 >
+<%namespace name="admin" module="django.contrib.admin.templatetags.adminmedia" />
+<%!
+from django.utils import webhelpers
+SITE_URL = webhelpers.url('/')
+%>
+
 <head>
-<title>${self.block_title()}<%def name="block_title()"></%def></title>
-<link rel="stylesheet" type="text/css" href="${self.block_stylesheet()}<%def name="block_stylesheet()"><%namespace name="admin" module="django.contrib.admin.templatetags.adminmedia" />${admin.admin_media_prefix()}css/base.css</%def>" />
+<%def name="block_title()">Undefined</%def>
+<title>${self.block_title()}</title>
+<%def name="block_stylesheet()">${admin.admin_media_prefix()}css/base.css</%def>
+<%def name="block_stylesheet_rtl()">${admin.admin_media_prefix()}css/rtl.css</%def>
+<link rel="stylesheet" type="text/css" href="${self.block_mambo_stylesheet()}<%def name="block_mambo_stylesheet()">${SITE_URL}static/css/main.css</%def>" />
+<link rel="stylesheet" type="text/css" href="${self.block_stylesheet()}" />
+<link rel="stylesheet" type="text/css" href="${next.block_stylesheet()}" />
+
 
 % if LANGUAGE_BIDI:
 <link rel="stylesheet" type="text/css" href="${self.block_stylesheet_rtl()}<%def name="block_stylesheet_rtl()">${admin.admin_media_prefix()}css/rtl.css</%def>" />
@@ -17,7 +29,6 @@ ${self.block_extrahead()}<%def name="block_extrahead()"></%def>
 ${self.block_blockbots()}<%def name="block_blockbots()"><meta name="robots" content="NONE,NOARCHIVE" /></%def>
 
 </head>
-
 
 <body class="
 % if is_popup:
@@ -32,31 +43,33 @@ ${self.block_bodyclass()}<%def name="block_bodyclass()"></%def>">
 % if not is_popup:
 
     <!-- Header -->
-    <div id="header">
+    <div id="north"><div id="appTitle">
+    <!--
         <div id="branding">
         ${self.block_branding()}<%def name="block_branding()"></%def>
         </div>
-        
+    -->
 % if user.is_authenticated and user.is_staff:
-
-        <div id="user-tools">${ trans('Welcome,') } <strong>
+        <div id="headermenu">
+        ${ trans('Welcome,') } <strong>
 % if user.first_name:
 ${user.first_name}
 % else:
 ${user.username}
 % endif
-</strong>. ${self.block_userlinks()}<%def name="block_userlinks()"><% docsroot = url(django_admindocs_docroot) %>
-% if docsroot:
-<a href="${docsroot}">${trans('Documentation')}</a> / 
-% endif
-<a href="${root_path}password_change/">${trans('Change password')}</a> / <a href="${root_path}logout/">${trans('Log out')}</a></%def></div>
+</strong>. ${self.block_userlinks()}<%def name="block_userlinks()">
+
+<a href="${SITE_URL}">${trans('Home')}</a> / <a href="${SITE_URL}logout/">${trans('Log out')}</a></%def></div>
+
         
 % endif
-
+<a id="appTitleLink" href="${ SITE_URL }">MAMBO MS</a>
+</div>
+        
         ${self.block_nav_global()}<%def name="block_nav_global()"></%def>
     </div>
     <!-- END Header -->
-    ${self.block_breadcrumbs()}<%def name="block_breadcrumbs()"><div class="breadcrumbs"><a href="/">${trans('Home')}</a>
+    ${self.block_breadcrumbs()}<%def name="block_breadcrumbs()"><div class="breadcrumbs"><a href="${SITEURL}">${trans('Home')}</a>
 % if title:
  &rsaquo; ${title}
 % endif
