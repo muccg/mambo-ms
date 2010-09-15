@@ -167,7 +167,8 @@ Ext.madasSearchByKeywordPanel = {
             addSelectAllItem:true
         }),
         new Ext.ux.form.LovCombo({
-		    fieldLabel: 'MS Geometry',
+		    id: 'geom_combo',
+            fieldLabel: 'MS Geometry',
             name: 'ms_geometery',
 		    hideOnSelect:false,
             store: new Ext.data.JsonStore({
@@ -180,6 +181,27 @@ Ext.madasSearchByKeywordPanel = {
             //lazyRender: true,
             valueField: 'id',
             hiddenName: 'ms_geometry',
+            displayField: 'name',
+		    triggerAction:'all',
+		    mode:'local',
+            listeners: { 'blur' : Ext.madasDeselectNIST },  
+            addSelectAllItem:true
+        }),
+        new Ext.ux.form.LovCombo({
+		    id: 'mass_spectra_types_combo',
+            fieldLabel: 'Mass Spectra (LC Only)',
+            name: 'mass_spectra_types',
+		    hideOnSelect:false,
+            store: new Ext.data.JsonStore({
+                    proxy: new Ext.data.HttpProxy({ url:'reference/mass_spectra_types' , method: 'GET'}),
+                    root: 'data',
+                    autoLoad: true,
+                    fields: ['name', 'id']
+                }),
+            editable: false,
+            //lazyRender: true,
+            valueField: 'id',
+            hiddenName: 'mass_spectra_types',
             displayField: 'name',
 		    triggerAction:'all',
 		    mode:'local',

@@ -24,6 +24,7 @@ def create_user_profile_for(django_user):
     except models.MambomsLDAPProfile.DoesNotExist:
         print 'No profile exists for %s: I will create one.' % (django_user.username)
         prof = models.MambomsLDAPProfile(user=django_user)
+        prof.status = models.UserStatus.objects.get(name='Pending')
         prof.save()
     except Exception, e:
         print 'An unexpected exception occured with profile creation: %s ' % (e)
@@ -42,4 +43,4 @@ def synchronize_users():
 
     print "Finished initing mambomsuser app"
 
-synchronize_users()
+#synchronize_users()

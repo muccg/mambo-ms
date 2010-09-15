@@ -81,4 +81,4 @@ admin.site.register(models.Column, ColumnAdmin)
 admin.site.register(models.BiologicalSystem)
 admin.site.register(models.MassSpectraType)
 admin.site.register(models.MetaboliteClass)
-
+admin.site.register(models.PrecursorType)

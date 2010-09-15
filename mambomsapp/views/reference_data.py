@@ -5,8 +5,13 @@ from mamboms.mambomsapp.views.utils import json_encode, json_decode
 
 @authentication_required
 def list_instruments(request):
-    node = get_node_name(request)
-    qs = models.Instrument.objects.filter(node__name=node).order_by('name')
+    if request.GET.get('all', False):
+        qs = models.Instrument.objects.all()
+    else:
+        node = get_node_name(request)
+        qs = models.Instrument.objects.filter(node__name=node)
+
+    qs = qs.order_by('name')
     return HttpResponse(json_reference_data(qs))
 
 @authentication_required
@@ -163,8 +168,12 @@ def list_gcmethods(request, bynode="false"):
 
 @authentication_required
 def list_columns(request):
-    node = get_node_name(request)
-    qs = models.Column.objects.filter(node__name=node).order_by('name', 'length', 'dimension')
+    if request.GET.get('all', False):
+        qs = models.Column.objects.all()
+    else:
+        node = get_node_name(request)
+        qs = models.Column.objects.filter(node__name=node)
+    qs = qs.order_by('name', 'length', 'dimension')
     json = {'success': 'true', 'data': []}
     for c in qs:
         json['data'].append({
@@ -229,7 +238,7 @@ def json_reference_data(qs):
 
 def get_node_name(request):
     node = request.user.get_profile().node
-    return node   
+    return None if node is None else node.name
 
 
 

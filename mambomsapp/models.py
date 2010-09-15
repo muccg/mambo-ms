@@ -384,7 +384,6 @@ class GCMARecord(MARecordBase):
 class LCMARecord(MARecordBase):
     method = models.ForeignKey(LCMethod)
     mono_isotopic_mass = models.CharField(max_length=255)
-    ionized_species = models.ForeignKey(LCModification, null=True)
     class Meta:
         verbose_name = 'LC MA Record'
 
@@ -395,7 +394,9 @@ class Synonym(models.Model):
 class PrecursorType(models.Model):
     name = models.CharField(max_length=50)
     polarity = models.CharField(max_length=1, choices=MethodBase.POLARITY_CHOICES)
-    
+    def __unicode__(self):
+        return self.name
+        
 class PrecursorSelection(models.Model):
     name = models.CharField(max_length=50)
 
@@ -404,6 +405,7 @@ class MassSpectraType(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class Spectrum(models.Model):
     '''NIST and GC records will have only one of these, but LC can have more than one'''
@@ -415,6 +417,7 @@ class Spectrum(models.Model):
     precursor_type = models.ForeignKey(PrecursorType, null=True)
     precursor_selection = models.ForeignKey(PrecursorSelection, null=True)
     collison_energy = models.CharField(max_length=255,null=True)
+    ionized_species = models.ManyToManyField(LCModification, null=True)
 
     @property
     def point_set(self):
@@ -429,3 +432,6 @@ class Spectrum(models.Model):
         return [float(str(p.y)) for p in self.point_set.all()]
 
 
+#class SpectrumIonizedSpecies(models.Model):
+#    spectrum = models.ForeignKey(Spectrum)
+#    ionized_species = models.ForeignKey(LCModification)
