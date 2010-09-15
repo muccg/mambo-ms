@@ -1,9 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<%
+    relpath = '../../../'
+%>
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-   <title>MAMBO MS</title>
-
+    <title>MAMBO MS- Import Data</title>
 <link rel="shortcut icon" href="/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="${relpath}site_media/css/main.css"></link>
+<link rel="stylesheet" type="text/css" href="${relpath}site_media/css/graph.css"></link>
 <link rel="stylesheet" type="text/css" href="static/css/main.css"></link>
 <link rel="stylesheet" type="text/css" href="static/js/ext/resources/css/ext-all.css"></link>
 <link rel="stylesheet" type="text/css" href="static/css/toolbar.css"></link>
@@ -16,8 +21,6 @@
 <script type="text/javascript" src="static/js/ext/adapter/ext/ext-base-debug.js"></script>
 <script type="text/javascript" src="static/js/ext/ext-all-debug.js"></script>
 <script type="text/javascript" src="static/js/GridSearch.js"></script>
-<!--
--->
 <script type="text/javascript" src="static/js/ext_extensions/FileUploadField.js"></script>
 <script type="text/javascript" src="static/js/ext_extensions/SuperBoxSelect.js"></script>
 <script type="text/javascript" src="static/js/ext_extensions/Ext.ux.form.LovCombo.js"></script>
@@ -41,16 +44,20 @@
 <script type="text/javascript" src="static/js/user_edit_cmps.js"></script>
 <script type="text/javascript" src="static/js/user.js"></script>
 <script type="text/javascript" src="static/js/admin.js"></script>
+<script type="text/javascript" src="static/js/import_data.js"></script>
+<script type="text/javascript" src="static/js/controller.js"></script>
+
+
 </head>
 <body>
+
 <script>
 Ext.onReady(function(){
 
     Ext.madasInitApplication('${ APP_SECURE_URL }');
-
+    Ext.madasChangeMainContent("dataimport");
 });
 </script>
-
 <div id="north"><div id="appTitle">
 <div id="headermenu">
 
@@ -62,10 +69,21 @@ ${username}
 </div>
 <a id="appTitleLink" href="${ APP_SECURE_URL }">MAMBO MS</a>
 </div>
-<div id="toolbar"/></div>
+<div id="toolbar"></div>
+There should be stuff here
+<!--
+<div id="import_form">
+    <form method='post' action='' enctype='multipart/form-data'>
+        Dataset: <input type='text' name='dataset' /><br />
+        File: <input type='file' name='upload_file' size='40'><br />
+        <input type="submit" /><br />
+    </form>
+</div>
+-->
 <div id="south">(c) CCG 2010</div>
 <div id="centerDiv"></div>
 <form id="hiddenForm"/>
+
 
 </body>
 </html>

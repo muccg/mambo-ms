@@ -49,7 +49,6 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
             panel.setTitle('Spectrum');
         }
     };
-    
     return {
         id: idPrefix + spectrumId + '-tab',
         title:'Spectrum',
@@ -151,8 +150,35 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                         disabled: readOnly,
                         listeners: markTabInvalidListeners,
                         name: spectrumId + '_collison_energy'
-                    }]
-                },{
+                    }, new Ext.ux.form.LovCombo({
+                        id: idPrefix + spectrumId + 'ionized_species',
+                        name: idPrefix + spectrumId + 'ionized_species',
+                        fieldLabel: 'Ionized Species',
+                        store: new Ext.data.ArrayStore({
+                            //idIndex: 0,
+                            fields: ['id', 'name']
+                        }),
+                        
+                        editable:false,
+                        forceSelection:false,
+                        hideOnSelect:false,
+                        //The select all option seems to be confusing the control
+                        //when data is passed into it for it to make initial 
+                        //selections. For now, if we disable 'select all', the
+                        //control behaves correctly (BP)
+                        //addSelectAllItem:true, 
+                        displayField:'name',
+                        valueField:'id',
+                        hiddenName: spectrumId + '_ionized_species',
+                        //lazyRender:true,
+                        typeAhead:false,
+                        triggerAction:'all',
+                        listWidth:230,
+                        allowBlank: true,
+                        disabled: readOnly,
+                        mode: 'local'
+                        })]
+                    } ,{
                     columnWidth: 0.5,
                     layout: 'form',
                     labelWidth: 150,
@@ -169,13 +195,16 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                 }
         ],
         setMethod: function(method) {
+                        
             Ext.getCmp(idPrefix + spectrumId + 'ionization-mode').setValue(method.ionization_mode);
             Ext.getCmp(idPrefix + spectrumId + 'polarity').setValue(method.polarity);
             var massSpectraTypeCmb = Ext.getCmp(idPrefix + spectrumId + 'mass-spectra-type');
             var precursorTypeCmb = Ext.getCmp(idPrefix + spectrumId + 'precursor-type');
             var precursorSelectionCmb = Ext.getCmp(idPrefix + spectrumId + 'precursor-selection');
+            var ionizedSpeciesCmb = Ext.getCmp(idPrefix + spectrumId + 'ionized_species'); 
             massSpectraTypeCmb.store.loadData(Ext.madasComboData.massSpectraTypes);
             precursorSelectionCmb.store.loadData(Ext.madasComboData.precursorSelections);
+            ionizedSpeciesCmb.store.loadData(Ext.madasComboData.ionizedSpeciesSelections);
             if (method.polarity == 'Positive') {
                 precursorTypeCmb.store.loadData(Ext.madasComboData.precursorTypes.Positive);
                 //if (precursorTypeCmb.store.find('name', precursorTypeCmb.value) == -1) {
@@ -234,7 +263,7 @@ Ext.madasLCSpectrumTabPanelCreator = function(idPrefix, readOnly) {
                 enableTabScroll:true,
                 resizeTabs:true,
                 minTabWidth: 115,
-                height:260,
+                height:300,
                 deferredRender: false,
                 forceLayout: true,
                 defaults:{
@@ -292,22 +321,6 @@ Ext.madasMetaboliteLCFieldCreator = function(idPrefix, readOnly) {
                     disabled: that.readOnly,        
                     allowBlank: false
                 }, new Ext.form.ComboBox({
-                    fieldLabel: 'Ionized Species',
-                    name: 'ionized_species',
-                    editable:false,
-                    forceSelection:false,
-                    displayField:'name',
-                    valueField:'id',
-                    hiddenName:'ionized_species',
-                    lazyRender:true,
-                    typeAhead:false,
-                    triggerAction:'all',
-                    listWidth:230,
-                    allowBlank: true,
-                    disabled: that.readOnly,
-                    mode: 'local',
-                    store: that.create_store('reference/ionized_species/')
-                }), new Ext.form.ComboBox({
                     id: that.idPrefix + 'method',
                     fieldLabel: 'Method',
                     name: 'method',
@@ -360,7 +373,7 @@ Ext.madasMetaboliteLCSpec = function() {
         column2Fields: [
             'column', 'compound_name', 'synonyms',
             'biological_systems', 'metabolite_class', 'cas_name', 'cas_regno', 'mol_formula', 
-            'mono_isotopic_mass', 'ionized_species', 'mol_weight', 'retention_time', 'retention_index', 'kegg_id', 
+            'mono_isotopic_mass', 'mol_weight', 'retention_time', 'retention_index', 'kegg_id', 
             'kegg_link','extract_description', 'vetted', 'can_vet'
         ],  
         southFields: ['spectrum-tabpanel'],

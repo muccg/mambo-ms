@@ -52,23 +52,27 @@ def save_user(request, *args):
     if not request.user.get_profile().is_admin and u != request.user:
         return HttpResponseForbidden
 
+    originalEmail = str(uname)
+    password = (str(r.get('password', ''))).strip() #empty password will be ignored anyway.
     #TODO: need error checking on these to prevent users corrupting their userrecord.
-    originalEmail = str(uname) #the username of the user to change
-    username = str(r.get('email', originalEmail)) #if empty, set to originalEmail
-    email = str(r.get('email', originalEmail)) #if empty, set to originalEmail
-    password = (str(r.get('password',  ''))).strip() #empty password will be ignored anyway.
-    firstname = str(r.get('firstname', ''))
-    lastname = str(r.get('lastname', ''))
-    telephoneNumber = str(r.get('telephoneNumber', ''))
-    homephone = str(r.get('homephone', ''))
-    physicalDeliveryOfficeName = str(r.get('physicalDeliveryOfficeName', ''))
-    title = str(r.get('title', ''))
-    dept = str(r.get('dept', ''))
-    institute = str(r.get('institute', ''))
-    address= str(r.get('address', ''))
-    supervisor = str(r.get('supervisor', ''))
-    areaOfInterest = str(r.get('areaOfInterest', ''))
-    country = str(r.get('country', ''))
+    updateDict = {
+        'originalEmail': originalEmail, #the username of the user to change
+        'username': str(r.get('email', originalEmail)), #if empty, set to originalEmail
+        'email': str(r.get('email', originalEmail)), #if empty, set to originalEmail
+        'password': password, 
+        'firstname': str(r.get('firstname', '')),
+        'lastname': str(r.get('lastname', '')),
+        'telephoneNumber': str(r.get('telephoneNumber', '')),
+        'homephone': str(r.get('homephone', '')),
+        'physicalDeliveryOfficeName': str(r.get('physicalDeliveryOfficeName', '')),
+        'title': str(r.get('title', '')),
+        'dept': str(r.get('dept', '')),
+        'institute': str(r.get('institute', '')),
+        'address': str(r.get('address', '')),
+        'supervisor': str(r.get('supervisor', '')),
+        'areaOfInterest': str(r.get('areaOfInterest', '')),
+        'country': str(r.get('country', ''))
+    }
     
     isAdmin = r.get('isAdmin', 'false')
     isNodeRep = r.get('isNodeRep', 'false')
@@ -78,9 +82,6 @@ def save_user(request, *args):
     node = r.get('node', None)
     status = r.get('status', None)
 
-    if status == 'Active':
-        status = 'User'
-
     infoDict = {}   #A dictionary of extra information that the saving process may need *other* than user data.
     infoDict['node'] = node
     infoDict['status'] = status
@@ -88,25 +89,6 @@ def save_user(request, *args):
     infoDict['noderepCheckbox'] = isNodeRep
     infoDict['password'] = password
 
-    updateDict = {} #A dictionary to hold name value pairs of attrubutes to pass to LDAP to update.
-                    #The name fields must match the ldap schema - no translation is done by the 
-                    #LDAP module.
-
-    updateDict['mail'] = email
-    updateDict['telephoneNumber'] = telephoneNumber 
-    updateDict['physicalDeliveryOfficeName'] = physicalDeliveryOfficeName
-    updateDict['title'] = title
-    updateDict['cn'] = "%s %s" % (firstname, lastname)
-    updateDict['givenName'] = firstname
-    updateDict['sn'] = lastname
-    updateDict['homePhone'] = homephone
-    updateDict['postalAddress'] = address
-    updateDict['description'] = areaOfInterest
-    updateDict['destinationIndicator'] = dept
-    updateDict['businessCategory'] = institute
-    updateDict['registeredAddress'] = supervisor
-    updateDict['carlicense'] = country
- 
     success = False 
     try:
         u.get_profile().save_details(updateDict, infoDict, request.user)
@@ -128,12 +110,16 @@ def save_user(request, *args):
 @authentication_required
 def get_user_info(request):
     user = request.user
+    node_id, node = None, None
+    if user.get_profile().node is not None:
+        node_id = user.get_profile().node.id
+        node = user.get_profile().node.name
     response_map = {
         'success': True,
         'username': user.username,
         'fullname': user.get_profile().full_name,
-        'node': user.get_profile().node,
-        'nodeid': user.get_profile().node_id,
+        'node': node,
+        'nodeid': node_id,
         'isAdmin': user.get_profile().is_admin,
         'isNodeRep': user.get_profile().is_noderep,
         'isClient': user.get_profile().is_client
@@ -154,8 +140,7 @@ def list_node_users(request):
     usernode = request.user.get_profile().node
 
     data = []
-    getnode = lambda u: None if not models.user_has_profile(u) else user.get_profile().node
-    for user in [user for user in User.objects.all() if getnode(user) == usernode]:
+    for user in [user for user in User.objects.all() if user.get_profile().node == usernode]:
         data.append({
             'username': user.username,
             'name': user.get_profile().full_name

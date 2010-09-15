@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     (r'^user/', include('mamboms.mambomsuser.urls')),
     (r'^reference/', include('mamboms.mambomsapp.urls')),
     (r'^msadmin/(.*)', admin.site.root),
+    (r'^import/$', 'util_scripts.nist_importer.data_import_view'),
     (r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'admin/login.html', 'SSL':True }),
     (r'^logout/$', 'django.contrib.auth.views.logout'),
 )

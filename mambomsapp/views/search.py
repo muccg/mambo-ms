@@ -3,15 +3,15 @@ from django.http import HttpResponse
 from mamboms.decorators import authentication_required, clients_forbidden
 from mamboms.mambomsapp import models
 from django.db.models import Q
-from mamboms.mambomsapp.view_models import Compounds_View, PointSet
+from mamboms.mambomsapp.view_models import Compounds_View, PointSet, Spectrum
 from mamboms.mambomsapp.views.utils import int_param, decimal_param, json_encode
 from mamboms.mambomsapp import crazysearch
 
 @authentication_required
 def keyword_search(request):
     req_params = request.POST
-    for key in req_params.keys():
-        print '%s: %s' % (key, req_params[key])
+    #for key in req_params.keys():
+    #    print '%s: %s' % (key, req_params[key])
     try:
         q = build_search_queryset(req_params, request.user)
         q = sort_queryset(q, req_params)
@@ -126,7 +126,15 @@ def build_search_queryset(req_params, user):
     #MS Geometry type is a list
     if req_params.get('ms_geometry'):
         q = q.filter(Q(ms_geometry__in = req_params['ms_geometry'].split(',') ) | Q(ms_geometry__exact =None) )
-    
+
+    #Mass Spectra types is a list
+    if req_params.get('mass_spectra_types'):
+        specs = Spectrum.objects.filter(mass_spectra_type__in = req_params['mass_spectra_types'].split(','))
+        cids = [spec.compound.id for spec in specs]
+
+        q = q.filter(Q(id__in = cids))
+
+
     #ionization mode is a list
     if req_params.get('ionization_mode'):
         q = q.filter(Q(ionization_mode__in = req_params['ionization_mode'].split(',') ) | Q(ionization_mode__exact =None) )

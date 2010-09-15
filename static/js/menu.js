@@ -1,6 +1,8 @@
 Ext.madasMenuShowHideItems = function() {
     
      Ext.getCmp('search:byspectra').hide();
+     Ext.getCmp('dataimport').hide();
+    
     if (Ext.madasIsAdmin) {
         Ext.get('admin').show();
         Ext.getCmp('admin:usersearch').show();
@@ -21,6 +23,13 @@ Ext.madasMenuShowHideItems = function() {
     //} else {
     //    Ext.getCmp('search:byspectra').show();
     }
+
+    //show data import for CCG users
+    if ( /.*\@ccg.murdoch.edu.au/.test(Ext.madasUserInfo.username))
+    {
+        Ext.getCmp('dataimport').show();
+    }
+    
 
     
 };
@@ -54,7 +63,8 @@ Ext.madasMenuRender = function() {
                     xtype: 'tbbutton', text:'Upload', id:'metabolite:upload', menu:{
                     items: [
                           {text:'GCMS MA Metabolite Record', id:'metabolite:uploadgc', handler: Ext.madasMenuHandler},
-                          {text:'LCMS MA Metabolite Record', id:'metabolite:uploadlc', handler: Ext.madasMenuHandler}
+                          {text:'LCMS MA Metabolite Record', id:'metabolite:uploadlc', handler: Ext.madasMenuHandler},
+                          {text:'File Import', id:'dataimport', handler: Ext.madasMenuHandler}
                     ]}
                  },
 

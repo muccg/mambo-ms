@@ -85,6 +85,11 @@ Ext.madasChangeMainContent = function(contentName, paramArray){
         	Ext.madasLCMetaboliteViewInit(paramArray);
         	Ext.getCmp('center-panel').layout.setActiveItem('view-lcmetabolite-container-panel');
         	break;
+
+        case "dataimport":
+            Ext.madasDataImportInit()
+            Ext.getCmp('center-panel').layout.setActiveItem('dataimport-container-panel');
+            break;
      }
     
 };
@@ -124,7 +129,7 @@ Ext.madasInitApplication = function(appSecureUrl) {
                 items: [Ext.madasSearchByKeywordCmp, Ext.madasSearchByKeywordResultsCmp, Ext.madasSearchBySpectraCmp, 
                         Ext.madasSearchBySpectraResultsCmp, Ext.madasNotAuthorizedCmp, Ext.madasAdminUserEditCmp, Ext.madasUserEditCmp, 
                         Ext.madasMetaboliteUploadCmp, Ext.madasMetaboliteEditCmp, Ext.madasMetaboliteViewCmp, Ext.madasLCMetaboliteUploadCmp, 
-                        Ext.madasLCMetaboliteEditCmp, Ext.madasLCMetaboliteViewCmp]
+                        Ext.madasLCMetaboliteEditCmp, Ext.madasLCMetaboliteViewCmp, Ext.madasDataImportCmp]
             }
         ]
     });

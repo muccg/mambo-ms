@@ -23,6 +23,7 @@ function loadComboData(url, key, mappingFn) {
     });
 }
 
+loadComboData('reference/ionized_species/', 'ionizedSpeciesSelections');
 loadComboData('reference/mass_spectra_types/', 'massSpectraTypes');
 loadComboData('reference/precursor_selections/', 'precursorSelections');
 loadComboData('reference/precursor_types/', 'precursorTypes', function(responseObject) {

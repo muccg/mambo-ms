@@ -64,9 +64,9 @@ INSTALLED_APPS.extend( [
 # Django will 'fall through' with its auth structure. What order do you want these?
 # Do you want them at all? In production, its a good idea to switch off model backend
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.LDAPBackend',
-    'django.contrib.auth.backends.NoAuthModelBackend',
-    #'django.contrib.auth.backends.ModelBackend',
+#    'django.contrib.auth.backends.LDAPBackend',
+#    'django.contrib.auth.backends.NoAuthModelBackend',
+     'django.contrib.auth.backends.ModelBackend',
 ]
 
 #

@@ -66,7 +66,7 @@ def save_lc(request):
         lc_rec.sample_run_by = User.objects.get(username=sample_run_by) 
     if not lc_rec.id:
         lc_rec.dataset = models.Dataset.objects.get(name='MA LC')
-        lc_rec.node = models.Node.objects.get(name=request.user.get_profile().node)
+        lc_rec.node = request.user.get_profile().node
         lc_rec.record_uploaded_by = request.user
     lc_rec.compound_name = req.get('compound_name')
     biosys_ids = req.getlist('biological_systems')
@@ -75,20 +75,9 @@ def save_lc(request):
     lc_rec.cas_name = req.get('cas_name')
     lc_rec.cas_regno = req.get('cas_regno')
     lc_rec.molecular_formula = req.get('mol_formula')
-    print 'mol weight is: ', req.get('mol_weight')
     lc_rec.molecular_weight = decimal.Decimal(req.get('mol_weight'))
-    #Google Code issue #40 - Ionized Species is a LC Modifications
-    #ionized species can come back as '', since we specified tha
-    #it was optional in the form js.
-    ionized_species = req.get('ionized_species', '')
-    if len(ionized_species) == 0:
-        ionized_species = -1
-    ionized_species = int(ionized_species)
-    if ionized_species is not -1:
-        lc_rec.ionized_species = models.LCModification.objects.get(pk=ionized_species)
-    else:
-        lc_rec.ionized_species = None
     
+        
     lc_rec.mono_isotopic_mass = decimal.Decimal(req.get('mono_isotopic_mass'))
     lc_rec.retention_time = req.get('retention_time')
     lc_rec.retention_index = req.get('retention_index')
@@ -129,8 +118,27 @@ def save_lc(request):
         spectrum.collison_energy = request.get(prefix + '_collison_energy')
         csv_points = ",".join(request.get(prefix + '_mass_spectra').split())
         spectrum.raw_points = csv_points
+        
         lc_rec.spectrum_set.add(spectrum)
+        #For the many to many ionized species:
+        #We need to get the current list of id's for this spectrum,
+        #and compare it to the list we have been passed.
+        #Anything not present in the passed list, we remove.
+        #Anything remaining in the passed list, we add.
+        new_iids = request.get(prefix + '_ionized_species').split(',')
 
+        for c in spectrum.ionized_species.all():
+            if c.id not in new_iids:
+                spectrum.ionized_species.remove(c)
+
+        for iid in new_iids:
+            try:
+                ion_spec = models.LCModification.objects.get(id = iid)
+                spectrum.ionized_species.add(ion_spec)
+            except Exception, e:
+                print 'Error: no ionized_species existed'
+
+        
     def extract_spectrum_prefixes(request):
         spec = re.compile(r'(?P<prefix>spectrum\d+)_')
         return set( [spec.match(param).group('prefix') for param in req if spec.match(param) ])
@@ -183,7 +191,7 @@ def save(request):
         gc_rec.sample_run_by = User.objects.get(username=sample_run_by) 
     if not gc_rec.id:
         gc_rec.dataset = models.Dataset.objects.get(name='MA GC')
-        gc_rec.node = models.Node.objects.get(name=request.user.get_profile().node)
+        gc_rec.node = request.user.get_profile().node
         gc_rec.record_uploaded_by = request.user
     gc_rec.compound_name = req.get('compound_name')
     biosys_ids = req.getlist('biological_systems')
@@ -326,7 +334,6 @@ class LCLoader(CompoundLoader):
             'mass_adducts':lc_rec.method.mz_exp_deriv_adducts,
             'mono_isotopic_mass': str(lc_rec.mono_isotopic_mass),            
             'spectrum_count': lc_rec.spectrum_set.count(),
-            'ionized_species': lc_rec.ionized_species_id,
         }
 
         for i, spectrum in enumerate(lc_rec.spectrum_set.order_by('id').all()):
@@ -341,9 +348,9 @@ class LCLoader(CompoundLoader):
             data[prefix + 'precursor_selection'] = spectrum.precursor_selection_id
             data[prefix + 'collison_energy'] = spectrum.collison_energy
             data[prefix + 'mass_spectra'] = format_mass_spectra(spectrum.point_set)
+            data[prefix + 'ionized_species'] = ','.join([str(i.id) for i in spectrum.ionized_species.all()])
 
         return data
-
 # Implementation 
 
 def format_mass_spectra(point_set):
