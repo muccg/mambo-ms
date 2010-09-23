@@ -35,6 +35,15 @@ Ext.madasLCMetaboliteEditInit = function(params) {
     Ext.madasMetaboliteLoadCombosAndForm(form, params, Ext.emptyFn);
 };
 
+/*
+Ext.mambomsAddMini = function(comp)
+{
+    console.log('adding graph to' + comp.ownerCt.ownerCt.id);
+    
+    comp.ownerCt.ownerCt.addMiniGraph(comp.ownerCt.ownerCt);
+    console.log('added graph');
+};
+*/
 
 Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
     var spectrumId =  'spectrum' + index;
@@ -59,14 +68,16 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                 defaults: {width: 230},
                 labelWidth: 150,
                 layout: 'form',
+                itemId: 'col1',
                 items: [{
                         fieldLabel: 'Spectral ID',
                         name: spectrumId + '_id_display',
                         disabled: true
                     },{
+                        //itemId: 'specid',
                         xtype: 'hidden',
                         id: idPrefix + spectrumId + 'id',
-                        name: spectrumId + '_id'
+                        name: spectrumId + '_id',
                     }, new Ext.form.ComboBox({
                         id: idPrefix + spectrumId + 'mass-spectra-type',
                         fieldLabel: 'Mass Spectra Type',
@@ -182,7 +193,13 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                     columnWidth: 0.5,
                     layout: 'form',
                     labelWidth: 150,
-                    items: [{
+                    itemId: 'col2',
+                    items: [
+                        new Ext.ux.IFrameComponent(
+                            {url: 'about:none',
+                             itemId: 'graphiframe'
+                            }),
+                    {
                         fieldLabel: 'Mass spectra',
                         name: spectrumId + '_mass_spectra',
                         xtype: 'textarea',
@@ -213,30 +230,52 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
             } else if (method.polarity == 'Negative') {
                 precursorTypeCmb.store.loadData(Ext.madasComboData.precursorTypes.Negative);
             }
+        },
+        addMiniGraph: function(that){
+            //must be called after we have obtained out specrtral id value
+            url = 'mamboms/graph/' + that.getComponent('col1').findByType('hidden')[0].getValue()+ '/?mini=1&spectrumid=1';
+            ifr = that.getComponent('col2').getComponent('graphiframe');
+            ifr.reload(ifr, url);
         }
     };
 };
+
+Ext.ux.IFrameComponent = Ext.extend(Ext.BoxComponent, {
+     onRender : function(ct, position){
+          this.el = ct.createChild({tag: 'iframe', id: 'iframe-'+ this.id, frameBorder: 0, src: this.url});
+    },
+    reload : function(that, url)
+     {
+        that.el.dom.src = url;
+     }
+     
+});
 
 Ext.madasLCSpectrumTabPanelCreator = function(idPrefix, readOnly) {
 
     function addTab() {
             var tabs = Ext.getCmp(idPrefix + 'spectrum-tabpanel');
             var newTab = Ext.madasSpectrumTabCreator(idPrefix, ++tabs.index, readOnly);
+           
             var record;
-            tabs.add(newTab).show();
             var methodCmb = Ext.getCmp(idPrefix + 'method');
             if (methodCmb.getValue() !== '') {
                 record = methodCmb.getStore().getById(methodCmb.getValue());
-                if (record !== null) {
-                    newTab.setMethod(record.data);
-                }
             }
+            var t = tabs.add(newTab);
+            t.show();
+            tabs.tabrefs.push(t);
+            if (record !== null) {
+                    newTab.setMethod(record.data);
+            }
+            
         }
     function deleteTab() {
             var tabs = Ext.getCmp(idPrefix + 'spectrum-tabpanel');
             tabs.remove(tabs.activeTab);
+            //TODO remove from tabrefs here
         }
-
+    
     var that = {
         xtype: 'panel',
         name: 'spectrum-tabpanel',
@@ -382,12 +421,18 @@ Ext.madasMetaboliteLCSpec = function() {
             if (action.type == 'load') {
                 lc = action.result.data;
                 tabs = Ext.getCmp(this.idPrefix + 'spectrum-tabpanel');
+                tabs.tabrefs = [];
                 methodCmb = Ext.getCmp(this.idPrefix + 'method');
                 tabs.createNewTabs(lc.spectrum_count);
                 
                 record = methodCmb.getStore().getById(methodCmb.getValue());
                 methodCmb.fireEvent('select', methodCmb, record);
                 form.setValues(lc);
+                for (var i =0; i < tabs.tabrefs.length; i++)
+                {
+                    tabs.tabrefs[i].addMiniGraph(tabs.tabrefs[i]);
+                    tabs.tabrefs[i].doLayout(false, true);
+                }
             }
         }
     };

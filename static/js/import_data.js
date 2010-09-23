@@ -191,7 +191,7 @@ Ext.madasDataImportPanel = {
             disabled: that.readOnly,        
             mode: 'local',
             store: new Ext.data.JsonStore({
-                proxy: new Ext.data.HttpProxy({ url: 'user/listNodeUsers', method: 'GET'}),
+                proxy: new Ext.data.HttpProxy({ url: 'user/listUsers?all=1', method: 'GET'}),
                 root: 'data',
                 autoLoad: true,
                 fields: ['name', 'username']
@@ -213,7 +213,7 @@ Ext.madasDataImportPanel = {
             disabled: that.readOnly,        
             mode: 'local',
             store: new Ext.data.JsonStore({
-                proxy: new Ext.data.HttpProxy({ url: 'user/listNodeUsers', method: 'GET'}),
+                proxy: new Ext.data.HttpProxy({ url: 'user/listUsers?all=1', method: 'GET'}),
                 root: 'data',
                 autoLoad: true,
                 fields: ['name', 'username']
