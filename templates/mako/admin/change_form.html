@@ -6,8 +6,7 @@
 <style type="text/css">
   #id_name {width: 200px;}
 </style>
-
-<!-- media -->
+${ media }
 </%def>${self.block_extrahead()}
 
 ${self.block_stylesheet()}<%def name="block_stylesheet()">${admin.admin_media_prefix()}css/forms.css</%def>
@@ -64,7 +63,7 @@ ${ original }
 % if has_file_field:
 enctype="multipart/form-data" 
 % endif
-action="${form_url or ''}" method="post" id="${opts.module_name}_form"><%def name="block_form_top()"></%def>
+action="${form_url or ''}" method="post" id="${opts.module_name}_form">${ csrf_tag(csrf_token) }<%def name="block_form_top()"></%def>${block_form_top()}
 <div>
 
 % if is_popup:
@@ -73,7 +72,12 @@ action="${form_url or ''}" method="post" id="${opts.module_name}_form"><%def nam
 
 
 % if save_on_top:
-{% submit_row %}
+<%namespace file="admin/submit_line.html" name="sl"/>
+<%
+    from django.contrib.admin.templatetags.admin_modify import submit_row
+%>
+
+${ sl.submit_line( submit_row(context) ) }
 % endif
 
 
@@ -82,11 +86,7 @@ action="${form_url or ''}" method="post" id="${opts.module_name}_form"><%def nam
     <p class="errornote">
     <%def name="blocktrans()"><!-- blocktrans count errors.items|length as counter -->Please correct the error${'s' if len(errors)>1 else ''} below.</%def>${blocktrans()}
     </p>
-    <ul class="errorlist">
-% for error in adminform.form.non_field_errors():
-<li>${error}</li>
-% endfor
-</ul>
+    ${ adminform.form.non_field_errors() }
 
 % endif
 
@@ -100,9 +100,25 @@ action="${form_url or ''}" method="post" id="${opts.module_name}_form"><%def nam
 <%def name="block_after_field_sets()"></%def>${self.block_after_field_sets() if hasattr(self,'block_after_field_sets') else ''}
 
 % if inline_admin_formsets:
-% for inline_admin_formset in inline_admin_formsets:
 
-    {% include inline_admin_formset.opts.template %}
+<%namespace name="tabular" file="admin/edit_inline/tabular.html"/>
+<%namespace name="stacked" file="admin/edit_inline/stacked.html"/>
+
+% for i, inline_admin_formset in enumerate(inline_admin_formsets):
+
+## This ugly condition is true if the inline isn't declared in the fields section of any fieldsets## In this case the inline has already been rendered so it is safe to ignore
+% if inline_admin_formset.opts.__class__.__name__ not in sum([list(f.fields) for f in adminform], []):
+
+% if inline_admin_formset.opts.template == "admin/edit_inline/tabular.html":
+    ${tabular.inline_edit(inline_admin_formset, i)}
+% else:
+    ${stacked.inline_edit(inline_admin_formset, i)}
+% endif
+
+% endif
+
+##${inline_admin_formset.opts.template}
+##{% include inline_admin_formset.opts.template %}
 
 % endfor
 % endif

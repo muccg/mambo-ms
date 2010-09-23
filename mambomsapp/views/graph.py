@@ -9,15 +9,37 @@ from mamboms.mambomsapp.views.utils import json_encode, json_decode
 
 import decimal
 
+class blankSpectrum():
+    def __init__(self):
+        pass
+
 def remove_exponent(d):
     return d.quantize(decimal.Decimal(1)) if d==d.to_integral() else d.normalize()
 
 @login_required
 def page(request, compound_id):
+    '''Passing query string parameters alters how this function works:
+       mini=1 will display the minigraph
+       spectrumid=1 means the id in the URL is a spectrumID, not a compoundID
+    '''
+    
+    t = "mamboms/graph.html"
+    print dict(request.GET)
+    if request.GET.get('mini', False):
+        t = "mamboms/graph_mini.html"
+    if request.GET.get('spectrumid', False):
+        spectrum = get_object_or_404(models.Spectrum, pk=compound_id)
+        compound = get_object_or_404(models.Compound, pk = spectrum.compound.id)
+    else:
+        compound = get_object_or_404(models.Compound, pk=compound_id)
+        spectrum = blankSpectrum()
+        spectrum.id = 0
+        print 'spectrumid was false'
+    
     '''Return the page containing the graph'''
-    compound = get_object_or_404(models.Compound, pk=compound_id)
-    return render_to_response("mamboms/graph.html", {
+    return render_to_response(t, {
                 "compound" : compound,
+                "spectrum" : spectrum,
                 "molweight" : remove_exponent(compound.molecular_weight),
            }) 
 

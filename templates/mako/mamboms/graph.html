@@ -16,8 +16,11 @@
     <script type="text/javascript" src="${relpath}site_media/js/cropper/cropper.js" language="javascript"></script>
     <script type="text/javascript" src="${relpath}site_media/js/cropper/cropper.js" language="javascript"></script>
     <script type="text/javascript" src="${relpath}site_media/js/graph.js" language="javascript"></script>
+    <script>
+        var graphid = (${spectrum.id} == 0) ? ${compound.spectrum.id} : ${spectrum.id};
+    </script>
 </head>
-<body onLoad="onLoad(${compound.spectrum.id});">
+<body onLoad="onLoad(graphid);">
 <div id="north"><div id="appTitle">Mambo-MS: Mass Spectrometer Data Viewer</div>
 <br/>
 <table id="compound_info">

@@ -147,6 +147,27 @@ def list_node_users(request):
         })
     return json_response(data)
 
+
+@authentication_required
+@cache_page(60 * 30)
+def list_users(request):
+    ''' Defaults to listing only node users,
+        pass ?all=somevalue to list all users
+    '''
+    if request.GET.get('all', False):
+        pool = [user for user in User.objects.all()]
+    else:    
+        usernode = request.user.get_profile().node
+        pool = [user for user in User.objects.all() if user.get_profile().node == usernode]
+
+    data = []
+    for user in pool:
+        data.append({
+            'username': user.username,
+            'name': user.get_profile().full_name
+        })
+    return json_response(data)
+
 @authentication_required
 def list_all_nodes(request, *args, **kwargs):
     dprint('***enter***')
