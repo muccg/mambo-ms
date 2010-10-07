@@ -51,7 +51,15 @@ class SpectraGraph:
     def create_bar_graph(self):
         self.figure = plt.figure(figsize=self.figsize)
         self.ax = self.figure.add_subplot(111)
-        self.set_title(self.compound.cas_name)
+        title = None
+        if self.compound.cas_name:
+            title = self.compound.cas_name
+        elif self.compound.compound_name:
+            title = self.compound.compound_name
+        else:
+            title = 'Untitled'
+        
+        self.set_title(title)
         bars = self.ax.bar(self.spectrum.xs, self.spectrum.ys, 
                            color="red", align='center')
         self.add_labels_to(bars)

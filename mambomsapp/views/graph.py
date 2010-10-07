@@ -28,18 +28,17 @@ def page(request, compound_id):
     if request.GET.get('mini', False):
         t = "mamboms/graph_mini.html"
     if request.GET.get('spectrumid', False):
-        spectrum = get_object_or_404(models.Spectrum, pk=compound_id)
-        compound = get_object_or_404(models.Compound, pk = spectrum.compound.id)
+        spec= get_object_or_404(models.Spectrum, pk=compound_id)
+        compound = get_object_or_404(models.Compound, pk = spec.compound.id)
     else:
         compound = get_object_or_404(models.Compound, pk=compound_id)
-        spectrum = blankSpectrum()
-        spectrum.id = 0
-        print 'spectrumid was false'
+        spec = blankSpectrum()
+        spec.id = 0
     
     '''Return the page containing the graph'''
     return render_to_response(t, {
                 "compound" : compound,
-                "spectrum" : spectrum,
+                "spec" : spec,
                 "molweight" : remove_exponent(compound.molecular_weight),
            }) 
 
@@ -86,7 +85,9 @@ def image_action(request):
         req = json_decode(request.raw_post_data)
         spectrum = get_object_or_404(models.Spectrum, pk=req['spectrumId'])
         # TODO validate JSON ?
+        print 'spectrum is', spectrum
         if req['action'] == 'startImage':
+            print 'entered startImage'
             graph = SpectraGraph.build_graph(spectrum)
         else:
             graph = cache.pop_or_create(spectrum, req['datastart'], req['dataend'])

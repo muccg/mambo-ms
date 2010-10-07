@@ -66,7 +66,7 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                 columnWidth: 0.5,
                 defaultType: 'textfield',
                 defaults: {width: 230},
-                labelWidth: 150,
+                labelWidth: 120,
                 layout: 'form',
                 itemId: 'col1',
                 items: [{
@@ -192,6 +192,7 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                     } ,{
                     columnWidth: 0.5,
                     layout: 'form',
+                    defaults: {'width': 400},
                     labelWidth: 150,
                     itemId: 'col2',
                     items: [
