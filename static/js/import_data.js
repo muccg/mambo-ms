@@ -237,6 +237,26 @@ Ext.madasDataImportPanel = {
             disabled: that.readOnly,        
             allowBlank: false
         },
+        new Ext.ux.form.SuperBoxSelect({
+            allowBlank: true,
+            fieldLabel: 'Biological Systems',
+            emptyText: '',
+            resizable: true,
+            name: 'biological_systems',
+            store: new Ext.data.JsonStore({
+                proxy: new Ext.data.HttpProxy({ url: 'reference/biological_systems', method: 'GET'}),
+                root: 'data',
+                autoLoad: true,
+                fields: ['name', 'id']
+            }),
+            mode: 'local',
+            listWidth: 230,
+            displayField: 'name',
+            displayFieldTpl: '{name}',
+            valueField: 'id',
+            disabled: that.readOnly,
+            forceSelection : true
+        }),
         {
             fieldLabel: 'Data File',
             id: that.idPrefix + 'datafile',

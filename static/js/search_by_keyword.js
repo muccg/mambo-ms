@@ -48,30 +48,20 @@ Ext.madasSearchByKeywordPanel = {
                 {boxLabel: 'MA LC metabolite records', id: 'ma_lc_dataset', inputValue: 'MA LC', name: 'dataset', checked: true}
             ]
         },
-        /*{
-            fieldLabel: 'CAS Name',
-            maxLength: 2000,
-            name: 'cas_name'
-        },{
-            xtype: 'radiogroup',
-            items: [
-                {boxLabel: 'contains', name: 'cas_name_match_type', inputValue: 'contains', checked: true},
-                {boxLabel: 'starts with', name: 'cas_name_match_type', inputValue: 'starts with'},
-                {boxLabel: 'exact      ', name: 'cas_name_match_type', inputValue: 'exact', width: 30}
-            ]
-         },*/
-         {
+        {
             fieldLabel: 'Compound Name',
             maxLength: 2000,
             name: 'compound_name'
-        },{
+        },
+        {
             xtype: 'radiogroup',
             items: [
                 {boxLabel: 'contains', name: 'compound_name_match_type', inputValue: 'contains', checked: true},
                 {boxLabel: 'starts with', name: 'compound_name_match_type', inputValue: 'starts with'},
                 {boxLabel: 'exact      ', name: 'compound_name_match_type', inputValue: 'exact', width: 30}
             ]
-        },{
+        },
+        {
             fieldLabel: 'CAS Registration Number',
             maxLength: 255,
             name: 'cas_regno'

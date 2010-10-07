@@ -13,8 +13,10 @@
     
     <script type="text/javascript" src="${relpath}site_media/js/cropper/lib/prototype.js" language="javascript" ></script>
     <script type="text/javascript" src="${relpath}site_media/js/cropper/lib/scriptaculous.js?load=builder,effects,dragdrop" language="javascript" ></script>
+    <!--
     <script type="text/javascript" src="${relpath}site_media/js/cropper/cropper.js" language="javascript"></script>
     <script type="text/javascript" src="${relpath}site_media/js/cropper/cropper.js" language="javascript"></script>
+    -->
     <script type="text/javascript" src="${relpath}site_media/js/graph.js" language="javascript"></script>
     <script>
         var viewGraph = function(id) {
@@ -29,16 +31,16 @@
         win.moveTo(x,y);
         win.focus();
     };
-        var graphid = (${spectrum.id} == 0) ? ${compound.spectrum.id} : ${spectrum.id};
+        var graphid = (${spec.id} == 0) ? ${compound.spectrum.id} : ${spec.id};
     </script>
 </head>
 <body onLoad="onLoad(graphid);" style="margin:0px; padding: 0px;">
 <div id="north"><!--<div id="appTitle">Mambo-MS: Mass Spectrometer Data Viewer</div>-->
 <br/>
 <table id="compound_info">
-<div id="img_container" width="300px"/>
+<div id="img_container" width="100%" style="margin:0px; padding:0px;"/>
     <div>
-        <img id="graph_img" width="300px" onclick="viewGraph(graphid);" />
+        <img id="graph_img" style="margin:0px; padding:0px" width="100%" onclick="viewGraph(graphid);" />
     </div>
     <div style='clear: both; display:none;'>
         <img id="graphmap_img" width="0" height="0" />

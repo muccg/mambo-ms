@@ -90,13 +90,20 @@ def import_file(filename, limit=None, dataset_name='NIST', extrafields=None):
         limit = sys.maxint
     dataset = dataset_qs[0]
     importedrecords = 0
-    print 'BEFOR WITH'
     with open(filename) as f:
-        print 'INSIDE WITH'
         for i, nist_entry in enumerate(NistEntryReader(f)):
             if i == limit: break
             (compound, points) = convert_nist_to_models(nist_entry, dataset, extrafields=extrafields)
-            save_models(compound, points)
+            save_models(compound, points) #attach spectra to compounds
+
+            #For GC, attach bio sytems
+            if dataset.name.strip() == 'MA GC':
+                biosysids = set([int(s) for s in extrafields.get('biological_systems') if s])
+                for bsid in biosysids:
+                    bs = models.BiologicalSystem.objects.get(pk = bsid)
+                    compound.biological_systems.add(bs)
+                compound.save()    
+
             importedrecords += 1
     return importedrecords
 
@@ -192,9 +199,10 @@ def compound(nist_entry,dataset, extrafields=None):
         method = models.GCMethod.objects.get(id=extrafields['method'])
         metaboliteclass = models.MetaboliteClass.objects.get(id=extrafields['metaboliteclass'])
 
-        return models.GCMARecord(
+        gcma = models.GCMARecord(
                 #compound fields
-                cas_name = nist_entry['CAS NAME'],
+                #default is to fill in the compound name, not the cas name
+                compound_name = nist_entry['CAS NAME'],
                 dataset = dataset,
                 cas_regno = nist_entry['CAS REGISTRY NO'],
                 molecular_formula = nist_entry['MOLFORM'],
@@ -211,6 +219,9 @@ def compound(nist_entry,dataset, extrafields=None):
                 metabolite_class = metaboliteclass,
                 #GC fields
                 method = method)
+
+
+        return gcma                
     elif dataset.name == 'MA LC':
         raise Exception('LC not supported')
     elif dataset.name == 'NIST':    
