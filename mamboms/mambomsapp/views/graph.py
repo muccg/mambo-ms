@@ -9,37 +9,27 @@ from mamboms.mambomsapp.views.utils import json_encode, json_decode
 
 import decimal
 
-class blankSpectrum():
-    def __init__(self):
-        pass
-
 def remove_exponent(d):
     return d.quantize(decimal.Decimal(1)) if d==d.to_integral() else d.normalize()
 
 @login_required
-def page(request, compound_id):
-    '''Passing query string parameters alters how this function works:
-       mini=1 will display the minigraph
-       spectrumid=1 means the id in the URL is a spectrumID, not a compoundID
+def page(request):
+    '''Query string parameters:
+       both spectrum_id or compound_id (if there is just one spectrum) are accepted
     '''
-    
-    t = "mamboms/graph.html"
-    print dict(request.GET)
-    if request.GET.get('mini', False):
-        t = "mamboms/graph_mini.html"
-    if request.GET.get('spectrumid', False):
-        spec= get_object_or_404(models.Spectrum, pk=compound_id)
-        compound = get_object_or_404(models.Compound, pk = spec.compound.id)
+    spectrum_id = request.GET.get('spectrum_id')
+    compound_id = request.GET.get('compound_id')
+    if not spectrum_id:
+        compound = get_object_or_404(models.Compound, pk = compound_id)
+        spectrum = compound.spectrum_set.all()[0]
     else:
-        compound = get_object_or_404(models.Compound, pk=compound_id)
-        spec = blankSpectrum()
-        spec.id = 0
+        spectrum = get_object_or_404(models.Spectrum, pk = spectrum_id)
     
     '''Return the page containing the graph'''
-    return render_to_response(t, {
-                "compound" : compound,
-                "spec" : spec,
-                "molweight" : remove_exponent(compound.molecular_weight),
+    return render_to_response("mamboms/graph.html", {
+                "compound" : spectrum.compound,
+                "spectrum" : spectrum,
+                "molweight" : remove_exponent(spectrum.compound.molecular_weight),
            }) 
 
 @login_required
@@ -55,6 +45,15 @@ def image_map(request, spectrum_id):
     response = HttpResponse(mimetype='image/png')
     graphmap = SpectraGraph.build_map_graph(spectrum)
     graphmap.write(response)
+    return response
+
+@login_required
+def start_image(request, spectrum_id):
+    spectrum = get_object_or_404(models.Spectrum, pk=spectrum_id)
+    graph = SpectraGraph.build_graph(spectrum)
+    response = HttpResponse(mimetype='image/png')
+    graph.write(response)
+    cache.put(graph)
     return response
 
 @login_required

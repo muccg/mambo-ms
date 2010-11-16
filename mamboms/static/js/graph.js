@@ -3,15 +3,17 @@ var ImageManager = {
     cropper: null,
     mapcropper: null,
 
-    init: function(spectrumId) {
+    init: function(spectrumId, interactive) {
         this.imageInfoHistory = [];
         this.spectrumId = spectrumId;
         this.initImages();
-        this.initCroppers();
+        if (interactive) {
+            this.initCroppers();
+        }
     },
 
     initImages: function() {
-        $( 'graphmap_img' ).src = '../imagemap/' + this.spectrumId + '/'; 
+        $( 'graphmap_img' ).src = 'imagemap/' + this.spectrumId + '/'; 
         this.loadStartImage();
     },
 
@@ -46,7 +48,7 @@ var ImageManager = {
         // mapxrange contains the start and end on the map image in pixels.
         // it is passed in only if the user was zooming the map not the image
         this.mapxrange = mapxrange;
-        return new Ajax.Request('../imageaction/', {
+        return new Ajax.Request('imageaction/', {
             asynchronous: false,
             postBody: Object.toJSON(request),
             onSuccess: redrawCallback
@@ -116,7 +118,7 @@ var ImageManager = {
         var params = imgInfo.spectrumId + '/' +
                 imgInfo.datastart + '/' +
                 imgInfo.dataend + '/';
-        $( 'graph_img' ).src = '../image/' + params; 
+        $( 'graph_img' ).src = 'image/' + params; 
         if (this.cropper !== null) {
             this.updateCropper();
        }
@@ -194,12 +196,31 @@ function onMoveRight() { ImageManager.moveRight(); }
 function onReset() { ImageManager.loadStartImage(); }
 function onHistoryBack() { ImageManager.historyBack(); }
 
-function onLoad(spectrumId) {
-    ImageManager.init(spectrumId);
+function onLoad(spectrumId, interactive) {
+    ImageManager.init(spectrumId, interactive);
 
-    Event.observe('back', 'click', onHistoryBack);
-    Event.observe('reset', 'click', onReset);
-    Event.observe('moveleft', 'click', onMoveLeft );
-    Event.observe('moveright', 'click', onMoveRight );
+    if (interactive) {
+        Event.observe('back', 'click', onHistoryBack);
+        Event.observe('reset', 'click', onReset);
+        Event.observe('moveleft', 'click', onMoveLeft );
+        Event.observe('moveright', 'click', onMoveRight );
+    }
+}
+
+function viewGraph(id, id_type) {
+    var param_name = 'compound_id';
+    if (id_type == 'spectrum_id') {
+        param_name = 'spectrum_id';
+    }
+    var url = 'mamboms/graph?' + param_name + '=' + id;
+    var width = 1000;
+    var height = 700;
+    var x = (screen.width - width) / 2;
+    var y = (screen.height - height) / 2;
+    var props = "width=" + width + ", height=" + height + ", left=" + x + ", top=" + y;
+    var win = window.open(url, 'graph_window', props);
+    win.resizeTo(width,height);
+    win.moveTo(x,y);
+    win.focus();
 }
 

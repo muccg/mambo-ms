@@ -77,7 +77,7 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                         //itemId: 'specid',
                         xtype: 'hidden',
                         id: idPrefix + spectrumId + 'id',
-                        name: spectrumId + '_id',
+                        name: spectrumId + '_id'
                     }, new Ext.form.ComboBox({
                         id: idPrefix + spectrumId + 'mass-spectra-type',
                         fieldLabel: 'Mass Spectra Type',
@@ -234,23 +234,12 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
         },
         addMiniGraph: function(that){
             //must be called after we have obtained out specrtral id value
-            url = 'mamboms/graph/' + that.getComponent('col1').findByType('hidden')[0].getValue()+ '/?mini=1&spectrumid=1';
+            var spectrumId = that.getComponent('col1').findByType('hidden')[0].getValue();
             ifr = that.getComponent('col2').getComponent('graphiframe');
-            ifr.reload(ifr, url);
+            ifr.reload(ifr, spectrumId);
         }
     };
 };
-
-Ext.ux.IFrameComponent = Ext.extend(Ext.BoxComponent, {
-     onRender : function(ct, position){
-          this.el = ct.createChild({tag: 'iframe', id: 'iframe-'+ this.id, frameBorder: 0, src: this.url});
-    },
-    reload : function(that, url)
-     {
-        that.el.dom.src = url;
-     }
-     
-});
 
 Ext.madasLCSpectrumTabPanelCreator = function(idPrefix, readOnly) {
 
@@ -418,7 +407,7 @@ Ext.madasMetaboliteLCSpec = function() {
         ],  
         southFields: ['spectrum-tabpanel'],
         onActionComplete: function(form, action) {
-            var lc, tabs, methodCmb, record;
+            var lc, tabs, methodCmb, record, i;
             if (action.type == 'load') {
                 lc = action.result.data;
                 tabs = Ext.getCmp(this.idPrefix + 'spectrum-tabpanel');
@@ -429,7 +418,7 @@ Ext.madasMetaboliteLCSpec = function() {
                 record = methodCmb.getStore().getById(methodCmb.getValue());
                 methodCmb.fireEvent('select', methodCmb, record);
                 form.setValues(lc);
-                for (var i =0; i < tabs.tabrefs.length; i++)
+                for (i=0; i < tabs.tabrefs.length; i++)
                 {
                     tabs.tabrefs[i].addMiniGraph(tabs.tabrefs[i]);
                     tabs.tabrefs[i].doLayout(false, true);

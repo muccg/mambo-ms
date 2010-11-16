@@ -218,8 +218,7 @@ Ext.madasDataImportPanel = {
                 autoLoad: true,
                 fields: ['name', 'username']
             })
-        })
-        ,{
+        }),{
             fieldLabel: 'Record Uploaded Date',
             id: that.idPrefix + 'metabolite-uploaded-date',
             name: 'uploaded_date',

@@ -115,7 +115,7 @@ Ext.madasSearchByKeywordPanel = {
             style: {
                 /*'font-weight' : 'bold',*/
                 'margin' : '0px 0px 5px 0px'
-            },
+            }
         },
        new Ext.ux.form.LovCombo({
 		    fieldLabel: 'Derivitization Agent',
@@ -288,9 +288,9 @@ Ext.madasSearchByKeywordPanel = {
             listeners: { 'blur' : Ext.madasDeselectNIST },  
             maxLength: 10,
             width: 70	
-        },
-        ], //end fieldset items
-        }, //end fieldset definition
+        }
+        ] //end fieldset items
+        } //end fieldset definition
         ],
     buttons: [{
             text: 'Search',
@@ -323,6 +323,7 @@ Ext.madasSearchByKeywordPanel = {
 
 Ext.madasSearchByKeywordCmp = {   
     id:'searchbykeyword-container-panel', 
+    autoScroll: true,
     items:[ 
         Ext.madasSearchByKeywordPanel 
     ]
