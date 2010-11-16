@@ -315,6 +315,7 @@ class GCLoader(CompoundLoader):
         gc_rec = self.compound
         return {
             'mass_adducts':gc_rec.method.mass_exp_deriv_adducts,
+            'spectrumId': gc_rec.spectrum_set.all()[0].id,
             'mass_spectra': format_mass_spectra(gc_rec.point_set),
             'quant_ion': str(gc_rec.quant_ion),
             'qual_ion_1': str(gc_rec.qualifying_ion_1),

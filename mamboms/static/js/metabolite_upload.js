@@ -1,3 +1,22 @@
+Ext.ux.IFrameComponent = Ext.extend(Ext.BoxComponent, {
+     onRender : function(ct, position){
+          this.el = ct.createChild({tag: 'image', height: '133px', width: '400px'});
+
+    },
+    reload : function(that, spectrumId)
+     {
+        var url = 'mamboms/graph/image/' + spectrumId + '/';
+        that.el.dom.src = url;
+        that.el.on({
+            'click': {
+                    fn: function(el) {
+                        madasShowGraphWindow(spectrumId, 'spectrum_id');
+                    }, 
+                    scope: this
+                }
+            });
+     }
+});
 
 Ext.madasMetaboliteLoadCombos = function(form, params, callbackFn) {
     var loadedCombosCount = 0;
@@ -42,18 +61,28 @@ Ext.madasMetaboliteEditInit = function(params) {
         savedMsg.setHeight(0);
     }
     var form = Ext.getCmp('edit-gcmetabolite-panel').getForm(); 
-    Ext.madasMetaboliteLoadCombosAndForm(form, params, Ext.emptyFn);
+    //Ext.madasMetaboliteLoadCombosAndForm(form, params, Ext.emptyFn);
+    Ext.madasMetaboliteLoadCombosAndForm(form, params, 
+            function(form, action) {
+                var spectrumId = form.getValues(false).spectrumId;
+                ifr = Ext.getCmp('edit-gc-graphiframe');
+                ifr.reload(ifr, spectrumId);
+            }
+    );
 };
 
 Ext.madasMetaboliteViewInit = function(params) {
     var form = Ext.getCmp('view-gcmetabolite-panel').getForm(); 
     Ext.madasMetaboliteLoadCombosAndForm(form, params,
             function(form, action) {
+                var spectrumId = form.getValues(false).spectrumId;
                 if (Ext.getCmp('view-gcmetabolite-can-vet').getValue() !== "false") {
                     Ext.getCmp('view-gcmetabolite-vet').enable();
                 } else {
                     Ext.getCmp('view-gcmetabolite-vet').disable();
                 }
+                ifr = Ext.getCmp('edit-gc-graphiframe');
+                ifr.reload(ifr, spectrumId);
              }
     );
 };
@@ -322,13 +351,6 @@ Ext.madasMetaboliteGCFieldCreator = function(idPrefix, readOnly) {
             name: 'cas_name',
             disabled: that.readOnly
         },{
-            fieldLabel: 'Mass spectra',
-            name: 'mass_spectra',
-            xtype: 'textarea',
-            height: 140,
-            disabled: that.readOnly,        
-            allowBlank: false
-        },{
             fieldLabel: 'Quant Ion',
             name: 'quant_ion',
             xtype: 'numberfield',
@@ -397,7 +419,41 @@ Ext.madasMetaboliteGCFieldCreator = function(idPrefix, readOnly) {
             },
             store: that.create_store('reference/gc_methods/bynode/', 
                 ['id', 'name', 'platform', 'deriv_agent', 'mass_adducts', 'mass_range', 'instrument_method', 'method_summary'])
-        })
+        }),
+        {
+            xtype: 'panel',
+            name: 'spectrum-panel',
+            layout: 'column',
+            bodyStyle: 'padding-top: 5px;',
+            items: [{
+                columnWidth: 0.5,
+                defaultType: 'textfield',
+                defaults: {width: 230},
+                layout: 'form',
+                items: [{
+                        //itemId: 'specid',
+                        xtype: 'hidden',
+                        name: 'spectrumId'
+                    },{
+                        fieldLabel: 'Mass spectra',
+                        name: 'mass_spectra',
+                        xtype: 'textarea',
+                        height: 140,
+                        disabled: that.readOnly,
+                        allowBlank: false
+                }]
+                },{
+                columnWidth: 0.5,
+                defaults: {width: 400},
+                items: [
+                    new Ext.ux.IFrameComponent({
+                        url: 'about:none',
+                        id: that.idPrefix + '-graphiframe'
+                    })
+                ]
+
+            }]
+        }
      ];
     };
     return that;
@@ -551,15 +607,16 @@ Ext.madasMetaboliteGCSpec = function() {
         column1Fields: [
             'id_display', 'id', 'known', 'node', 'instrument', 'method', 'platform', 'deriv_agent',
             'mass_adducts', 'mass_range', 'instrument_method', 'method_summary', 'column', 
-            'sample_run_by', 'uploaded_by', 'uploaded_date', 'vetted_by', 'biological_systems',
-            'metabolite_class', 'compound_name', 'synonyms', 'cas_name', 'cas_regno'
+            'sample_run_by', 'uploaded_by', 'uploaded_date', 'vetted_by', 'biological_systems', 
+            'metabolite_class'
         ],
         column2Fields: [
-            'mol_formula', 'mol_weight',
-            'retention_time', 'retention_index', 'kegg_id', 'kegg_link', 'mass_spectra', 'quant_ion',
+            'compound_name', 'synonyms', 'cas_name', 'cas_regno', 'mol_formula', 'mol_weight',
+            'retention_time', 'retention_index', 'kegg_id', 'kegg_link', 'quant_ion',
             'qual_ion_1', 'qual_ion_2', 'qual_ion_3', 'qual_ion_ratio_1_2', 'qual_ion_ratio_2_3',
             'extract_description', 'structure', 'vetted', 'can_vet'
-        ]
+        ],
+        southFields: ['spectrum-panel']
     };
     return that;
 };

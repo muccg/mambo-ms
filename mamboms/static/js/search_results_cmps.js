@@ -136,22 +136,9 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
         }
     };
 
-    var viewGraph = function(id) {
-        var url = 'mamboms/graph/' + id + '/';
-        var width = 1000;
-        var height = 700;
-        var x = (screen.width - width) / 2;
-        var y = (screen.height - height) / 2;
-        var props = "width=" + width + ", height=" + height + ", left=" + x + ", top=" + y; 
-        var win = window.open(url, 'graph_window', props);
-        win.resizeTo(width,height);
-        win.moveTo(x,y);
-        win.focus();
-    };
-
-    var viewGraphHandler = function(el, ev) {
+   var viewGraphHandler = function(el, ev) {
         if (selectionModel.hasSelection()) {
-            viewGraph(selectionModel.getSelected().data.id);
+            madasShowGraphWindow(selectionModel.getSelected().data.id, 'compound_id');
         }
     };
 
@@ -213,7 +200,7 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
             },
             rowdblclick: function(grid, rowIndex, evt) {
                 var record = grid.store.getAt(rowIndex);
-                viewGraph(record.get('id'));
+                madasShowGraphWindow(record.get('id'), 'compound_id');
             }
         }
 

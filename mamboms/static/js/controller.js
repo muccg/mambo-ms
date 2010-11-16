@@ -87,7 +87,7 @@ Ext.madasChangeMainContent = function(contentName, paramArray){
         	break;
 
         case "dataimport":
-            Ext.madasDataImportInit()
+            Ext.madasDataImportInit();
             Ext.getCmp('center-panel').layout.setActiveItem('dataimport-container-panel');
             break;
      }
