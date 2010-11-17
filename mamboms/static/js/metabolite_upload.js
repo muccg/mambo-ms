@@ -81,7 +81,7 @@ Ext.madasMetaboliteViewInit = function(params) {
                 } else {
                     Ext.getCmp('view-gcmetabolite-vet').disable();
                 }
-                ifr = Ext.getCmp('edit-gc-graphiframe');
+                ifr = Ext.getCmp('view-gc-graphiframe');
                 ifr.reload(ifr, spectrumId);
              }
     );
