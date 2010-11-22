@@ -1,19 +1,29 @@
-<%inherit file="admin/base_site.html"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="${LANGUAGE_CODE}" xml:lang="${LANGUAGE_CODE}">
+
+<%def name="block_title()">${trans('Mambo-MS')}</%def>
+
+<%namespace name="admin" module="django.contrib.admin.templatetags.adminmedia" />
+
+<head>
+<title>${self.block_title()}</title>
+<link rel="stylesheet" type="text/css" href="${admin.admin_media_prefix()}css/base.css" />
+<link rel="stylesheet" type="text/css" href="${admin.admin_media_prefix()}css/login.css" />
+<link rel="stylesheet" type="text/css" href="${self.block_mambo_stylesheet()}<%def name="block_mambo_stylesheet()">../static/css/main.css</%def>" />
+
+${self.block_blockbots()}<%def name="block_blockbots()"><meta name="bang" content="pop"/><meta name="robots" content="NONE,NOARCHIVE" /></%def>
+</head>
 
 
-${self.block_stylesheet()}<%def name="block_stylesheet()"><%namespace name="admin" module="django.contrib.admin.templatetags.adminmedia" />${admin.admin_media_prefix()}css/login.css</%def>
+<body class="login">
 
-${self.block_bodyclass()}<%def name="block_bodyclass()">login</%def>
+<div id="container">
+<div id="north"><div id="appTitle">
+<a id="appTitleLink" href="../">MAMBO MS</a>
+</div>
+</div>
 
-${self.block_content_title()}<%def name="block_content_title()"></%def>
-
-${self.block_breadcrumbs()}<%def name="block_breadcrumbs()"></%def>
-
-${self.block_content()}<%def name="block_content()">
-
-% if form.non_field_errors:
-  ${form.non_field_errors()}
-% endif
+<div id="content" class="colM">
 
 <div id="content-main">
 <form action="" method="post" id="login-form">${ csrf_tag(csrf_token) }
@@ -33,4 +43,9 @@ ${self.block_content()}<%def name="block_content()">
 document.getElementById('id_username').focus()
 </script>
 </div>
-</%def>
+<br class="clear" />
+</div>
+
+</div>
+</body>
+</html>
