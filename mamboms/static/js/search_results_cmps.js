@@ -8,29 +8,19 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
             hidden: true,
             name: 'id'
         },{
-            id: 'cas_name_col',
-            header: "CAS Name",
-            dataIndex: 'cas_name',
-            sortable: true
-        },{
             header: "Compound Name",
             dataIndex: 'compound_name',
             sortable: true,
             width: 35
          },{
+            id: 'cas_name_col',
+            header: "CAS Name",
+            dataIndex: 'cas_name',
+            sortable: true
+         },{
             header: "Node",
             dataIndex: 'node',
             width: 15
-         },{
-            header: "Record Type",
-            dataIndex: 'dataset',
-            width: 15,
-            sortable: true
-         },{
-            header: "CAS Registry Number",
-            dataIndex: 'cas_regno',
-            width: 20,
-            sortable: true
          },{
             header: "Molecular Formula",
             dataIndex: 'mol_formula',
@@ -41,6 +31,16 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
             dataIndex: 'mol_weight',
             width: 20,
             align: 'right',
+            sortable: true
+         },{
+            header: "CAS Registry Number",
+            dataIndex: 'cas_regno',
+            width: 20,
+            sortable: true
+         },{
+            header: "Record Type",
+            dataIndex: 'dataset',
+            width: 15,
             sortable: true
         }
     ];
@@ -80,6 +80,12 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
 
     var selectionModel = new Ext.grid.RowSelectionModel({ singleSelect: true });
 
+   var viewGraphHandler = function(el, ev) {
+        if (selectionModel.hasSelection()) {
+            madasShowGraphWindow(selectionModel.getSelected().data.id, 'compound_id');
+        }
+    };
+
     var editHandler = function(el, ev) {
         var compound;
         var gcparams;
@@ -88,10 +94,13 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
             compound = selectionModel.getSelected().data;
             if (compound.dataset == 'MA GC') {
                 type = 'gc';
-            }
-            if (compound.dataset == 'MA LC') {
+            } else if (compound.dataset == 'MA LC') {
                 type = 'lc';
+            } else {
+                viewGraphHandler(el, ev);
+                return;
             }
+
             params = {
                     id: compound.id, 
                     referrerCmpName: params.componentName,
@@ -136,25 +145,8 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
         }
     };
 
-   var viewGraphHandler = function(el, ev) {
-        if (selectionModel.hasSelection()) {
-            madasShowGraphWindow(selectionModel.getSelected().data.id, 'compound_id');
-        }
-    };
-
-    Ext.madasOnAuthCallbacks.push(function () {
-            var editBtn = Ext.getCmp('searchEditBtn');
-            var editBtnText = "View";
-            if (Ext.madasIsAdmin || Ext.madasIsNodeRep) {
-                editBtnText = "View / Edit";
-            } 
-            editBtn.setText(editBtnText);   
-        });
-
     var topToolbar = new Ext.Toolbar({
             items   : [
-                { id: 'searchViewGraphBtn', text: 'View Graph', handler: viewGraphHandler },
-                { id: 'searchEditBtn', text: "View", handler: editHandler, disabled: true },
                 { id: 'searchDeleteBtn', text: "Delete", handler: deleteHandler, disabled: true }
             ]
         });
@@ -186,10 +178,8 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
             rowclick: function(grid, rowIndex, evt) {
                 var record = grid.store.getAt(rowIndex);
                 if (record.get('dataset') === 'NIST') {
-                    Ext.getCmp('searchEditBtn').setDisabled(true);
                     Ext.getCmp('searchDeleteBtn').setDisabled(true);
                 } else {
-                    Ext.getCmp('searchEditBtn').setDisabled(false);
                     if (Ext.madasIsAdmin || 
                         (Ext.madasIsNodeRep && record.get('node') === Ext.madasUserInfo.node)) {
                         Ext.getCmp('searchDeleteBtn').setDisabled(false);
@@ -198,10 +188,7 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
                     }
                 }
             },
-            rowdblclick: function(grid, rowIndex, evt) {
-                var record = grid.store.getAt(rowIndex);
-                madasShowGraphWindow(record.get('id'), 'compound_id');
-            }
+            rowdblclick: editHandler
         }
 
     };
