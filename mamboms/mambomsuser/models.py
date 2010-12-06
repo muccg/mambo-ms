@@ -27,6 +27,7 @@ PROFILE_PROPERTIES = {
     'status': 'status'
 }
 
+
 def extract_properties(obj, props):
     assert obj is not None
     d = {}
@@ -168,4 +169,11 @@ class MambomsLDAPProfile(models.Model):
     @property
     def full_name(self):
         return "%s %s" % (self.first_name, self.last_name)
- 
+
+from django.db.models.signals import post_save
+def mambomsuser_post_save(sender, instance, created, **kwargs):
+    if created:
+        prof = MambomsLDAPProfile(user=instance)
+        prof.status = UserStatus.objects.get(name='Pending')
+        prof.save()
+post_save.connect(mambomsuser_post_save, sender=User)
