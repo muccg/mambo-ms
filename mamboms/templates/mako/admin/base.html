@@ -79,8 +79,8 @@ ${ force_escape(user.username)}
 
         <ul class="messagelist">
 % for message in messages:
-    % if message.tags:
-        <li class="${message.tags}">${message}</li>
+    % if hasattr(message,'tags'):
+        <li class="${message['tags']}">${message}</li>
     % else:
         <li>${message}</li>
     % endif
