@@ -45,7 +45,7 @@ CAPTCHA_ROOT = os.path.join(MEDIA_ROOT, 'captchas')
 CAPTCHA_URL = os.path.join(MEDIA_URL, 'captchas')
 
 AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
-LOGS = ['mango_ldap']
+LOGS = ['mango_ldap', 'mamboms_spectral_search_log' ]
 TEST_RUNNER = 'mamboms.test.testrunner.run_mamboms_tests'
 
 ##
@@ -64,9 +64,9 @@ INSTALLED_APPS.extend( [
 # Django will 'fall through' with its auth structure. What order do you want these?
 # Do you want them at all? In production, its a good idea to switch off model backend
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.LDAPBackend',
-    'django.contrib.auth.backends.NoAuthModelBackend',
-#     'django.contrib.auth.backends.ModelBackend',
+#    'django.contrib.auth.backends.LDAPBackend',
+#    'django.contrib.auth.backends.NoAuthModelBackend',
+     'django.contrib.auth.backends.ModelBackend',
 ]
 
 #

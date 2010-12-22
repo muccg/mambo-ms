@@ -9,6 +9,7 @@ from mamboms.webhelpers import *
 class NotAuthorizedError(StandardError):
     pass
 
+
 class Dataset(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -435,3 +436,32 @@ class Spectrum(models.Model):
 #class SpectrumIonizedSpecies(models.Model):
 #    spectrum = models.ForeignKey(Spectrum)
 #    ionized_species = models.ForeignKey(LCModification)
+
+
+#a class to keep a list of updates for the hash
+class HashMaintenance(models.Model):
+    spectrum = models.ForeignKey(Spectrum)
+    last_updated = models.DateField(auto_now=True)
+
+
+#set up the post save hook for the spectrum...
+from django.db.models.signals import post_save
+def spectrum_post_save(sender, instance, created, **kwargs):
+    #whether it was created or updated, we don't care.
+    #either way, the hash is going to want to know about it.
+    if created: #if created, we KNOW the spectrum cant be in our update list
+        h = HashMaintenance()
+    else:
+        #otherwise, it could be: lets check
+        try:
+            h = HashMaintenance.objects.get(spectrum__id = instance__id)
+            print 'Found updated spectrum in our update list'    
+        except Exception, e:
+            print 'Updated spectrum was not in our update list'    
+            h = HashMaintenance() 
+    
+    #In all cases, update the 'spectrum' of h, and save
+    h.spectrum = instance;
+    h.save()
+
+post_save.connect(spectrum_post_save, sender=Spectrum)

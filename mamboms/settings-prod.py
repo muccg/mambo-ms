@@ -41,7 +41,7 @@ CAPTCHA_ROOT = os.path.join(MEDIA_ROOT, 'captchas')
 CAPTCHA_URL = os.path.join(MEDIA_URL, 'captchas')
 
 AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
-LOGS = ['mango_ldap']
+LOGS = ['mango_ldap', 'mamboms_spectral_search_log' ]
 TEST_RUNNER = 'mamboms.test.testrunner.run_mamboms_tests'
 
 ##

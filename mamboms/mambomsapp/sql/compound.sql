@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION search_by_spectra(text, integer)
+CREATE OR REPLACE FUNCTION search_by_spectra(text, integer, integer)
     RETURNS text
 AS $$
 
@@ -48,7 +48,7 @@ def remove_duplicates(sorted_result_list):
         seen.add(result[1])
     return result_list
 
-def main(xys, limit):
+def main(xys, limit, adjust):
     querydict = create_querydict(xys)
     tot_mq = len(querydict)
 
@@ -57,9 +57,13 @@ def main(xys, limit):
     for c in compounds:
         sum_IqIl,sum_Iq2,sum_Il2,tot_cm,tot_ml = calculate_values(c, querydict)
         if tot_cm:
-            A = float(tot_cm * tot_cm) / float(tot_mq * tot_mq)
             B = float(sum_IqIl * sum_IqIl) / float(sum_Iq2*sum_Il2)
-            C = A*B
+            C = 0
+            if adjust:
+                A = float(tot_cm * tot_cm) / float(tot_mq * tot_mq)
+                C = A*B
+            else:
+                C = B
 
             if not result_list or (C > result_list[-1][0]):
                 result_list.append( (C, c['id']) )
@@ -75,7 +79,7 @@ def main(xys, limit):
     return result
 
 
-return main(args[0].split(','),args[1])
+return main(args[0].split(','),args[1], args[2])
 
 $$ LANGUAGE plpythonu;
 

@@ -16,6 +16,39 @@ Ext.madasSearchBySpectraPanel = {
     defaultType: 'textarea',
     items: [
          {
+            xtype: 'checkboxgroup',
+            fieldLabel: 'Dataset',
+            columns: 1,
+            items: [
+                {boxLabel: 'NIST', id: 'nist_dataset_spectra', name: 'dataset', inputValue: 'NIST', checked: true},
+                {boxLabel: 'MA GC metabolite records', id: 'ma_gc_dataset_spectra', inputValue: 'MA GC', name: 'dataset', checked: true},
+                {boxLabel: 'MA LC metabolite records', id: 'ma_lc_dataset_spectra', inputValue: 'MA LC', name: 'dataset', checked: true}
+            ]
+         } ,
+         new Ext.form.ComboBox({
+            fieldLabel: 'Algorithm',
+            name: 'spectral_algorithm',
+            editable:false,
+            forceSelection:true,
+            displayField:'name',
+            valueField:'id',
+            hiddenName:'spectral_algorithm',
+            lazyRender:true,
+            typeAhead:false,
+            triggerAction:'all',
+            listWidth:230,
+            allowBlank: false,
+            disabled: that.readOnly,        
+            mode: 'local',
+            /* Note: Keep the algorithm id fields constant */
+            store: new Ext.data.ArrayStore(
+                    {
+                        id:0,
+                        fields: ['id', 'name'],
+                        data: [[1, 'MA In House'], [2, 'Standard Dot Product']]
+                    })
+        }),
+         {
             fieldLabel: 'Spectra',
             name: 'spectra',
             height: 350
