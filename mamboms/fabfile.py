@@ -5,7 +5,7 @@ env.app_root = '/usr/local/python/ccgapps/'
 env.app_name = 'mamboms'
 env.app_install_names = ['mamboms'] # use app_name or list of names for each install
 env.vc = 'svn'
-env.git_trunk_url = "" 
+env.git_trunk_url = "ssh://store.localdomain/store/techgit/"
 env.svn_trunk_url = "https://mambo-ms.googlecode.com/svn/trunk"
 env.svn_tags_url = "https://mambo-ms.googlecode.com/svn/tags"
 
@@ -56,3 +56,4 @@ def purge_snapshot(auto_confirm_purge = False):
     """
     env.auto_confirm_purge = auto_confirm_purge
     _ccg_purge_snapshot()
+

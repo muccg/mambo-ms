@@ -12,7 +12,19 @@ chunk_size = 2000
 
 DATAHASH = [None]
 
-def compute_comparison(l_dict, q_dict, common_masses):
+#This implements the standard dot product formula, with an ma inhouse scaling factor:
+#     Tcm**2            (sum(Iq * Il))**2
+#  ------------  *   ---------------------
+#  Tmq * Tml         (sum(Iq**2))(sum(Il**2))
+#
+# Where:
+#   Tcm = Total number of common masses between query and library
+#   Tmq = Total masses in query spectra
+#   Tml = Total masses in library spectra
+#   Iq = Intensity of common masses in query spectra
+#   Il = Intensity of common masses in library spectra
+#
+def compute_comparison_ma_inhouse(l_dict, q_dict, common_masses):
     '''l_dict and q_dict are the library and query dicts respectively. 
     '''
     cdef float sum_IqIl = 0
@@ -38,6 +50,32 @@ def compute_comparison(l_dict, q_dict, common_masses):
 
     return C 
 
+#This implements the standard dot product formula, with no scaling factor:
+#    (sum(Iq * Il))**2
+#   ---------------------
+#   (sum(Iq**2))(sum(Il**2))
+#
+# Where:
+#   Iq = Intensity of common masses in query spectra
+#   Il = Intensity of common masses in library spectra
+#
+
+def compute_comparison_dotproduct(l_dict, q_dict, common_masses):
+    '''l_dict and q_dict are the library and query dicts respectively. 
+    '''
+    cdef float sum_IqIl = 0
+    cdef float sum_Iq2 = 0
+    cdef float sum_Il2 = 0
+    cdef float l_y
+    cdef float q_y
+    for mass in common_masses:
+        l_y = float(l_dict[mass])
+        q_y = float(q_dict[mass])
+        sum_IqIl += l_y * q_y
+        sum_Iq2 += q_y ** 2
+        sum_Il2 += l_y ** 2
+
+    return float(sum_IqIl * sum_IqIl) / float(sum_Iq2 * sum_Il2)
 
 def y_ref_compare(int x, int y, int ref):
     if abs(ref-x) > abs(ref-y):
@@ -93,7 +131,7 @@ class TokyoHash(MassIndex):
     STATE_EMPTY = 3
 
     def __init__(self, keyspace='nokeyspace'):
-        self.local_dict = {}
+        #self.local_dict = {}
         #self.int_dict.KEYSPACE  = keyspace 
         self.state = self.STATE_EMPTY
         self.stats = {}
@@ -105,10 +143,11 @@ class TokyoHash(MassIndex):
         
         hashfile = os.path.join(settings.WRITABLE_DIRECTORY, 'mahash_%s_.tch' % (keyspace))
         if not os.path.exists(hashfile):
-            print 'Disk hash did not exist, creating new'
+            print 'Disk hash (%s) did not exist, creating new' % (str(hashfile))
             self.int_dict.open(hashfile, HDBOWRITER | HDBOCREAT )
+            self['__total_records'] = 0
         else:
-            print 'Disk hash already existed.'
+            print 'Disk hash already existed: %s' % (str(hashfile))
             self.int_dict.open(hashfile, HDBOWRITER )
             
         self.chunk_size = chunk_size
@@ -116,14 +155,28 @@ class TokyoHash(MassIndex):
 
         print 'TokyoHash init finished'
         #self._build(recordset)
+        return
 
-    def status(self):
+    def status(self, numdirty=0):
+        self['__total_dirty'] = numdirty
         if self.records > 0:
             perc = 100.0 * self.specs / float(self.records) 
         else:
             perc = 0
         self.stats['percentage'] = perc
         st = 'unknown'
+        
+        
+        #some state logic
+        if self.state != self.STATE_BUILDING:
+            #if we have no keys or records, we are empty
+            if self['__total_records'] == 0:
+                self.state = self.STATE_EMPTY
+            elif numdirty > 0:
+                self.state = self.STATE_DIRTY
+            else:
+                self.state = self.STATE_CLEAN
+        
         if self.state == self.STATE_EMPTY:
             st = 'empty'
         elif self.state == self.STATE_CLEAN:
@@ -136,40 +189,60 @@ class TokyoHash(MassIndex):
         self.stats['state'] = st
         self.stats['chunk_size'] = self.chunk_size
         self.stats['max_records_size'] = self.records
-        self.stats['actual_record_count'] = self.specs
+        self.stats['actual_record_count'] = self['__total_records']
+        self.stats['pending_dirty_records'] = self['__total_dirty']
         self.stats['keys'] = len(self.int_dict.keys())
 
         return self.stats
 
-    def accumulate(self, recordset):
-        l = self.local_dict
+    def clear_hash(self):
+        print 'deleting all values in the hash'
+        for k in self.int_dict.keys():
+            del self.int_dict[k]
+        self['__total_records'] = 0
+        self.state = self.STATE_EMPTY
+        
+
+    def add_record(self, localdict, spec):
+        l = localdict
+        #the point_set property in models returns a PointSet, and then 
+        #we use the 'get_rounded' function.
+        #This allows us to not have to import anything
+        #from models here, and hence this shared object
+        #once built, can be kept away and decoupled from
+        #the mamboms code
+
+        points = spec.point_set.get_rounded()
+        for point in points:
+            x = int(point.x)
+            y = int(point.y)
+            if not l.has_key(x):
+                l[x] = {} 
+
+            #impossible for a compound to have two colliding masses (unless round function is screwing up 
+            if not l[x].has_key(y):
+                l[x][y] = []
+
+            #TODO: We add the spec id to the values list if it isnt already there, 
+            #BUT if this is an update, the id's for the old keys will still exist.
+            #Essentially we need to do a search and remove the id from any [x][y] which
+            #it occurs in, and then add the new values in. Or an optimised version of
+            #such...
+            if (int(spec.id) not in l[x][y]):
+                l[x][y].append(int(spec.id)) #cast to int rather than use reference to db object
+    
+
+    
+    def _accumulate(self, recordset, localdict):
+        l = localdict 
         self.state = self.STATE_BUILDING
         for spec in recordset:
             self.specs += 1
-            #the point_set property in models returns a PointSet, and then 
-            #we use the 'get_rounded' function.
-            #This allows us to not have to import anything
-            #from models here, and hence this shared object
-            #once built, can be kept away and decoupled from
-            #the mamboms code
-            points = spec.point_set.get_rounded()
-            for point in points:
-                x = int(point.x)
-                y = int(point.y)
-                if not l.has_key(x):
-                    l[x] = {} 
-
-                #impossible for a compound to have two colliding masses (unless round function is screwing up 
-                if not l[x].has_key(y):
-                    l[x][y] = []
-
-                l[x][y].append(int(spec.id)) #cast to int rather than use reference to db object
-            #del(points)
-
-        self.state = self.STATE_CLEAN
-     
-    def push(self):
-        l = self.local_dict
+            self['__total_records'] += 1;
+            self.add_record(l, spec) 
+    
+    def _push(self, localdict):
+        l = localdict
         #now push it all to memcache
         import sys
         try:
@@ -177,14 +250,24 @@ class TokyoHash(MassIndex):
                 v = l[k]
                 if sys.getsizeof(v) > 1000000:
                     print 'value for %s was too big' % (str(k)) 
+                
+                #We are about to add the record. For accounting purposes, collect some stats.
+                #if self[k] is None:
+                #    prev = 0
+                #else:
+                #    prev = sum([ len c for c in self[k] ]) #sum of all id's in each y value
+                #  
                 self[k] = l[k]
+                #
+                #post = sum([len c for c in l[k] ])
+                #delta = post - prev
+                #self['__total_records'] += delta;
 
 
         except Exception, e:
             print 'Could not do a set: ', e
 
-
-    def _build(self, recordset, limit = None):
+    def build(self, recordset, limit = None):
         if self.state == self.STATE_BUILDING:
             return
 
@@ -193,16 +276,20 @@ class TokyoHash(MassIndex):
         low = 0
         finished = False
         l = self.int_dict
-        if limit is None:
+
+        #Try to decode the int. If it is none, or you cant, then the limit is the entire set.
+        try:
+            self.records = int(limit)
+        except Exception, e:
             self.records = recordset.count()
-        else:
-            self.record = limit
+        
+        print 'Building TokyoHash with limit: %d' % (self.records)
         while low <= self.records:
             cc = recordset 
             a = time.time()
             c = cc[low:low+chunk_size]
-            
-            self.accumulate(c)
+            ld = {}
+            self._accumulate(c, ld)
             self.state = self.STATE_BUILDING #accumulate finishes with 'clean' state
 
             #del(c) #try to free up the record
@@ -214,14 +301,18 @@ class TokyoHash(MassIndex):
             #self.stats['chunk_build_times'].append(tt)
             self.stats['most_recent_chunk_build_time'] = tt
             self.stats['most_recent_chunk_limits'] = "%s : %s" % (str(low), str(low+chunk_size))
-            
 
         #now push.
-        self.push()
+        self._push(ld)
 
         #write to stats
         self.stats['build'] = time.time()-self.build_start_time
         self.state = self.STATE_CLEAN
+
+        #we are at the end of the build process.
+        #kill the localdict.
+        ld = {}
+        gc.collect()
 
     def __getitem__(self, key):
         #v = self.int_dict[key]
@@ -229,7 +320,7 @@ class TokyoHash(MassIndex):
         try:
             return cPickle.loads(self.int_dict.get(str(key)))
         except Exception, e:
-            print '__getitem__ fail: ', e
+            #print '__getitem__ fail: ', e
             return None
 
     def __setitem__(self, key, value):
@@ -295,3 +386,17 @@ class TokyoHash(MassIndex):
             place.append({'commons': s[c]['commons'], 'compound': c})
         
         return scored_compounds_dict
+
+
+#here we init the datahash.
+#we cant do this in __init__ since the double import seems to cause 
+#tokyo to block: an open filehandles thing perhaps?
+def low_level_create(keyspace = 'default'):
+    print 'enter create'
+    if DATAHASH[0] == None:
+        DATAHASH[0] = TokyoHash(keyspace=keyspace)    
+    print 'create finished'
+
+low_level_create()
+
+

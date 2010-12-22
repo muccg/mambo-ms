@@ -5,7 +5,10 @@ from mamboms.mambomsapp import models
 from django.db.models import Q
 from mamboms.mambomsapp.view_models import Compounds_View, PointSet, Spectrum
 from mamboms.mambomsapp.views.utils import int_param, decimal_param, json_encode
-from mamboms.mambomsapp import crazysearch
+from mamboms.mambomsapp import dot_product_search
+from mamboms.mambomsapp.dot_product_search import SearchAlgorithms
+import mamboms.mambomsapp.search_admin_views #this is mainly to make sure the datahash is created
+
 
 @authentication_required
 def keyword_search(request):
@@ -20,35 +23,62 @@ def keyword_search(request):
     except Exception, e:
         print 'Problem: ', str(e)
         return HttpResponse(json_encode([]) )
-def stored_procedure_search(spectra, limit):
+
+def stored_procedure_search(spectra, limit, adjust):
     from django.db import connection
     cursor = connection.cursor()
     try:
-        cursor.callproc('search_by_spectra', (",".join(spectra), limit))
+        cursor.callproc('search_by_spectra', (",".join(spectra), limit, adjust))
         result = cursor.fetchone()[0]
         return [line.split() for line in result.split('\n') if line]
     except Exception, e:
         print 'Problem running search: ', e
         return []
-def crazy_search(spectra, limit):
-    # TODO crazy search should accept limit as a param
+
+def dot_product_ma_inhouse(spectra, limit, adjust):
+    # TODO search should accept limit as a param
     input = PointSet(','.join(spectra))
-    return crazysearch.search(input, thresh = 0.2)
+    return dot_product_search.search(input, thresh = 0.2, algorithm=SearchAlgorithms.DOTPRODUCT_MA)
+
+def dot_product(spectra, limit, adjust):
+    # TODO search should accept limit as a param
+    input = PointSet(','.join(spectra))
+    return dot_product_search.search(input, thresh = 0.2, algorithm=SearchAlgorithms.DOTPRODUCT)
+
 
 @clients_forbidden
 def spectra_search(request, algorithm=stored_procedure_search):
     req_params = request.POST
+    
+    print request.POST.keys()
+    print request.POST.values()
+    
     spectra = req_params['spectra'].split()
     limit = int(req_params['limit'])
 
+    alg_selection = request.POST.get('spectral_algorithm', None)
+   
+    adjust = 0;
+    tokyo = False
     if spectra[len(spectra)-1] == 'tokyo':
-        print 'using crazy search'
+        tokyo = True
         spectra.pop()
-        algorithm = crazy_search
 
-    # TODO validate request params
+    if alg_selection is not None:
+        alg_selection = int(alg_selection)
+        if alg_selection == 1:
+            print 'using ma inhouse dot product '
+            adjust = 1
+            if tokyo:
+                algorithm = dot_product_ma_inhouse
+        elif alg_selection == 2:
+            print 'using normal dot product '
+            if tokyo:
+                algorithm = dot_product
+     
     print 'search by spectra, spectra,limit is:', spectra, limit
-    search_result = algorithm(spectra, limit)
+    search_result = algorithm(spectra, limit, adjust)
+    
 
     print 'search result: ', search_result
 

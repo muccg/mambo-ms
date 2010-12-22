@@ -16,10 +16,12 @@ urlpatterns = patterns('',
 
     # TODO move the view functions from crazysearch to mamboms/views/something.py
     #These views are for creating and monitoring the Tokyo Hash. 
-    (r'search/status/$', 'mamboms.mambomsapp.crazysearch.status'),
-    (r'search/search/$', 'mamboms.mambomsapp.crazysearch.search'),
-    (r'search/create/$', 'mamboms.mambomsapp.crazysearch.create_hash'),
-    (r'search/build/$', 'mamboms.mambomsapp.crazysearch.build_hash'),
+    (r'search/status/$', 'mamboms.mambomsapp.search_admin_views.status'),
+    (r'search/search/$', 'mamboms.mambomsapp.search_utils.search'),
+    (r'search/create/$', 'mamboms.mambomsapp.search_admin_views.create_hash'),
+    (r'search/build/$', 'mamboms.mambomsapp.search_admin_views.build_hash'),
+    (r'search/update/$', 'mamboms.mambomsapp.search_admin_views.update_hash'),
+    (r'search/clear/$', 'mamboms.mambomsapp.search_admin_views.clear_hash'),
 
     # Reference data
 
