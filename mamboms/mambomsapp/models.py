@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from mamboms.webhelpers import *
+from django.utils.webhelpers import *
 
 class NotAuthorizedError(StandardError):
     pass
