@@ -1,6 +1,6 @@
 Ext.madasMenuShowHideItems = function() {
     
-     Ext.getCmp('search:byspectra').hide();
+     Ext.getCmp('search:byspectra').show(); //available to all
      Ext.getCmp('dataimport').hide();
     
     if (Ext.madasIsAdmin) {
@@ -18,10 +18,7 @@ Ext.madasMenuShowHideItems = function() {
     }
     
     if (Ext.madasIsClient) {
-        Ext.getCmp('search:byspectra').hide();
         Ext.getCmp('metabolite:upload').hide();
-    //} else {
-    //    Ext.getCmp('search:byspectra').show();
     }
 
     //show data import for CCG users

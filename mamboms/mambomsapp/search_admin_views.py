@@ -3,7 +3,7 @@ import search_datastructures as sd
 from django.http import HttpResponse
 from mamboms.decorators import authentication_required, admins_only, admins_and_nodereps_only
 from django.shortcuts import render_to_response, render_mako, get_object_or_404
-from webhelpers import siteurl
+from django.utils.webhelpers import siteurl
 
 #This is a manual create, if we want to do that
 @admins_only

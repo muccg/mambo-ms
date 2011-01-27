@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from mamboms.decorators import admins_and_nodereps_only
 from mamboms.mambomsapp import models
 from mamboms import settings
-from webhelpers import siteurl
+from django.utils.webhelpers import siteurl
 
 # "Real" view functions 
 

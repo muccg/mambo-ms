@@ -40,12 +40,13 @@ Ext.madasSearchBySpectraPanel = {
             allowBlank: false,
             disabled: that.readOnly,        
             mode: 'local',
+            value: 1,
             /* Note: Keep the algorithm id fields constant */
             store: new Ext.data.ArrayStore(
                     {
                         id:0,
                         fields: ['id', 'name'],
-                        data: [[1, 'MA In House'], [2, 'Standard Dot Product']]
+                        data: [[1, 'MA In House']] //, [2, 'Standard Dot Product']]
                     })
         }),
          {
