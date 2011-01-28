@@ -7,7 +7,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Example:
-    (r'^$', 'mamboms.mambomsapp.views.frontend'),
+    #(r'^$', 'mamboms.mambomsapp.views.frontend'),
+    (r'^$', 'mamboms.mambomsapp.views.site_frontend'),
     (r'^mamboms/', include('mamboms.mambomsapp.urls')),
     (r'^user/', include('mamboms.mambomsuser.urls')),
     (r'^reference/', include('mamboms.mambomsapp.urls')),

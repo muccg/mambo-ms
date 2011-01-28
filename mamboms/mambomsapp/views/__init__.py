@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from mamboms.decorators import admins_and_nodereps_only
 from mamboms.mambomsapp import models
 from mamboms import settings
-from django.utils.webhelpers import siteurl
+from django.utils.webhelpers import siteurl, wsgibase
 
 # "Real" view functions 
 
@@ -23,6 +23,13 @@ def serve_file(request, path):
     response = HttpResponse(contents, mimetype=mimetype)
     response["Content-Length"] = len(contents)
     return response
+
+def site_frontend(request):
+    if siteurl(request).find('ccg.murdoch.edu.au') > -1:
+        #display the banner
+        return render_mako('mamboms/banner.html', APP_SECURE_URL = siteurl(request), newurl='https://mambo.bio21.unimelb.edu.au/mamboms')
+    else:
+        return frontend(request)
 
 @login_required
 def frontend(request):
