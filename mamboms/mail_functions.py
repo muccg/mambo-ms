@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from appsettings.mamboms.prod import RETURN_EMAIL
-from webhelpers import siteurl 
+from django.utils.webhelpers import siteurl 
 
 def sendAccountModificationEmail(request, toemail, fromemail = RETURN_EMAIL):
     subject = 'MAMBO MS Account Change'
