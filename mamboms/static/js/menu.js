@@ -22,7 +22,8 @@ Ext.madasMenuShowHideItems = function() {
     }
 
     //show data import for CCG users
-    if ( /.*\@ccg.murdoch.edu.au/.test(Ext.madasUserInfo.username))
+    //if ( /.*\@ccg.murdoch.edu.au/.test(Ext.madasUserInfo.username))
+    if (Ext.madasIsAdmin)
     {
         Ext.getCmp('dataimport').show();
     }
