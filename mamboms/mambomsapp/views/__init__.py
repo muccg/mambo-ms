@@ -25,7 +25,8 @@ def serve_file(request, path):
     return response
 
 def site_frontend(request):
-    if siteurl(request).find('ccg.murdoch.edu.au') > -1:
+    force = request.GET.get('dev_force', False) #param that can be passed to force access to ccg instance, for debugging purposes
+    if not force and siteurl(request).find('ccg.murdoch.edu.au') > -1:
         #display the banner
         return render_mako('mamboms/banner.html', APP_SECURE_URL = siteurl(request), newurl='https://mambo.bio21.unimelb.edu.au/mamboms')
     else:
