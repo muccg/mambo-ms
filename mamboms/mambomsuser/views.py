@@ -1,13 +1,15 @@
 # Create your views here.
-from mamboms import LDAPHandler
+from mamboms import LDAPHandler, mail_functions
 
 from mamboms.utils import setRequestVars, jsonResponse, json_response, makeJsonFriendly
 from mamboms.mambomsapp.views.utils import json_encode
 from mamboms import mambomsapp
 
 from django.conf import settings
+from django.core.context_processors import csrf
+from django.db import transaction
 
-from mamboms.mambomsuser import models
+from mamboms.mambomsuser import forms, models
 
 
 from django.views.decorators.cache import cache_page
@@ -17,7 +19,7 @@ from mamboms.decorators import authentication_required, admins_only
 from django.http import HttpResponseForbidden
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 
 from mamboms.utils import debugPrint as dprint
 dprint.register(True)
@@ -97,8 +99,7 @@ def save_user(request, *args):
         dprint('\tException saving details: %s' % (str(e)) )
     
     if success:
-        from mail_functions import sendAccountModificationEmail
-        sendAccountModificationEmail(request, uname)
+        mail_functions.sendAccountModificationEmail(request, uname)
 
     nextview = 'admin:usersearch'
 
@@ -183,3 +184,75 @@ def list_all_nodes(request, *args, **kwargs):
     dprint('***exit***')
 
     return jsonResponse(request, [])
+
+def forgot_password(request):
+    error = None
+
+    if request.method == "POST":
+        form = forms.PasswordResetForm(request.POST)
+
+        if form.is_valid():
+            try:
+                user = User.objects.get(username=form.cleaned_data["username"], email=form.cleaned_data["email"])
+                profile = user.get_profile()
+
+                token = profile.generate_password_reset_token()
+                profile.password_reset_token = token
+                profile.save()
+
+                mail_functions.sendPasswordResetEmail(request, token, user.email)
+
+                return render_to_response("user/forgot_password_sent.html", csrf(request))
+            except (User.DoesNotExist, User.MultipleObjectsReturned):
+                error = "The username and e-mail address given are not on file. Please check your account details and try again."
+        else:
+            error = "Please fill out all of the details below."
+    else:
+        form = forms.PasswordResetForm()
+
+    context = {
+        "error": error,
+        "form": form,
+    }
+    context.update(csrf(request))
+
+    return render_to_response("user/forgot_password.html", context)
+
+@transaction.commit_on_success
+def reset_password(request):
+    if not request.REQUEST.get("token", None):
+        return render_to_response("user/reset_password_bad_token.html", csrf(request))
+
+    try:
+        profile = models.MambomsLDAPProfile.objects.get(password_reset_token=request.REQUEST["token"])
+        user = profile.user
+    except (models.MambomsLDAPProfile.DoesNotExist, models.MambomsLDAPProfile.MultipleObjectsReturned):
+        return render_to_response("user/reset_password_bad_token.html", csrf(request))
+
+    error = None
+        
+    if request.method == "POST":
+        form = forms.PasswordChangeForm(request.POST)
+
+        if form.is_valid():
+            user.set_password(form.cleaned_data["password"])
+            user.save()
+
+            profile.password_reset_token = None
+            profile.save()
+
+            return render_to_response("user/reset_password_success.html", csrf(request))
+        else:
+            error = "Please ensure both passwords are provided and match."
+    else:
+        form = forms.PasswordChangeForm(initial={
+            "token": request.REQUEST["token"],
+        })
+
+    context = {
+        "error": error,
+        "form": form,
+    }
+    context.update(csrf(request))
+
+    return render_to_response("user/reset_password.html", context)
