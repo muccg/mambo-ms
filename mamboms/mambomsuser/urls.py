@@ -10,4 +10,6 @@ urlpatterns = patterns('',
     (r'^saveUser$', 'mamboms.mambomsuser.views.save_user'),
     (r'^listAllNodes$', 'mamboms.mambomsuser.views.list_all_nodes'),
     (r'^listNodeUsers$', 'mamboms.mambomsuser.views.list_node_users'),
+    (r'^forgotPassword$', 'mamboms.mambomsuser.views.forgot_password'),
+    (r'^resetPassword$', 'mamboms.mambomsuser.views.reset_password'),
 )

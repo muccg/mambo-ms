@@ -1,51 +1,30 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="${LANGUAGE_CODE}" xml:lang="${LANGUAGE_CODE}">
-
-<%def name="block_title()">${trans('Mambo-MS')}</%def>
-
-<%namespace name="admin" module="django.contrib.admin.templatetags.adminmedia" />
-
-<head>
-<title>${self.block_title()}</title>
-<link rel="stylesheet" type="text/css" href="${admin.admin_media_prefix()}css/base.css" />
-<link rel="stylesheet" type="text/css" href="${admin.admin_media_prefix()}css/login.css" />
-<link rel="stylesheet" type="text/css" href="${self.block_mambo_stylesheet()}<%def name="block_mambo_stylesheet()">../static/css/main.css</%def>" />
-
-${self.block_blockbots()}<%def name="block_blockbots()"><meta name="bang" content="pop"/><meta name="robots" content="NONE,NOARCHIVE" /></%def>
-</head>
-
-
-<body class="login">
-
-<div id="container">
-<div id="north"><div id="appTitle">
-<a id="appTitleLink" href="../">MAMBO MS</a>
-</div>
-</div>
-
-<div id="content" class="colM">
+<%inherit file="mamboms/public.html" />
 
 <div id="content-main">
-<form action="" method="post" id="login-form">${ csrf_tag(csrf_token) }
-  <div class="form-row">
-    <label for="id_username">${trans('Username:')}</label> <input type="text" name="username" id="id_username" />
-  </div>
-  <div class="form-row">
-    <label for="id_password">${trans('Password:')}</label> <input type="password" name="password" id="id_password" />
-    <input type="hidden" name="this_is_the_login_form" value="1" />
-  </div>
-  <div class="submit-row">
-    <label>&nbsp;</label><input type="submit" value="${trans('Log in')}" />
-  </div>
-</form>
+    <form action="" method="post" id="login-form">${ csrf_tag(csrf_token) }
+        <div class="form-row">
+            <label for="id_username">${trans('Username:')}</label>
+            <input type="text" name="username" id="id_username" />
+        </div>
 
-<script type="text/javascript">
-document.getElementById('id_username').focus()
-</script>
-</div>
-<br class="clear" />
-</div>
+        <div class="form-row">
+            <label for="id_password">${trans('Password:')}</label>
+            <input type="password" name="password" id="id_password" />
+            <input type="hidden" name="this_is_the_login_form" value="1" />
+        </div>
 
+        <div class="submit-row">
+            <label>&nbsp;</label>
+            <input type="submit" value="${trans('Log in')}" />
+        </div>
+
+        <div class="forgot-password form-row">
+            <label>&nbsp;</label>
+            <a href="../user/forgotPassword">Forgot your password?</a>
+        </div>
+    </form>
+
+    <script type="text/javascript">
+        document.getElementById('id_username').focus()
+    </script>
 </div>
-</body>
-</html>

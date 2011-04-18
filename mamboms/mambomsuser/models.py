@@ -5,6 +5,10 @@ from mamboms.utils import debugPrint as dprint
 from mamboms import mambomsapp
 from mamboms import settings
 
+import base64
+import hashlib
+import uuid
+
 NODEREP_GROUP_NAME = 'NodeRep'
 
 dprint.register(True, 'mambomsuser.log')
@@ -71,6 +75,7 @@ class MambomsLDAPProfile(models.Model):
     supervisor = models.CharField(null=True,max_length=50)
     area_of_interest = models.CharField(null=True,max_length=255)
     country = models.CharField(null=True,max_length=50)
+    password_reset_token = models.CharField(null=True, db_index=True, max_length=50)
 
     node = models.ForeignKey('mambomsapp.Node', null=True)
     status = models.ForeignKey(UserStatus)
@@ -147,6 +152,19 @@ class MambomsLDAPProfile(models.Model):
         else:
            self.user.set_password(new_password)
            print 'Updated Django'
+
+    def generate_password_reset_token(self):
+        # There is a token generator in django.contrib.auth, but I'm not
+        # terribly thrilled with the way it works: it relies on the user's last
+        # login time being invariant, which isn't necessarily the case. We'll
+        # use SECRET_KEY here as well, but with a dash more randomness via
+        # UUID.
+        hash = hashlib.sha256()
+        hash.update(settings.SECRET_KEY)
+        hash.update(uuid.uuid4().bytes)
+        hash.update(self.user.username)
+
+        return base64.urlsafe_b64encode(hash.digest())
 
     @property
     def is_noderep(self):

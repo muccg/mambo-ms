@@ -110,3 +110,11 @@ color:black;
 cursor:default;
 opacity:0.6;
 }
+
+.login .form-row.forgot-password {
+    padding-top: 1em;
+}
+
+.login .form-row.error {
+    font-weight: bold;
+}
