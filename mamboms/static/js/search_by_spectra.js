@@ -46,7 +46,7 @@ Ext.madasSearchBySpectraPanel = {
                     {
                         id:0,
                         fields: ['id', 'name'],
-                        data: [[1, 'MA In House']] //, [2, 'Standard Dot Product']]
+                        data: [[1, 'MA In House'], [2, 'Standard Dot Product']]
                     })
         }),
          {

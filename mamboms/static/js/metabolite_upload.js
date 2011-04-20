@@ -574,7 +574,7 @@ Ext.madasCreateMetaboliteCmp = function(params) {
                     handler: function(){
                         var form = Ext.getCmp(params.idPrefix + 'metabolite-panel').getForm();
                         //form.reset(); 
-                        Ext.madasChangeMainContent(form.referrerCmpName);
+                        Ext.madasPreviousMainContent();
                     }
                 },{
                     text: 'Save',

@@ -176,7 +176,12 @@ Ext.ux.form.LovCombo = Ext.extend(Ext.form.ComboBox, {
 	 * @private
 	 */
 	,onBeforeQuery:function(qe) {
-		qe.query = qe.query.replace(new RegExp(this.getCheckedDisplay() + '[ ' + this.separator + ']*'), '');
+		/* AHa: escaped the result of this.getCheckedDisplay() before using it
+		 * directly in the RegExp object, since a lot of non-alphanumeric
+		 * characters will cause breakage. Escaping code by Colin Snover and
+		 * taken from http://simonwillison.net/2006/Jan/20/escape/. */
+		var cd = this.getCheckedDisplay().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+		qe.query = qe.query.replace(new RegExp(cd + '[ ' + this.separator + ']*'), '');
 	} // eo function onBeforeQuery
 	// }}}
 	// {{{

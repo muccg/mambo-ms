@@ -24,7 +24,7 @@ def calculate_values(compound, querydict):
     sum_IqIl = sum_Iq2 = sum_Il2 = tot_cm = 0
     #l = [int(s) for s in c['raw_points'].split(',')]
     l = compound['raw_points'].split(',')
-    tot_ml = len(l)
+    tot_ml = len(l) / 2
     for x,y in zip(l[::2],l[1::2]):
         query_y = querydict.get(x)
         if query_y is not None:
@@ -60,12 +60,12 @@ def main(xys, limit, adjust):
             B = float(sum_IqIl * sum_IqIl) / float(sum_Iq2*sum_Il2)
             C = 0
             if adjust:
-                A = float(tot_cm * tot_cm) / float(tot_mq * tot_mq)
+                A = float(tot_cm * tot_cm) / float(tot_mq * tot_ml)
                 C = A*B
             else:
                 C = B
 
-            if not result_list or (C > result_list[-1][0]):
+            if not result_list or (C >= result_list[-1][0]):
                 result_list.append( (C, c['id']) )
                 result_list.sort(key=lambda x: x[0],reverse=True)
                 result_list = remove_duplicates(result_list)

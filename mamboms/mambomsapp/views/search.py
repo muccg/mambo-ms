@@ -76,7 +76,7 @@ def spectra_search(request, algorithm=stored_procedure_search):
             if tokyo:
                 algorithm = dot_product
      
-    print 'search by spectra, spectra,limit is:', spectra, limit
+    print 'search by spectra, spectra,limit,adjust is:', spectra, limit, adjust
     search_result = algorithm(spectra, limit, adjust)
     
 
