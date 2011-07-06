@@ -119,7 +119,7 @@ Ext.madasCreateUserEditCmp = function(params) {
                             editable:false,
                             forceSelection:true,
                             displayField:'name',
-                            valueField:'submitValue',
+                            valueField:'id',
                             hiddenName:'node',
                             lazyRender:true,
                             typeAhead:false,
@@ -129,7 +129,7 @@ Ext.madasCreateUserEditCmp = function(params) {
                                 storeId: 'userEditNodeDS',
                                 url: 'user/listAllNodes',
                                 root: 'response.value.items',
-                                fields: ['name', 'submitValue']
+                                fields: ['name', 'id']
                             })
                         }), new Ext.form.ComboBox({
                             fieldLabel: 'Status',

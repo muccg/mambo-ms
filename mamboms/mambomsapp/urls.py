@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     (r'msgeometry_types/$', 'mamboms.mambomsapp.views.reference_data.list_ms_geometry_types'),
     (r'ionization_modes/$', 'mamboms.mambomsapp.views.reference_data.list_ionization_modes'),
     (r'polarities/$', 'mamboms.mambomsapp.views.reference_data.list_polarities'),
+    (r'datasets/$', 'mamboms.mambomsapp.views.reference_data.list_datasets'),
 
     # GC and LC
 

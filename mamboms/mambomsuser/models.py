@@ -52,7 +52,7 @@ def list_users():
     return [u.get_profile().get_details() for u in User.objects.all()]
 
 def list_mamboms_nodes():
-    return [n.name for n in mambomsapp.models.Node.objects.all()]
+    return [ {"name": n.name, "id": n.id} for n in mambomsapp.models.Node.objects.all()]
 
 class UserStatus(models.Model):
     name = models.CharField(max_length=20)
@@ -115,7 +115,7 @@ class MambomsLDAPProfile(models.Model):
         newnode = infoDict.get('node')
         if newnode:
             changed_details = True
-            self.node = mambomsapp.models.Node.objects.get(name=newnode)
+            self.node = mambomsapp.models.Node.objects.get(id=newnode)
 
         if updaterUser.is_superuser:
             is_admin = infoDict.get('adminCheckbox')

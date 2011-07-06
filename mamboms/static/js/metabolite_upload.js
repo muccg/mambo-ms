@@ -195,7 +195,7 @@ Ext.madasMetaboliteFieldCreator = function(idPrefix, readOnly) {
             editable:false,
             forceSelection:true,
             displayField:'name',
-            valueField:'username',
+            valueField:'id',
             hiddenName:'sample_run_by',
             lazyRender:true,
             typeAhead:false,

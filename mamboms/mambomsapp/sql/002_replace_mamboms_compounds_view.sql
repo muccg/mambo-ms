@@ -35,4 +35,4 @@ FROM mambomsapp_compound
 	LEFT OUTER JOIN
 		mambomsapp_lcmarecord_biological_systems ON (mambomsapp_lcmarecord.compound_ptr_id = mambomsapp_lcmarecord_biological_systems.lcmarecord_id);
 COMMIT;        
-	
+ALTER TABLE public.mambomsapp_compounds_view OWNER TO mambomsapp;

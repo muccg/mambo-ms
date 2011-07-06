@@ -219,6 +219,18 @@ def list_mass_spectra_types(request):
             })
     return HttpResponse(json_encode(json))
 
+@authentication_required
+def list_datasets(request):
+    qs = models.Dataset.objects.all()
+    json = {'success': 'true', 'data': []}
+    for dst in qs:
+        json['data'].append({
+                'id': dst.id,
+                'name': dst.name
+            })
+    return HttpResponse(json_encode(json))
+
+
 # Implementation 
 
 def file_field_to_url(field):

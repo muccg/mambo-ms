@@ -34,14 +34,14 @@ def release(auto_confirm_purge=False):
     Make a release deployment
     """
     env.auto_confirm=auto_confirm_purge
-    _ccg_deploy_release()
+    return _ccg_deploy_release()
 
 def testrelease(auto_confirm_purge=False):
     """
     Make a release deployment using the dev settings file
     """
     env.auto_confirm=auto_confirm_purge
-    _ccg_deploy_release(devrelease=True)
+    return _ccg_deploy_release(devrelease=True)
 
 def purge(auto_confirm_purge=False):
     """
@@ -56,4 +56,22 @@ def purge_snapshot(auto_confirm_purge = False):
     """
     env.auto_confirm_purge = auto_confirm_purge
     _ccg_purge_snapshot()
+
+def release_demo(auto_confirm_purge = False):
+    """
+    Deploy the Mambo Demo site from a release tag
+    """
+    env.app_install_names = ['mamboms_demo'] # use app_name or list of names for each install
+    deploy = testrelease(auto_confirm_purge)
+    #deploy = release(auto_confirm_purge)
+    #overwrite settings.py
+    target_settings_file = os.path.join(env.app_root, env.app_install_names[0], deploy, env.app_name)
+    with open(target_settings_file, 'a') as settings_file:
+        with open('data/settings_overrides.py') as overrides:
+            overrideslines = overrides.read()
+            settings_file.write(overrideslines)
+
+    print "To set up the MamboMS Demo database, run these commands on the database server:"
+    print "psql < data/create_useranddb.sql"
+    print "psql -d mambomsdemo < data/regenerate_mambomsdemo_db.sql"
 

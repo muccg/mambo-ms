@@ -144,7 +144,8 @@ def list_node_users(request):
     for user in [user for user in User.objects.all() if user.get_profile().node == usernode]:
         data.append({
             'username': user.username,
-            'name': user.get_profile().full_name
+            'name': user.get_profile().full_name,
+            'id': user.id
         })
     return json_response(data)
 
@@ -165,7 +166,8 @@ def list_users(request):
     for user in pool:
         data.append({
             'username': user.username,
-            'name': user.get_profile().full_name
+            'name': user.get_profile().full_name,
+            'id': user.id
         })
     return json_response(data)
 
@@ -173,12 +175,12 @@ def list_users(request):
 def list_all_nodes(request, *args, **kwargs):
     dprint('***enter***')
     groups = [
-        {'name':'Don\'t Know', 'submitValue':''} 
+        {'name':'Don\'t Know', 'id':None} 
     ]
 
-    group_names = models.list_mamboms_nodes()
-    for group_name in group_names:
-        groups.append( { 'name': group_name, 'submitValue': group_name } )
+    group_dicts = models.list_mamboms_nodes()
+    for group_dict in group_dicts:
+        groups.append( { 'name': group_dict['name'], 'id': group_dict['id'] } )
 
     setRequestVars(request, success=True, items=groups, totalRows=len(groups), authenticated=True, authorized=True)
     dprint('***exit***')

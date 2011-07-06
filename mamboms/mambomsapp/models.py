@@ -20,11 +20,11 @@ class Dataset(models.Model):
 class Compound(models.Model):
     dataset = models.ForeignKey(Dataset)
     # null for NIST
-    compound_name = models.CharField(null=True,max_length=255)
-    cas_name = models.TextField(null=True)
-    cas_regno = models.CharField(max_length=255)
-    molecular_formula = models.CharField(max_length=255)
-    molecular_weight = models.DecimalField(max_digits=18, decimal_places=10)
+    compound_name = models.CharField(blank=True,max_length=255, verbose_name="Compound Name")
+    cas_name = models.TextField(blank=True, verbose_name="CAS Name")
+    cas_regno = models.CharField(max_length=255, blank=True, verbose_name="CAS Registration Number")
+    molecular_formula = models.CharField(max_length=255, blank=True, verbose_name="Molecular Formula")
+    molecular_weight = models.DecimalField(max_digits=18, decimal_places=10, verbose_name="Molecular Weight", default=Decimal("0.0"))
 
     def link_to_graph(self):
         return '<a href="%s%d/">%s</a>' % (url('/mamboms/graph/'), self.id, 'Graph')
@@ -341,29 +341,29 @@ class MARecordBase(Compound):
 
     FILE_PREFIX = 'marecord'
 
-    known = models.BooleanField()
-    node = models.ForeignKey(Node)
-    instrument = models.ForeignKey(Instrument)
-    column = models.ForeignKey(Column)
-    sample_run_by = models.ForeignKey(User, related_name='%(class)s_ran')
-    record_uploaded_by = models.ForeignKey(User, related_name='%(class)s_uploaded_records')
-    record_uploaded_on = models.DateField(auto_now_add=True)
+    known = models.BooleanField(verbose_name="Known")
+    node = models.ForeignKey(Node, verbose_name="Uploading Node")
+    instrument = models.ForeignKey(Instrument, verbose_name="Instrument")
+    column = models.ForeignKey(Column, verbose_name="Column")
+    sample_run_by = models.ForeignKey(User, related_name='%(class)s_ran', verbose_name="Sample Run By")
+    record_uploaded_by = models.ForeignKey(User, related_name='%(class)s_uploaded_records', verbose_name="Record Uploaded By")
+    record_uploaded_on = models.DateField(auto_now_add=True, verbose_name="Record Uploaded Date")
     record_vets = models.ManyToManyField(User, through='MARecordVet', related_name='%(class)s_vetted_records')
-    biological_systems = models.ManyToManyField(BiologicalSystem)
-    metabolite_class = models.ForeignKey(MetaboliteClass)
-    retention_time = models.CharField(max_length=255)   
-    retention_index = models.CharField(max_length=255, null=True)
-    kegg_id = models.CharField(max_length=255, null=True)   
-    kegg_link = models.CharField(max_length=255, null=True)   
-    extract_description = models.TextField()
-    structure = models.FileField(upload_to='marecord/structure/', storage=fs, max_length=500, null=True)
+    biological_systems = models.ManyToManyField(BiologicalSystem, verbose_name="Biological Systems")
+    metabolite_class = models.ForeignKey(MetaboliteClass, verbose_name="Metabolite Class")
+    retention_time = models.CharField(max_length=255, blank=True, verbose_name="Retention Time")   
+    retention_index = models.CharField(max_length=255, blank=True, verbose_name="Retention Index")
+    kegg_id = models.CharField(max_length=255, blank=True, verbose_name="KEGG ID")   
+    kegg_link = models.CharField(max_length=255, blank=True, verbose_name="KEGG Link")   
+    extract_description = models.TextField(verbose_name="Extract Description", blank=True)
+    structure = models.FileField(upload_to='marecord/structure/', storage=fs, max_length=500, blank=True)
  
 class GCMARecord(MARecordBase):
     method = models.ForeignKey(GCMethod)
-    quant_ion = models.DecimalField(max_digits=10, decimal_places=3,null=True)
-    qualifying_ion_1 = models.DecimalField(max_digits=10, decimal_places=3, null=True)
-    qualifying_ion_2 = models.DecimalField(max_digits=10, decimal_places=3, null=True)
-    qualifying_ion_3 = models.DecimalField(max_digits=10, decimal_places=3, null=True)
+    quant_ion = models.DecimalField(max_digits=10, decimal_places=3,null=True, blank=True, verbose_name="Quant Ion")
+    qualifying_ion_1 = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Qualifying Ion 1")
+    qualifying_ion_2 = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Qualifying Ion 2")
+    qualifying_ion_3 = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Qualifying Ion 3")
  
     class Meta:
         verbose_name = 'GC MA Record'
@@ -384,7 +384,7 @@ class GCMARecord(MARecordBase):
 
 class LCMARecord(MARecordBase):
     method = models.ForeignKey(LCMethod)
-    mono_isotopic_mass = models.CharField(max_length=255)
+    mono_isotopic_mass = models.CharField(max_length=255, blank=True, verbose_name="Mono Isotopic Mass")
     class Meta:
         verbose_name = 'LC MA Record'
 
@@ -413,12 +413,12 @@ class Spectrum(models.Model):
     compound = models.ForeignKey(Compound)
     raw_points = models.TextField()
     # Fields below applicable only to LC records, null for NIST and GC
-    mass_spectra_type = models.ForeignKey(MassSpectraType, null=True)
-    description = models.TextField(null=True)
-    precursor_type = models.ForeignKey(PrecursorType, null=True)
-    precursor_selection = models.ForeignKey(PrecursorSelection, null=True)
-    collison_energy = models.CharField(max_length=255,null=True)
-    ionized_species = models.ManyToManyField(LCModification, null=True)
+    mass_spectra_type = models.ForeignKey(MassSpectraType, null=True, blank=True)
+    description = models.TextField(blank=True)
+    precursor_type = models.ForeignKey(PrecursorType, null=True, blank=True)
+    precursor_selection = models.ForeignKey(PrecursorSelection, null=True, blank=True)
+    collison_energy = models.CharField(max_length=255,blank=True)
+    ionized_species = models.ManyToManyField(LCModification, null=True, blank=True)
 
     @property
     def point_set(self):

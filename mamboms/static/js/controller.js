@@ -90,7 +90,7 @@
                 break;
 
             case "dataimport":
-                Ext.madasDataImportInit();
+                //Ext.mambomsDataImportInit();
                 Ext.getCmp('center-panel').layout.setActiveItem('dataimport-container-panel');
                 break;
          }
@@ -151,7 +151,7 @@ Ext.madasInitApplication = function(appSecureUrl) {
                 items: [Ext.madasSearchByKeywordCmp, Ext.madasSearchByKeywordResultsCmp, Ext.madasSearchBySpectraCmp, 
                         Ext.madasSearchBySpectraResultsCmp, Ext.madasNotAuthorizedCmp, Ext.madasAdminUserEditCmp, Ext.madasUserEditCmp, 
                         Ext.madasMetaboliteUploadCmp, Ext.madasMetaboliteEditCmp, Ext.madasMetaboliteViewCmp, Ext.madasLCMetaboliteUploadCmp, 
-                        Ext.madasLCMetaboliteEditCmp, Ext.madasLCMetaboliteViewCmp, Ext.madasDataImportCmp]
+                        Ext.madasLCMetaboliteEditCmp, Ext.madasLCMetaboliteViewCmp, Ext.mambomsDataImportCmp]
             }
         ]
     });

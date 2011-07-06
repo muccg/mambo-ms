@@ -1,3 +1,7 @@
+BEGIN;
+CREATE PROCEDURAL LANGUAGE plpythonu;
+ALTER PROCEDURAL LANGUAGE plpythonu OWNER TO postgres;
+
 CREATE OR REPLACE FUNCTION search_by_spectra(text, integer, integer)
     RETURNS text
 AS $$
@@ -82,4 +86,6 @@ def main(xys, limit, adjust):
 return main(args[0].split(','),args[1], args[2])
 
 $$ LANGUAGE plpythonu;
+
+COMMIT;
 
