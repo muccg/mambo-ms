@@ -63,7 +63,7 @@ def save_lc(request):
     lc_rec.column = models.Column.objects.get(pk=column_id)
     sample_run_by = req.get('sample_run_by')
     if sample_run_by is not None:
-        lc_rec.sample_run_by = User.objects.get(username=sample_run_by) 
+        lc_rec.sample_run_by = User.objects.get(id=sample_run_by) 
     if not lc_rec.id:
         lc_rec.dataset = models.Dataset.objects.get(name='MA LC')
         lc_rec.node = request.user.get_profile().node
@@ -188,7 +188,7 @@ def save(request):
     gc_rec.column = models.Column.objects.get(pk=column_id)
     sample_run_by = req.get('sample_run_by')
     if sample_run_by is not None:
-        gc_rec.sample_run_by = User.objects.get(username=sample_run_by) 
+        gc_rec.sample_run_by = User.objects.get(id=sample_run_by) 
     if not gc_rec.id:
         gc_rec.dataset = models.Dataset.objects.get(name='MA GC')
         gc_rec.node = request.user.get_profile().node

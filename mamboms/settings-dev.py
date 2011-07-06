@@ -45,8 +45,9 @@ CAPTCHA_ROOT = os.path.join(MEDIA_ROOT, 'captchas')
 CAPTCHA_URL = os.path.join(MEDIA_URL, 'captchas')
 
 AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
-LOGS = ['mango_ldap', 'mamboms_spectral_search_log' ]
-TEST_RUNNER = 'mamboms.test.testrunner.run_mamboms_tests'
+LOGS = ['mango_ldap', 'mamboms_spectral_search_log', 'mamboms_import_log' ]
+
+#TEST_RUNNER = 'mamboms.test.testrunner.run_mamboms_tests'
 
 ##
 ## Everything from here should be fairly typical ccg/django app
