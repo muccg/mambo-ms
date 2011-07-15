@@ -244,7 +244,47 @@ var createFieldMappingForm = function(metadata){
                                                                jsonfields));
     }
     
-    
+    var methodcombo = null;
+    console.log('Dataset type is ' + metadata.dataset);
+    if (metadata.dataset == 'MA LC'){
+        methodcombo = new Ext.form.ComboBox({
+            fieldLabel: 'Method',
+            name: 'method',
+            editable:false,
+            forceSelection:true,
+            displayField:'name',
+            valueField:'id',
+            hiddenName:'method',
+            lazyRender:true,
+            typeAhead:false,
+            triggerAction:'all',
+            listWidth:230,
+            allowBlank: false,
+            disabled: false,        
+            mode: 'local',
+            store: that.create_store('reference/lc_methods/', ['id', 'name', 'platform', 'deriv_agent', 'mz_adducts', 'mass_range', 'ionization_mode', 'instrument_method', 'method_summary'])
+        })
+    }
+    else if (metadata.dataset == 'MA GC'){
+        methodcombo = new Ext.form.ComboBox({
+            fieldLabel: 'Method',
+            name: 'method',
+            editable:false,
+            forceSelection:true,
+            displayField:'name',
+            valueField:'id',
+            hiddenName:'method',
+            lazyRender:true,
+            typeAhead:false,
+            triggerAction:'all',
+            listWidth:230,
+            allowBlank: false,
+            disabled: false,        
+            mode: 'local',
+            store: that.create_store('reference/gc_methods/', ['id', 'name', 'platform', 'deriv_agent', 'mass_adducts', 'mass_range', 'instrument_method', 'method_summary'])
+        })
+    }
+
     var fieldmappingform = {
 
     xtype:'form', 
@@ -406,23 +446,7 @@ var createFieldMappingForm = function(metadata){
             mode: 'local',
             store: that.create_store('reference/instruments?all=True/')
         }),
-         new Ext.form.ComboBox({
-            fieldLabel: 'Method',
-            name: 'method',
-            editable:false,
-            forceSelection:true,
-            displayField:'name',
-            valueField:'id',
-            hiddenName:'method',
-            lazyRender:true,
-            typeAhead:false,
-            triggerAction:'all',
-            listWidth:230,
-            allowBlank: false,
-            disabled: false,        
-            mode: 'local',
-            store: that.create_store('reference/gc_methods/', ['id', 'name', 'platform', 'deriv_agent', 'mass_adducts', 'mass_range', 'instrument_method', 'method_summary'])
-        }),
+        methodcombo,
         new Ext.form.ComboBox({
             fieldLabel: 'Metabolite Class',
             name: 'metabolite_class',
