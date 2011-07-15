@@ -120,6 +120,7 @@ def define_fields(request):
     #would be good to return line numbers of broken lines.
     field_definitions = {} 
     for fieldname in request.POST.keys():
+        #print "POST fieldname %s, value %s, type:%s" % (fieldname, request.POST.get(fieldname, None), str(type(request.POST.get(fieldname, None))) )
         #field_definitions[fieldname] = request.POST.get(fieldname, None)
         if len(request.POST.getlist(fieldname) ) > 1:
             field_definitions[fieldname] = request.POST.getlist(fieldname)
@@ -183,12 +184,12 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
     ismanytomany = False
     spectrumpoints = None #setting to None makes sure no spectrum is saved.
     for recordid in data.keys():
-        ismanytomany = False
         try:
             #instantiate a model instance
             phase="Create Model"
             candidate = MODEL_MAPPINGS[dataset]()
             for fieldname in fieldmap.keys():
+                ismanytomany = False
                 logger.debug('fieldname is %s, data is %s, type is %s' % (fieldname, fieldmap[fieldname], str(type(fieldmap[fieldname])) ) )
                 fielddata = fieldmap[fieldname]
                 value = None
@@ -217,10 +218,12 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                     #If this is a foreign key, we need to go get it
                     model_field = candidate._meta.get_field_by_name(fieldname)[0]
                     if isinstance(model_field, ForeignKey):
+                        
                         phase="Foreign Key"
+                        key = int(value)
                         rel_model = model_field.rel.to
-                        value = rel_model.objects.get(id=int(value))
-
+                        value = rel_model.objects.get(id=key)
+                        logger.debug("Foreign key %d for %s resolved to %s" % (key, fieldname, value ) )
                     #if this is a many to many field, we need to attach the data
                     #after the save
                     elif isinstance(model_field, ManyToManyField):
@@ -241,17 +244,20 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                             rel_model = model_field.rel.to
                             value = rel_model.objects.get(id=item)
                             resolved_list.append(value)
-                        #now store the list of resolved records against the many to many field
-                        manytomany_dict[model_field] = resolved_list
+                        #now store the list of resolved records against the NAME of the many to many field manager
+                        #manytomany_dict["%s_set" % (fieldname)] = resolved_list
+                        manytomany_dict[fieldname] = resolved_list
 
                     #Only do the setattr if this isnt a many to many field.
                     if not ismanytomany:
+                        logger.debug("%s: Not many to many" % (fieldname))
                         #First, if the value is empty, and null=True,
                         #then set the value to None, and pass to the db.
                         #If null=False and the field has 'blank=True', then
                         #leave the value alone - the model will know what to do with it
                         
                         if str(value) is "" and model_field.blank:
+                            logger.debug("%s: empty value and field can be blank" % (fieldname))
                             if model_field.null:
                                 value = None
                             else:
@@ -259,14 +265,28 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                         else:
                             #cast the value in specific cases
                             if isinstance(model_field, DecimalField):
+                                logger.debug("Cast decimal")
                                 value = Decimal(value)
+                            if isinstance(model_field, BooleanField):
+                                logger.debug("Cast bool")
+                                if value is None:
+                                    value = False
+                                elif value.lower() == 'false':
+                                    value = False
+                                elif value.lower() == 'true':
+                                    value = True
+                                else:
+                                    value = False
                         
                         phase = "%s (field=%s, value=%s)" % (phase, fieldname, value)
+                        logger.debug("Setting field: %s" % phase)
                         setattr(candidate, fieldname, value)
            
                 candidate.dataset = dataset_rec 
 
             if dryrun:
+                logger.debug("Doing full clean, candidate.method = %s" % (str(candidate.method)) )
+                
                 candidate.full_clean() #this causes django to validate the model, but not save
                 #We cant test spectrum with 'full clean' because we cant link it 
                 #to an unsaved compound. Instead, we just check that the
@@ -277,16 +297,25 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                     spectrum = createSpectrumFromPoints(spectrumpoints)
                     
             else:
+                logger.debug("Saving model")
                 save_models(candidate, spectrumpoints)
+                logger.debug("Attaching many to many fields")
+                for key in manytomany_dict.keys():
+                    logger.debug("mtom_key: %s, value %s" % (key, manytomany_dict[key]))
+                candidate.save()
                 #now we attach all the many to many fields.
                 for mtomfield in manytomany_dict.keys():
                     for item in manytomany_dict[mtomfield]:
-                        mtomfield.add[item]
-                    candidate.save()
+                        phase = "Adding mtom item (mtom=%s, item=%s" % (str(mtomfield), str(item))
+                        mgr = getattr(candidate, mtomfield)
+                        mgr.add(item)
+                        #mtomfield.add(item)
+                #candidate.save()
             
             
             passed += 1
         except Exception, e:
+            logger.warning("Error: %s (%s)" % (e, phase))
             failed[count] = str("Error: %s (%s)" % (e, phase))
         count += 1        
     ret =  {"passed": passed, "failed": failed, "dataset": dataset} 
