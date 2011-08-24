@@ -208,7 +208,7 @@ Ext.madasMetaboliteFieldCreator = function(idPrefix, readOnly) {
                 proxy: new Ext.data.HttpProxy({ url: 'user/listNodeUsers', method: 'GET'}),
                 root: 'data',
                 autoLoad: false,
-                fields: ['name', 'username']
+                fields: ['name', 'username', 'id']
             })
         }),{
             fieldLabel: 'Record Uploaded By',
