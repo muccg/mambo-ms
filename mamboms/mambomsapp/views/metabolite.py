@@ -284,7 +284,7 @@ class CompoundLoader(object):
             'instrument_method': file_field_to_url(gc_rec.method.instrument_method),
             'method_summary': file_field_to_url(gc_rec.method.method_summary),
             'column': gc_rec.column_id,
-            'sample_run_by': gc_rec.sample_run_by.username,
+            'sample_run_by': gc_rec.sample_run_by.id,
             'uploaded_by': gc_rec.record_uploaded_by.get_profile().full_name,
             'uploaded_date': str(gc_rec.record_uploaded_on),
             'vetted_by': vetted_by(gc_rec),
