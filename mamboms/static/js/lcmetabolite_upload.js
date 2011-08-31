@@ -196,10 +196,10 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                     labelWidth: 150,
                     itemId: 'col2',
                     items: [
-                        new Ext.ux.IFrameComponent(
+                        new Ext.ux.MambomsGraphIFrameComponent(
                             {url: 'about:none',
                              itemId: 'graphiframe'
-                            }),
+                            }).setParams('400px', '133px', 'mamboms/graph/image/'),
                     {
                         fieldLabel: 'Mass spectra',
                         name: spectrumId + '_mass_spectra',
@@ -247,14 +247,16 @@ Ext.madasLCSpectrumTabPanelCreator = function(idPrefix, readOnly) {
             var tabs = Ext.getCmp(idPrefix + 'spectrum-tabpanel');
             var newTab = Ext.madasSpectrumTabCreator(idPrefix, ++tabs.index, readOnly);
            
-            var record;
+            var record = null;
             var methodCmb = Ext.getCmp(idPrefix + 'method');
             if (methodCmb.getValue() !== '') {
                 record = methodCmb.getStore().getById(methodCmb.getValue());
             }
             var t = tabs.add(newTab);
             t.show();
-            tabs.tabrefs.push(t);
+            if (typeof(tabs.tabrefs) != 'undefined'){
+                tabs.tabrefs.push(t);
+            }
             if (record !== null) {
                     newTab.setMethod(record.data);
             }

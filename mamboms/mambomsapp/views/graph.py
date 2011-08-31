@@ -7,18 +7,21 @@ from mamboms.mambomsapp.graph_cache import cache
 from mamboms.mambomsapp.spectra_graph import SpectraGraph
 from mamboms.mambomsapp.views.utils import json_encode, json_decode
 
+
 import decimal
 
 def remove_exponent(d):
     return d.quantize(decimal.Decimal(1)) if d==d.to_integral() else d.normalize()
 
 @login_required
-def page(request):
+def page(request, template="mamboms/graph.html"):
     '''Query string parameters:
        both spectrum_id or compound_id (if there is just one spectrum) are accepted
     '''
     spectrum_id = request.GET.get('spectrum_id')
     compound_id = request.GET.get('compound_id')
+    queryvalues = request.GET.get('query', False)
+
     if not spectrum_id:
         compound = get_object_or_404(models.Compound, pk = compound_id)
         spectrum = compound.spectrum_set.all()[0]
@@ -26,11 +29,14 @@ def page(request):
         spectrum = get_object_or_404(models.Spectrum, pk = spectrum_id)
     
     '''Return the page containing the graph'''
-    return render_to_response("mamboms/graph.html", {
+    return render_to_response(template, {
                 "compound" : spectrum.compound,
                 "spectrum" : spectrum,
                 "molweight" : remove_exponent(spectrum.compound.molecular_weight),
-           }) 
+           })
+@login_required
+def page_htt(request):
+    return page(request, template="mamboms/graph_htt.html")
 
 @login_required
 def image_map(request, spectrum_id):
@@ -54,6 +60,30 @@ def start_image(request, spectrum_id):
     response = HttpResponse(mimetype='image/png')
     graph.write(response)
     cache.put(graph)
+    return response
+
+@login_required
+def htt_image(request, compound_id, candidate=''):
+    if len(candidate) == 0:
+        return image(request, spectrum_id)
+    
+    try:
+        #print "candidate was: ", candidate 
+        candidate = candidate.split(',')
+        if len(candidate) % 2 != 0:
+            candidate = candidate[0:-1:]
+        candidate = [float(i) for i in candidate]
+        #print "candidate is now: ", candidate
+    except Exception, e:
+        print 'Error interpreting candidate values: %s : %s' % (str(candidate), e)
+        return image(request, spectrum_id)
+        
+    #TODO - integrate this with the cache
+    compound = get_object_or_404(models.Compound, pk=compound_id)
+    spectrum = compound.spectrum_set.all()[0]
+    response = HttpResponse(mimetype='image/png')
+    graph = SpectraGraph.build_head_to_tail_graph(spectrum, candidate)
+    graph.write(response)
     return response
 
 @login_required

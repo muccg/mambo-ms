@@ -1,3 +1,16 @@
+Ext.mambomsSearchResultsClickBehaviour = function(grid, rowIndex, evt) {
+    var record = grid.store.getAt(rowIndex);
+    if (record.get('dataset') === 'NIST') {
+        Ext.getCmp('searchDeleteBtn').setDisabled(true);
+    } else {
+        if (Ext.madasIsAdmin || 
+            (Ext.madasIsNodeRep && record.get('node') === Ext.madasUserInfo.node)) {
+            Ext.getCmp('searchDeleteBtn').setDisabled(false);
+        } else {
+            Ext.getCmp('searchDeleteBtn').setDisabled(true);
+        }
+    }
+};
 
 Ext.madasCreateSearchResultsGridCmp = function(params) {
     var i;
@@ -85,6 +98,16 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
             madasShowGraphWindow(selectionModel.getSelected().data.id, 'compound_id');
         }
     };
+
+    //var headToTailHandler = function(el, ev){
+    //    var compound;
+    //    var type= '';
+    //    if (selectionModel.hasSelection()) {
+    //        compound = selectionModel.getSelected().data;
+    //        console.log("Need to populate for " + data.id);
+    //    }
+
+    //};
 
     var editHandler = function(el, ev) {
         var compound;
@@ -176,17 +199,7 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
 
         listeners: {
             rowclick: function(grid, rowIndex, evt) {
-                var record = grid.store.getAt(rowIndex);
-                if (record.get('dataset') === 'NIST') {
-                    Ext.getCmp('searchDeleteBtn').setDisabled(true);
-                } else {
-                    if (Ext.madasIsAdmin || 
-                        (Ext.madasIsNodeRep && record.get('node') === Ext.madasUserInfo.node)) {
-                        Ext.getCmp('searchDeleteBtn').setDisabled(false);
-                    } else {
-                        Ext.getCmp('searchDeleteBtn').setDisabled(true);
-                    }
-                }
+                Ext.mambomsSearchResultsClickBehaviour(grid, rowIndex, evt);
             },
             rowdblclick: editHandler
         }
@@ -198,6 +211,7 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
         region: 'center',
         layout: 'fit',
         margins: '5 5 5 5',
+        //sel: selectionModel,
         items: [
             resultsGridCmp 
         ]
@@ -245,4 +259,38 @@ Ext.madasCreateSearchResultsInfoPanel = function (params) {
     };
 };
 
+Ext.mambomsCreateSearchResultsHeadToTailPanel = function (params) {
+    function cmpId(id) {
+        return params.idPrefix + id;
+    }
+
+    var theid =  cmpId('results-htt-panel');
+    var ifr =  new Ext.ux.MambomsGraphIFrameComponent({
+                        url: 'about:none',
+                        id: params.idPrefix + 'graphiframe'
+                    });
+    console.log("created ifr");
+    var clickfn = function(el){
+        mambomsShowHeadToTailWindow(ifr.compoundid, ifr.stb); 
+    };
+    console.log("created clickfn");
+
+    ifr.setParams('100%', '100%', 'mamboms/graph/htt_image/', clickfn);
+    console.log("sent clickfn in setparams");
+    return {
+        id: theid,
+        height: 300,
+        fontsize: '80%',
+        region: 'south',
+        margins: '5 5 5 5',
+        defaults: {
+            deferredRender: false,
+            forceLayout: true
+        },
+        deferredRender: false,
+        forceLayout: true,
+        items: [ifr
+        ]
+    };
+};
 

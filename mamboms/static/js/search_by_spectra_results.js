@@ -24,13 +24,36 @@ Ext.madasSearchBySpectraResultsGridCmp = Ext.madasCreateSearchResultsGridCmp({
                     sortable: true
                    }
                 }
-            ]
+            ],
 });
+//Override the single click behaviour
+Ext.madasSearchBySpectraResultsGridCmp.items[0].listeners.rowclick = function(grid, rowIndex, evt){
+    Ext.mambomsSearchResultsClickBehaviour(grid, rowIndex, evt);
+    console.log("Row " + rowIndex + " clicked.");
+    console.log(grid);
+    console.log(grid.selModel);
+    if (typeof(grid.selModel) != 'undefined' && grid.selModel.hasSelection()){
+        Ext.mambomsPopulateHeadToTail(grid.selModel.getSelected().data.id);
+    }
+};
+
 
 Ext.madasSearchBySpectraResultsInfoPanel = Ext.madasCreateSearchResultsInfoPanel({
     idPrefix: 'searchbyspectra-',
     button: { text: 'Search again', searchCmpId: 'searchbyspectra-container-panel'}
 });
+
+Ext.mambomsSearchBySpectraResultsHeadToTailPanel = Ext.mambomsCreateSearchResultsHeadToTailPanel({idPrefix: 'headtotail-'});
+
+Ext.mambomsPopulateHeadToTail = function(compoundid){
+    var ifr = Ext.getCmp('headtotail-graphiframe');
+    var stb = Ext.getCmp('spectra_textbox').getValue();
+    stb = stb.replace(/\s+/gi, ',');
+    ifr.stb = stb;
+    ifr.compoundid = compoundid;
+    ifr.reload(ifr, compoundid, 'mamboms/graph/htt_image/' + compoundid + '/' + stb + '/');
+
+};
 
 Ext.madasSearchBySpectraResultsCmp = {
     id:'searchbyspectra-results-panel',
@@ -38,7 +61,8 @@ Ext.madasSearchBySpectraResultsCmp = {
     layout: 'border',
     items: [
         Ext.madasSearchBySpectraResultsInfoPanel,
-        Ext.madasSearchBySpectraResultsGridCmp
+        Ext.madasSearchBySpectraResultsGridCmp,
+        Ext.mambomsSearchBySpectraResultsHeadToTailPanel
      ]
 };
 

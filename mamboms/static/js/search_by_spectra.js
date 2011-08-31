@@ -51,6 +51,7 @@ Ext.madasSearchBySpectraPanel = {
         }),
          {
             fieldLabel: 'Spectra',
+            id: 'spectra_textbox',
             name: 'spectra',
             height: 350
          }

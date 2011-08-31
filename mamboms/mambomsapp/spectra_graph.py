@@ -24,6 +24,12 @@ class SpectraGraph:
         graph.initialize()
         return graph
 
+    @staticmethod
+    def build_head_to_tail_graph(spectrum, candidate = []):
+        graph = SpectraGraph(spectrum, candidate = candidate)
+        graph.initialize()
+        return graph
+
     def __init__(self, spectrum, **kwargs):
         '''Use build_grap to create a graph or build_map_graph to build the map graph.'''
         self.spectrum = spectrum
@@ -31,12 +37,16 @@ class SpectraGraph:
         self.figsize = (9,3)
         self.show_title = True
         self.show_bar_labels = True
-        self.axis_labels_size = None 
+        self.axis_labels_size = None
+        self.candidate = []
         for prop in kwargs:
             setattr(self, prop, kwargs[prop])
 
     def initialize(self):
-        self.create_bar_graph()
+        if len(self.candidate) <= 0:
+            self.create_bar_graph()
+        else:
+            self.create_head_to_tail_graph()
         self.save_initial_range()
         self.set_newdatarange(self.axmin, self.axmax)
 
@@ -65,11 +75,56 @@ class SpectraGraph:
         self.add_labels_to(bars)
         self.set_axis_labels_size()
 
+    def create_head_to_tail_graph(self):
+        self.figure = plt.figure(figsize = self.figsize)
+        self.ax = self.figure.add_subplot(212)
+        self.bx = self.figure.add_subplot(211, sharex=self.ax)
+        if self.compound.cas_name:
+            title = self.compound.cas_name
+        elif self.compound.compound_name:
+            title = self.compound.compound_name
+        else:
+            title = 'Untitled'
+
+        #known compound graph
+        bars = self.ax.bar(self.spectrum.xs, self.spectrum.ys, 
+                           color="red", align='center')
+        (ymin, ymax) = self.ax.get_ylim()
+        self.ax.set_ylim(ymax, ymin) #invert y axis
+        #no labels for compound
+
+
+        #query spectra graph
+        bars = self.bx.bar(self.candidate[0::2], self.candidate[1::2], color="blue", align="center")
+        self.add_labels_to(bars)
+        self.set_axis_labels_size()
+
+        #set both graphs to have the same xlim
+        (axx_min, axx_max) = self.ax.get_xlim()
+        (bxx_min, bxx_max) = self.bx.get_xlim()
+        self.ax.set_xlim(min([axx_min, bxx_min]), max([axx_max, bxx_max]) )
+        self.bx.set_xlim(min([axx_min, bxx_min]), max([axx_max, bxx_max]) )
+        self.figure.subplots_adjust(hspace=0, bottom=0.2)
+        self.figure.text(0.5, 0.95, "Query Spectra", horizontalalignment='center')
+        self.figure.text(0.5, 0.05, self.format_title(title), horizontalalignment='center')
+        #in the new matplotlib we could just do..
+        #self.bx.set_ticks_position('top')
+        #lines = self.ax.get_xticklines()
+        #labels = self.ax.get_xticklabels()
+        #for line in lines:
+        #    line.set_marker(matplotlib.lines.TICKDOWN)
+        #for label in labels:
+        #    label.set_y(-0.5)
+
+    def format_title(self, title):
+        ret = title 
+        if len(title) > 60:
+            ret = title[:25] + '  ...  ' + title[-25:]
+        return ret
+
     def set_title(self, title):
         if not self.show_title: return
-        if len(title) > 60:
-            title = title[:25] + '  ...  ' + title[-25:]
-        self.ax.set_title(title)
+        self.ax.set_title(self.format_title(title))
 
     def add_labels_to(self, bars):
         if not self.show_bar_labels: return
