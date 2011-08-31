@@ -1,16 +1,41 @@
-Ext.ux.IFrameComponent = Ext.extend(Ext.BoxComponent, {
-     onRender : function(ct, position){
-          this.el = ct.createChild({tag: 'image', height: '133px', width: '400px'});
+Ext.ux.MambomsGraphIFrameComponent = Ext.extend(Ext.BoxComponent, {
+    setParams: function(width, height, url, clickfn){
+        console.log("called setParams");
+        this.params = {}
+        this.params.height = height;
+        this.params.width = width;
+        this.params.url = url;
+        this.params.spectrumid = '';
+        if (typeof(clickfn) == 'undefined'){
+            this.params.clickfn = this.onGraphClick;
+        }
+        else {
+            this.params.clickfn = clickfn;
+        }
+        return this;
+    },
+
+    //This function is from the context of 'params'
+    onGraphClick: function(el){
+        madasShowGraphWindow(this.spectrumid, 'spectrum_id');
+    },
+
+    onRender : function(ct, position){
+          this.el = ct.createChild({tag: 'image', height: this.params.height, width: this.params.width});
 
     },
-    reload : function(that, spectrumId)
+    reload : function(that, spectrumId, url)
      {
-        var url = 'mamboms/graph/image/' + spectrumId + '/';
-        that.el.dom.src = url;
+        console.log('called reload')
+        this.params.spectrumid = spectrumId;
+        if (typeof(url) == 'undefined'){
+            url = this.params.url + spectrumId + '/';
+        }
+        that.el.dom.src = url
         that.el.on({
             'click': {
                     fn: function(el) {
-                        madasShowGraphWindow(spectrumId, 'spectrum_id');
+                        this.params.clickfn(el);
                     }, 
                     scope: this
                 }
@@ -446,10 +471,10 @@ Ext.madasMetaboliteGCFieldCreator = function(idPrefix, readOnly) {
                 columnWidth: 0.5,
                 defaults: {width: 400},
                 items: [
-                    new Ext.ux.IFrameComponent({
+                    (new Ext.ux.MambomsGraphIFrameComponent({
                         url: 'about:none',
                         id: that.idPrefix + '-graphiframe'
-                    })
+                    })).setParams('400px', '133px', 'mamboms/graph/image/')
                 ]
 
             }]
