@@ -29,9 +29,6 @@ Ext.madasSearchBySpectraResultsGridCmp = Ext.madasCreateSearchResultsGridCmp({
 //Override the single click behaviour
 Ext.madasSearchBySpectraResultsGridCmp.items[0].listeners.rowclick = function(grid, rowIndex, evt){
     Ext.mambomsSearchResultsClickBehaviour(grid, rowIndex, evt);
-    console.log("Row " + rowIndex + " clicked.");
-    console.log(grid);
-    console.log(grid.selModel);
     if (typeof(grid.selModel) != 'undefined' && grid.selModel.hasSelection()){
         Ext.mambomsPopulateHeadToTail(grid.selModel.getSelected().data.id);
     }

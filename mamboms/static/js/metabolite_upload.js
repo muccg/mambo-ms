@@ -1,6 +1,5 @@
 Ext.ux.MambomsGraphIFrameComponent = Ext.extend(Ext.BoxComponent, {
     setParams: function(width, height, url, clickfn){
-        console.log("called setParams");
         this.params = {}
         this.params.height = height;
         this.params.width = width;
@@ -26,7 +25,6 @@ Ext.ux.MambomsGraphIFrameComponent = Ext.extend(Ext.BoxComponent, {
     },
     reload : function(that, spectrumId, url)
      {
-        console.log('called reload')
         this.params.spectrumid = spectrumId;
         if (typeof(url) == 'undefined'){
             url = this.params.url + spectrumId + '/';

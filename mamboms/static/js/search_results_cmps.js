@@ -269,14 +269,11 @@ Ext.mambomsCreateSearchResultsHeadToTailPanel = function (params) {
                         url: 'about:none',
                         id: params.idPrefix + 'graphiframe'
                     });
-    console.log("created ifr");
     var clickfn = function(el){
         mambomsShowHeadToTailWindow(ifr.compoundid, ifr.stb); 
     };
-    console.log("created clickfn");
 
     ifr.setParams('100%', '100%', 'mamboms/graph/htt_image/', clickfn);
-    console.log("sent clickfn in setparams");
     return {
         id: theid,
         height: 300,
