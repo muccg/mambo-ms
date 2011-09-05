@@ -26,10 +26,20 @@ Ext.createPasswordValidator = function (passCmpId, confirmPassCmpId, submitCmpId
 };
 
 Ext.madasCreateUserEditCmp = function(params) {
+    var nodestore = new Ext.data.JsonStore({
+                        autoLoad: true,
+                        storeId: 'userEditNodeDS',
+                        url: 'user/listAllNodes',
+                        root: 'response.value.items',
+                        fields: ['name', 'id']
+                            });
+    nodestore.load();
+
     var cmp = { id: params.idPrefix + 'useredit-container-panel', 
                 layout:'absolute', 
                 hideMode:'offsets',
                 autoScroll: true,
+                trackResetOnLoad: true,
                 items:[
                     {  xtype:'form', 
                     labelWidth: 100, // label settings here cascade unless overridden
@@ -125,12 +135,7 @@ Ext.madasCreateUserEditCmp = function(params) {
                             typeAhead:false,
                             triggerAction:'all',
                             listWidth:230,
-                            store: new Ext.data.JsonStore({
-                                storeId: 'userEditNodeDS',
-                                url: 'user/listAllNodes',
-                                root: 'response.value.items',
-                                fields: ['name', 'id']
-                            })
+                            store: nodestore 
                         }), new Ext.form.ComboBox({
                             fieldLabel: 'Status',
                             id: params.idPrefix + 'userEditStatus',
@@ -222,6 +227,8 @@ Ext.madasCreateUserEditCmp = function(params) {
                                     },
                                     failure: function (form, action) {
                                         //do nothing special. this gets called on validation failures and server errors
+                                        Ext.Msg.alert("Error", "There was a problem saving the user details: The administrators have been notified.");
+                                        Ext.madasChangeMainContent(params.saveTarget);
                                     }
                                 });
                             }
@@ -232,6 +239,14 @@ Ext.madasCreateUserEditCmp = function(params) {
               };   
 
     return cmp;
+};
+
+
+Ext.mambomsUserEditLoadCombosAndForm = function(form, params, successFunc){
+    Ext.mambomsLoadCombos(form, params, function(form, params){
+        form.referrerCmpName = params.referrerCmpName;
+        form.load({url: 'user/loadUser', params: params, waitMsg:'Loading'});
+    }, ["node"] );
 };
 
 Ext.madasCreateUserEditInitFunction = function (idPrefix) {
@@ -245,30 +260,36 @@ Ext.madasCreateUserEditInitFunction = function (idPrefix) {
         if (paramArray !== undefined) {
             params = {'username': paramArray[0]};
         }
-        var userEditCmp = Ext.getCmp(cmpId('useredit-panel'));
+        
+        
+        
+        var userEditCmp = Ext.getCmp(cmpId('useredit-panel')); //this is actually the form
+        //Load the combos, and then do all the other form stuff
+        Ext.mambomsUserEditLoadCombosAndForm(userEditCmp.getForm(), params, function(form, action){
 
-        //fetch user details
-        userEditCmp.load({url: 'user/loadUser', params: params, waitMsg:'Loading'});
 
-        //attach validator that ext cannot deal with
-        var validator = Ext.createPasswordValidator(cmpId('userEditPassword'), cmpId('userEditConfirmPassword'), cmpId('userEditSubmit'));
-        Ext.getCmp(cmpId('userEditPassword')).on('blur', validator);
-        Ext.getCmp(cmpId('userEditConfirmPassword')).on('blur', validator);
-        Ext.getCmp(cmpId('userEditSubmit')).enable();
+            //attach validator that ext cannot deal with
+            var validator = Ext.createPasswordValidator(cmpId('userEditPassword'), cmpId('userEditConfirmPassword'), cmpId('userEditSubmit'));
+            Ext.getCmp(cmpId('userEditPassword')).on('blur', validator);
+            Ext.getCmp(cmpId('userEditConfirmPassword')).on('blur', validator);
+            Ext.getCmp(cmpId('userEditSubmit')).enable();
 
-        Ext.getCmp(cmpId('userEditEmailAddress')).setDisabled(!Ext.madasIsAdmin);
-        Ext.getCmp(cmpId('userEditIsAdmin')).setDisabled(!Ext.madasIsAdmin);
-        Ext.getCmp(cmpId('userEditIsNodeRep')).setDisabled(!Ext.madasIsAdmin);
-        Ext.getCmp(cmpId('userEditStatus')).setDisabled(!Ext.madasIsAdmin);
-        Ext.getCmp(cmpId('userEditNode')).setDisabled(!Ext.madasIsAdmin);
+            Ext.getCmp(cmpId('userEditEmailAddress')).setDisabled(!Ext.madasIsAdmin);
+            Ext.getCmp(cmpId('userEditIsAdmin')).setDisabled(!Ext.madasIsAdmin);
+            Ext.getCmp(cmpId('userEditIsNodeRep')).setDisabled(!Ext.madasIsAdmin);
+            Ext.getCmp(cmpId('userEditStatus')).setDisabled(!Ext.madasIsAdmin);
+            Ext.getCmp(cmpId('userEditNode')).setDisabled(!Ext.madasIsAdmin);
 
-        //reload the combobox
-        if (Ext.StoreMgr.containsKey('userEditNodeDS')) {
-            Ext.StoreMgr.get('userEditNodeDS').reload();
-            store = Ext.StoreMgr.get('userEditNodeDS');
-        }
+            //reload the combobox
+            //if (Ext.StoreMgr.containsKey('userEditNodeDS')) {
+            //    Ext.StoreMgr.get('userEditNodeDS').reload();
+            //    store = Ext.StoreMgr.get('userEditNodeDS');
+            //}
+            //allow the madas changeMainContent function to handle the rest from here
+        
+        
+        });
 
-        //allow the madas changeMainContent function to handle the rest from here
         return;
     };
 };

@@ -1,3 +1,5 @@
+var metabolite_combo_names = ["instrument", "method", "column", "sample_run_by", "biological_systems", "metabolite_class", "ionized_species"];
+
 Ext.ux.MambomsGraphIFrameComponent = Ext.extend(Ext.BoxComponent, {
     setParams: function(width, height, url, clickfn){
         this.params = {}
@@ -41,9 +43,8 @@ Ext.ux.MambomsGraphIFrameComponent = Ext.extend(Ext.BoxComponent, {
      }
 });
 
-Ext.madasMetaboliteLoadCombos = function(form, params, callbackFn) {
+Ext.mambomsLoadCombos = function(form, params, callbackFn, combos) {
     var loadedCombosCount = 0;
-    var combos = ["instrument", "method", "column", "sample_run_by", "biological_systems", "metabolite_class", "ionized_species"];
     var onComboFilled = function(r, options, success) {
             loadedCombosCount++;
             if (loadedCombosCount === combos.length) {
@@ -67,13 +68,13 @@ Ext.madasMetaboliteLoadCombos = function(form, params, callbackFn) {
 };
 
 Ext.madasMetaboliteLoadCombosAndForm = function(form, params, successFunc) {
-    Ext.madasMetaboliteLoadCombos(form, params, function(form, params) {
+    Ext.mambomsLoadCombos(form, params, function(form, params) {
                 form.referrerCmpName = params.referrerCmpName;
                 var loadUrl = 'mamboms/metabolite/' + params.type + '/load/';
                 form.load({url: loadUrl, params: {id: params.id}, waitMsg:'Loading',
                     success:  successFunc
                 });
-    }); 
+    }, metabolite_combo_names); 
 };
 
 Ext.madasMetaboliteEditInit = function(params) {
@@ -113,7 +114,7 @@ Ext.madasMetaboliteViewInit = function(params) {
 Ext.madasMetaboliteUploadInit = function(params) {
     var form = Ext.getCmp('upload-gcmetabolite-panel').getForm(); 
     form.reset(); 
-    Ext.madasMetaboliteLoadCombos(form, params, Ext.emptyFn); 
+    Ext.mambomsLoadCombos(form, params, Ext.emptyFn, metabolite_combo_names); 
 };
 
 Ext.madasMetaboliteFieldCreator = function(idPrefix, readOnly) {
