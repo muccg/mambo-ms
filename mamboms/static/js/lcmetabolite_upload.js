@@ -8,7 +8,7 @@ Ext.madasLCMetaboliteUploadPostActivate = function() {
 Ext.madasLCMetaboliteUploadInit = function(params) {
     var form = Ext.getCmp('upload-lcmetabolite-panel').getForm(); 
     form.reset(); 
-    Ext.madasMetaboliteLoadCombos(form, params, Ext.emptyFn); 
+    Ext.mambomsLoadCombos(form, params, Ext.emptyFn, metabolite_combo_names); 
 };
 
 Ext.madasLCMetaboliteViewInit = function(params) {
@@ -34,16 +34,6 @@ Ext.madasLCMetaboliteEditInit = function(params) {
     var form = Ext.getCmp('edit-lcmetabolite-panel').getForm(); 
     Ext.madasMetaboliteLoadCombosAndForm(form, params, Ext.emptyFn);
 };
-
-/*
-Ext.mambomsAddMini = function(comp)
-{
-    console.log('adding graph to' + comp.ownerCt.ownerCt.id);
-    
-    comp.ownerCt.ownerCt.addMiniGraph(comp.ownerCt.ownerCt);
-    console.log('added graph');
-};
-*/
 
 Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
     var spectrumId =  'spectrum' + index;

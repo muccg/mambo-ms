@@ -153,7 +153,7 @@ Ext.mambomsDataImportFileImportPanel = {
                         success: function (form, action) {
                             if (action.result.success === true) 
                             {
-                                console.log(action.result);
+                                //console.log(action.result);
                                 Ext.MessageBox.hide(); //hide the 'uploading' box
                                 //Hide step 1
                                 Ext.getCmp('dataimport_fileimport-panel').hide();
@@ -245,7 +245,7 @@ var createFieldMappingForm = function(metadata){
     }
     
     var methodcombo = null;
-    console.log('Dataset type is ' + metadata.dataset);
+    //console.log('Dataset type is ' + metadata.dataset);
     if (metadata.dataset == 'MA LC'){
         methodcombo = new Ext.form.ComboBox({
             fieldLabel: 'Method',

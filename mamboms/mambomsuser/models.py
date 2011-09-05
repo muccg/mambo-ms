@@ -39,6 +39,8 @@ def extract_properties(obj, props):
         prop_value = getattr(obj, source_prop)
         if prop_value is not None:
             d[target_prop] = str(prop_value)
+        else:
+            d[target_prop] = ''
     return d
 
 def set_properties(obj, props, dictionary):
@@ -83,6 +85,9 @@ class MambomsLDAPProfile(models.Model):
     def get_details(self):
         '''should return the internal details in a format palatable to the app'''
         returndict = extract_properties(self, PROFILE_PROPERTIES)
+        #the 'node' field needs to be the node id, not the node name
+        if self.node not in [None, '']:
+            returndict['node'] = self.node.id    
         returndict['email'] = self.user.username
         returndict['username'] = self.user.username
         returndict['originalEmail'] = self.user.username

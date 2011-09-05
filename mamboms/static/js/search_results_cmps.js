@@ -99,16 +99,6 @@ Ext.madasCreateSearchResultsGridCmp = function(params) {
         }
     };
 
-    //var headToTailHandler = function(el, ev){
-    //    var compound;
-    //    var type= '';
-    //    if (selectionModel.hasSelection()) {
-    //        compound = selectionModel.getSelected().data;
-    //        console.log("Need to populate for " + data.id);
-    //    }
-
-    //};
-
     var editHandler = function(el, ev) {
         var compound;
         var gcparams;

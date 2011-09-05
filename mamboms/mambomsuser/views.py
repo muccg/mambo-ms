@@ -46,7 +46,7 @@ def load_user(request, *args):
 
 @authentication_required
 def save_user(request, *args):
-    r = request.REQUEST
+    r = request.POST
     uname = r['originalEmail'] 
     u = User.objects.get(username = uname)
 
@@ -83,7 +83,8 @@ def save_user(request, *args):
 
     node = r.get('node', None)
     status = r.get('status', None)
-
+    print "Node: ", node
+    print "Status: ", status
     infoDict = {}   #A dictionary of extra information that the saving process may need *other* than user data.
     infoDict['node'] = node
     infoDict['status'] = status
@@ -103,7 +104,7 @@ def save_user(request, *args):
 
     nextview = 'admin:usersearch'
 
-    setRequestVars(request, success=True, authenticated=True, authorized=True, mainContentFunction = nextview)
+    setRequestVars(request, success=success, authenticated=True, authorized=True, mainContentFunction = nextview)
     dprint('*** exit ***')
 
     return jsonResponse(request, []) 
