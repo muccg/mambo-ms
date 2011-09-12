@@ -197,7 +197,7 @@ CONFIGNAME = args.configname
 VENV_NAME = args.name
 if VENV_NAME is None:
     thisdir = subprocess.Popen(["basename ${PWD}"], stdout=subprocess.PIPE, shell=True).communicate()[0].strip()
-    VENV_NAME = "%s_%s" % (thisdir, CONFIGNAME)
+    VENV_NAME = "virt_%s_%s" % (thisdir, CONFIGNAME)
 
 SRC_PYTHON = args.python
 CONFIG = None
