@@ -3,8 +3,8 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('',
     # Spectra Graph
 
-    (r'graph/page', 'mamboms.mambomsapp.views.graph.page'),
     (r'graph/page_htt', 'mamboms.mambomsapp.views.graph.page_htt'),
+    (r'graph/page', 'mamboms.mambomsapp.views.graph.page'),
     (r'graph/image/(?P<spectrum_id>\d+)/$', 'mamboms.mambomsapp.views.graph.start_image'),
     (r'graph/image/(?P<spectrum_id>\d+)/(?P<datastart>\d+)/(?P<dataend>\d+)/$', 'mamboms.mambomsapp.views.graph.image'),
     (r'graph/htt_image/(?P<compound_id>\d+)/(?P<candidate>.*)/$', 'mamboms.mambomsapp.views.graph.htt_image'),

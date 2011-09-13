@@ -3,9 +3,10 @@ var ImageManager = {
     cropper: null,
     mapcropper: null,
 
-    init: function(spectrumId, interactive) {
+    init: function(spectrumId, interactive, queryspectra) {
         this.imageInfoHistory = [];
         this.spectrumId = spectrumId;
+        this.queryspectra = queryspectra;
         this.initImages();
         if (interactive) {
             this.initCroppers();
@@ -13,7 +14,12 @@ var ImageManager = {
     },
 
     initImages: function() {
-        $( 'graphmap_img' ).src = 'imagemap/' + this.spectrumId + '/'; 
+        if (typeof(this.queryspectra) === 'undefined'){
+            $( 'graphmap_img' ).src = 'htt_image/' + this.spectrumId + '/' + this.queryspectra + '/';
+        }
+        else{
+            $( 'graphmap_img' ).src = 'imagemap/' + this.spectrumId + '/'; 
+        }
         this.loadStartImage();
     },
 

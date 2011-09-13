@@ -20,8 +20,7 @@ def page(request, template="mamboms/graph.html"):
     '''
     spectrum_id = request.GET.get('spectrum_id')
     compound_id = request.GET.get('compound_id')
-    queryvalues = request.GET.get('query', False)
-
+    queryvalues = request.GET.get('queryspectra', False)
     if not spectrum_id:
         compound = get_object_or_404(models.Compound, pk = compound_id)
         spectrum = compound.spectrum_set.all()[0]
@@ -29,11 +28,15 @@ def page(request, template="mamboms/graph.html"):
         spectrum = get_object_or_404(models.Spectrum, pk = spectrum_id)
     
     '''Return the page containing the graph'''
-    return render_to_response(template, {
+    templateargs = {
                 "compound" : spectrum.compound,
                 "spectrum" : spectrum,
                 "molweight" : remove_exponent(spectrum.compound.molecular_weight),
-           })
+           }
+    if queryvalues is not False:
+        templateargs['queryspectra'] = queryvalues
+
+    return render_to_response(template, templateargs)
 @login_required
 def page_htt(request):
     return page(request, template="mamboms/graph_htt.html")
