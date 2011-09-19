@@ -6,7 +6,15 @@ var ImageManager = {
     init: function(spectrumId, interactive, queryspectra) {
         this.imageInfoHistory = [];
         this.spectrumId = spectrumId;
-        this.queryspectra = queryspectra;
+        this.queryspectra = null;
+        if (typeof(queryspectra) === 'undefined'){
+            this.queryspectra = null;
+            console.log('qs is null in init');
+        }
+        else{
+            this.queryspectra = queryspectra;
+            console.log("in init, qs is " + this.queryspectra);
+        }
         this.initImages();
         if (interactive) {
             this.initCroppers();
@@ -14,12 +22,13 @@ var ImageManager = {
     },
 
     initImages: function() {
-        if (typeof(this.queryspectra) === 'undefined'){
-            $( 'graphmap_img' ).src = 'htt_image/' + this.spectrumId + '/' + this.queryspectra + '/';
-        }
-        else{
+        //if (this.queryspectra !== null){
+        //    console.log('qs not null in initImages');
+        //    $( 'graphmap_img' ).src = 'htt_image/' + this.spectrumId + '/' + this.queryspectra + '/';
+        //}
+        //else{
             $( 'graphmap_img' ).src = 'imagemap/' + this.spectrumId + '/'; 
-        }
+        //}
         this.loadStartImage();
     },
 
@@ -121,10 +130,18 @@ var ImageManager = {
     setImages: function() {
         var imgInfo = this.curImageInfo;
         this.imageInfoHistory.push(imgInfo);
-        var params = imgInfo.spectrumId + '/' +
-                imgInfo.datastart + '/' +
-                imgInfo.dataend + '/';
-        $( 'graph_img' ).src = 'image/' + params; 
+        var urlbase = 'image/';
+        var params = imgInfo.spectrumId + '/';
+        console.log('spectrumId is ' + imgInfo.spectrumId);
+        if (this.queryspectra !== null){
+            console.log('queryspectra is ' + this.queryspectra);
+            params += this.queryspectra + '/';
+            urlbase = 'htt_image/';
+        }
+        params += imgInfo.datastart + '/';
+        params += imgInfo.dataend + '/';
+        
+        $( 'graph_img' ).src = urlbase + params; 
         if (this.cropper !== null) {
             this.updateCropper();
        }
@@ -202,8 +219,8 @@ function onMoveRight() { ImageManager.moveRight(); }
 function onReset() { ImageManager.loadStartImage(); }
 function onHistoryBack() { ImageManager.historyBack(); }
 
-function onLoad(spectrumId, interactive) {
-    ImageManager.init(spectrumId, interactive);
+function onLoad(spectrumId, interactive, queryspectra) {
+    ImageManager.init(spectrumId, interactive, queryspectra);
 
     if (interactive) {
         Event.observe('back', 'click', onHistoryBack);

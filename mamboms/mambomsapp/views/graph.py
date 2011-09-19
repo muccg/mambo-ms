@@ -66,7 +66,7 @@ def start_image(request, spectrum_id):
     return response
 
 @login_required
-def htt_image(request, compound_id, candidate=''):
+def htt_image(request, compound_id, candidate='', datastart=None, dataend=None):
     if len(candidate) == 0:
         return image(request, spectrum_id)
     
@@ -86,6 +86,13 @@ def htt_image(request, compound_id, candidate=''):
     spectrum = compound.spectrum_set.all()[0]
     response = HttpResponse(mimetype='image/png')
     graph = SpectraGraph.build_head_to_tail_graph(spectrum, candidate)
+    
+    #We don't use the cache for head to tails, because of the queryspectra
+    #this logic is from the cache though.
+    if datastart is not None and dataend is not None:
+            if graph.datastart != datastart or graph.dataend != dataend:
+                graph.set_newdatarange(datastart, dataend)
+    
     graph.write(response)
     return response
 
@@ -118,6 +125,7 @@ def image_action(request):
         spectrum = get_object_or_404(models.Spectrum, pk=req['spectrumId'])
         # TODO validate JSON ?
         print 'spectrum is', spectrum
+        print 'action is', req['action']
         if req['action'] == 'startImage':
             print 'entered startImage'
             graph = SpectraGraph.build_graph(spectrum)
