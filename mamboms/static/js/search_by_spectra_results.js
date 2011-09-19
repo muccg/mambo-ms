@@ -48,6 +48,7 @@ Ext.mambomsPopulateHeadToTail = function(compoundid){
     stb = stb.replace(/\s+/gi, ',');
     stb = stb.replace(/[,]+$/g, '');
     ifr.stb = stb;
+    console.log('stb saved on ifr as ' + stb);
     ifr.compoundid = compoundid;
     ifr.reload(ifr, compoundid, 'mamboms/graph/htt_image/' + compoundid + '/' + stb + '/');
 
