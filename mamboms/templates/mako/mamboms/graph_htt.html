@@ -17,8 +17,8 @@
     <script type="text/javascript" src="${relpath}static/js/cropper/cropper.js" language="javascript"></script>
     <script type="text/javascript" src="${relpath}static/js/graph.js" language="javascript"></script>
 </head>
-<body onLoad="onLoad(${spectrum.id}, true);">
-<div id="north"><div id="appTitle">Mambo-MS: Mass Spectrometer Data Viewer</div>
+<body onLoad="onLoad(${spectrum.id}, true, '${queryspectra}');">
+<div id="north"><div id="appTitle">Mambo-MS: Mass Spectrometer Head To Tail Viewer</div>
 <br/>
 <table id="compound_info">
     <tr><td class='label'>Name:</td> <td class='value'>${compound.cas_name}</td></tr>
