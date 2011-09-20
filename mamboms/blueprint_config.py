@@ -22,8 +22,8 @@ baseconfig.deps_dir = ''                  #Deps dir relative to root - empty has
 baseconfig.add_local('mango',             'mango-1.2.3-r204.tar.gz')      #add dep
 baseconfig.add_local('psycopg2',          'psycopg2-2.0.8.tar.gz')        #add dep
 baseconfig.add_local('ldap',              'python-ldap-2.3.5.tar.gz')     #add dep
-baseconfig.add_local('numpy',             'numpy-1.2.1-py2.6-linux-x86_64.egg')
-baseconfig.add_local('matplotlib',        'matplotlib-0.98.3-py2.6-linux-x86_64.egg')
+baseconfig.add_local('numpy',             'numpy-1.6.0-py2.6-linux-x86_64.egg')
+baseconfig.add_local('matplotlib',        'matplotlib-1.0.1-py2.6-linux-x86_64.egg')
 
 baseconfig.add_local('cython',            'Cython-0.12.tar.gz')
 baseconfig.add_local('pytc',              'pytc-0.8.tar.gz')
@@ -32,8 +32,8 @@ baseconfig.add_local('search_datastructures', 'search_datastructures-0.1-py2.6-l
 ub1010 = VirtualConfig('ubuntu_10_10_amd64', base=baseconfig)
 ub1010.deps_dir = 'ubuntu_amd64'
 ub1010.override_local('ldap',             'python-ldap-2.4.0.tar.gz') #dont use base ldap, use mine
-ub1010.override_local('numpy',            'numpy-1.6.0-py2.6-linux-x86_64.egg')
-ub1010.override_local('matplotlib',       'matplotlib-1.0.1-py2.6-linux-x86_64.egg')
+ub1010.override_local('numpy',            'numpy-1.6.0-py2.6-linux-x86_64.egg') #specifically built for ub1010
+ub1010.override_local('matplotlib',       'matplotlib-1.0.1-py2.6-linux-x86_64.egg') #specifically built for ub1010
 ub1010.override_local('search_datastructures', 'search_datastructures-0.1-py2.6-linux-x86_64.egg')
 ub1010.add_local('werkzeug',              'Werkzeug-0.6.2.tar.gz')    #also be aware of Werkzeug
 
