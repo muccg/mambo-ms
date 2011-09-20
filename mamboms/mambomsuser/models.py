@@ -134,7 +134,6 @@ class MambomsLDAPProfile(models.Model):
                 else:
                     self.user.groups.remove(noderepgroup)
 
-        print infoDict
         self.change_password(infoDict['password'])
        
         self.user.save()
@@ -156,7 +155,6 @@ class MambomsLDAPProfile(models.Model):
                 raise 
         else:
            self.user.set_password(new_password)
-           print 'Updated Django'
 
     def generate_password_reset_token(self):
         # There is a token generator in django.contrib.auth, but I'm not

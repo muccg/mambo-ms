@@ -26,7 +26,7 @@ class SpectraGraph:
 
     @staticmethod
     def build_head_to_tail_graph(spectrum, candidate = []):
-        graph = SpectraGraph(spectrum, candidate = candidate)
+        graph = SpectraGraph(spectrum, candidate = candidate, show_bar_labels=False)
         graph.initialize()
         return graph
 
@@ -91,22 +91,25 @@ class SpectraGraph:
                            color="red", align='center')
         (ymin, ymax) = self.ax.get_ylim()
         self.ax.set_ylim(ymax, ymin) #invert y axis
-        #no labels for compound
-
+        self.add_labels_to(bars)
 
         #query spectra graph
         bars = self.bx.bar(self.candidate[0::2], self.candidate[1::2], color="blue", align="center")
         self.add_labels_to(bars)
         self.set_axis_labels_size()
+        #move the tick labels for the query spectra to the top
+        self.bx.tick_params(axis='x', bottom='off', top='on', labelbottom='off', labeltop='on')
 
         #set both graphs to have the same xlim
         (axx_min, axx_max) = self.ax.get_xlim()
         (bxx_min, bxx_max) = self.bx.get_xlim()
         self.ax.set_xlim(min([axx_min, bxx_min]), max([axx_max, bxx_max]) )
         self.bx.set_xlim(min([axx_min, bxx_min]), max([axx_max, bxx_max]) )
-        self.figure.subplots_adjust(hspace=0, bottom=0.2)
+        self.figure.subplots_adjust(hspace=0, bottom=0.2, top=0.8)
         self.figure.text(0.5, 0.95, "Query Spectra", horizontalalignment='center')
         self.figure.text(0.5, 0.05, self.format_title(title), horizontalalignment='center')
+
+
         #in the new matplotlib we could just do..
         #self.bx.set_ticks_position('top')
         #lines = self.ax.get_xticklines()
