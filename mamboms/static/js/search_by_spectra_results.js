@@ -46,7 +46,9 @@ Ext.mambomsPopulateHeadToTail = function(compoundid){
     var ifr = Ext.getCmp('headtotail-graphiframe');
     var stb = Ext.getCmp('spectra_textbox').getValue();
     stb = stb.replace(/\s+/gi, ',');
+    stb = stb.replace(/[,]+$/g, '');
     ifr.stb = stb;
+    console.log('stb saved on ifr as ' + stb);
     ifr.compoundid = compoundid;
     ifr.reload(ifr, compoundid, 'mamboms/graph/htt_image/' + compoundid + '/' + stb + '/');
 

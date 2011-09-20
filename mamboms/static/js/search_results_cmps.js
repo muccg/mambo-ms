@@ -263,7 +263,7 @@ Ext.mambomsCreateSearchResultsHeadToTailPanel = function (params) {
         mambomsShowHeadToTailWindow(ifr.compoundid, ifr.stb); 
     };
 
-    ifr.setParams('100%', '100%', 'mamboms/graph/htt_image/', clickfn);
+    ifr.setParams('1000px', '300px', 'mamboms/graph/htt_image/', clickfn);
     return {
         id: theid,
         height: 300,

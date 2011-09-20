@@ -83,8 +83,6 @@ def save_user(request, *args):
 
     node = r.get('node', None)
     status = r.get('status', None)
-    print "Node: ", node
-    print "Status: ", status
     infoDict = {}   #A dictionary of extra information that the saving process may need *other* than user data.
     infoDict['node'] = node
     infoDict['status'] = status
