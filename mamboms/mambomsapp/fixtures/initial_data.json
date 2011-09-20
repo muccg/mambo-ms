@@ -1,0 +1,153 @@
+[
+    {
+        "pk": 1, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "NodeRep", 
+            "permissions": []
+        }
+    },
+    {
+        "pk": 1,
+        "model": "mambomsapp.dataset",
+        "fields": {
+            "name": "NIST",
+            "description": "As imported from the NIST 2008 data file"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "mambomsapp.dataset",
+        "fields": {
+            "name": "MA GC",
+            "description": "MA GC metabolite records"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "mambomsapp.dataset",
+        "fields": {
+            "name": "MA LC",
+            "description": "MA LC metabolite records"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "mambomsapp.node", 
+        "fields": {
+            "name": "Murdoch University"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "mambomsapp.node", 
+        "fields": {
+            "name": "University of Western Australia"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "mambomsapp.node", 
+        "fields": {
+            "name": "Australian Wine Research Institute"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "mambomsapp.node", 
+        "fields": {
+            "name": "University of Queensland"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "mambomsapp.node", 
+        "fields": {
+            "name": "University of Melbourne"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "mambomsapp.node", 
+        "fields": {
+            "name": "ABF"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M+H]+",
+						"polarity": "P"
+        }
+		}, 
+    {
+        "pk": 2, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M+Na]+",
+						"polarity": "P"
+        }
+		}, 
+    {
+        "pk": 3, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M+K]+",
+						"polarity": "P"
+        }
+		}, 
+    {
+        "pk": 4, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M-H20+H]+",
+						"polarity": "P"
+        }
+		}, 
+    {
+        "pk": 5, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M-H]-",
+						"polarity": "N"
+        }
+		}, 
+    {
+        "pk": 6, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M+FA-H]-",
+						"polarity": "N"
+        }
+		},
+		{
+        "pk": 7, 
+        "model": "mambomsapp.precursortype", 
+        "fields": {
+            "name": "[M+HAc-H]-",
+						"polarity": "N"
+        }
+		},
+		{
+        "pk": 1, 
+        "model": "mambomsapp.precursorselection", 
+        "fields": {
+            "name": "Quadrupole"
+        }
+		},
+		{
+        "pk": 2, 
+        "model": "mambomsapp.precursorselection", 
+        "fields": {
+            "name": "Paul Trap"
+        }
+		},
+		{
+        "pk": 3, 
+        "model": "mambomsapp.precursorselection", 
+        "fields": {
+            "name": "ISCID"
+        }
+		} 
+]
