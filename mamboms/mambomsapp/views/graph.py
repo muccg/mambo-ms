@@ -57,6 +57,17 @@ def image_map(request, spectrum_id):
     return response
 
 @login_required
+def htt_image_map(request, spectrum_id, candidate=[]):
+    candidate = parse_candidate_spectra(candidate)
+    spectrum = get_object_or_404(models.Spectrum, pk=spectrum_id)
+    response = HttpResponse(mimetype='image/png')
+    graphmap = SpectraGraph.build_head_to_tail_map_graph(spectrum, candidate=candidate)
+    graphmap.write(response)
+    return response
+
+
+
+@login_required
 def start_image(request, spectrum_id):
     spectrum = get_object_or_404(models.Spectrum, pk=spectrum_id)
     graph = SpectraGraph.build_graph(spectrum)
@@ -65,20 +76,25 @@ def start_image(request, spectrum_id):
     cache.put(graph)
     return response
 
+def parse_candidate_spectra(candidate):
+    try:
+        result = candidate.split(',')
+        if len(result) % 2 != 0:
+            result = result[0:-1:]
+        result = [float(i) for i in result]
+    except Exception, e:
+        print 'Error interpreting candidate values: %s : %s' % (str(candidate), e)
+        result = []    
+    return result
+    
+
 @login_required
 def htt_image(request, compound_id, candidate='', datastart=None, dataend=None):
     if len(candidate) == 0:
         return image(request, spectrum_id)
     
-    try:
-        #print "candidate was: ", candidate 
-        candidate = candidate.split(',')
-        if len(candidate) % 2 != 0:
-            candidate = candidate[0:-1:]
-        candidate = [float(i) for i in candidate]
-        #print "candidate is now: ", candidate
-    except Exception, e:
-        print 'Error interpreting candidate values: %s : %s' % (str(candidate), e)
+    candidate = parse_candidate_spectra(candidate) 
+    if candidate == []:
         return image(request, spectrum_id)
         
     #TODO - integrate this with the cache
@@ -124,10 +140,10 @@ def image_action(request):
         req = json_decode(request.raw_post_data)
         spectrum = get_object_or_404(models.Spectrum, pk=req['spectrumId'])
         # TODO validate JSON ?
-        print 'spectrum is', spectrum
-        print 'action is', req['action']
+        #print 'spectrum is', spectrum
+        #print 'action is', req['action']
         if req['action'] == 'startImage':
-            print 'entered startImage'
+            #print 'entered startImage'
             graph = SpectraGraph.build_graph(spectrum)
         else:
             graph = cache.pop_or_create(spectrum, req['datastart'], req['dataend'])

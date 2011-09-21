@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     (r'graph/htt_image/(?P<compound_id>\d+)/(?P<candidate>.*)/(?P<datastart>\d+)/(?P<dataend>\d+)/$', 'mamboms.mambomsapp.views.graph.htt_image'),
     (r'graph/htt_image/(?P<compound_id>\d+)/(?P<candidate>.*)/$', 'mamboms.mambomsapp.views.graph.htt_image'),
     (r'graph/imagemap/(?P<spectrum_id>\d+)/$', 'mamboms.mambomsapp.views.graph.image_map'),
+    (r'graph/htt_imagemap/(?P<spectrum_id>\d+)/(?P<candidate>.*)/$', 'mamboms.mambomsapp.views.graph.htt_image_map'),
     (r'graph/imageaction/$', 'mamboms.mambomsapp.views.graph.image_action'),
 
     # Search
