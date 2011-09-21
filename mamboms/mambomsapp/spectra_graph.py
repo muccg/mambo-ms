@@ -30,6 +30,18 @@ class SpectraGraph:
         graph.initialize()
         return graph
 
+    @staticmethod
+    def build_head_to_tail_map_graph(spectrum, candidate = []):
+        graph = SpectraGraph(spectrum,
+                            figsize = (9,1.5),
+                            show_title = False,
+                            candidate = candidate, 
+                            show_bar_labels=False,
+                            axis_labels_size = 5)
+        graph.initialize()
+        return graph
+        
+
     def __init__(self, spectrum, **kwargs):
         '''Use build_grap to create a graph or build_map_graph to build the map graph.'''
         self.spectrum = spectrum
@@ -73,7 +85,7 @@ class SpectraGraph:
         bars = self.ax.bar(self.spectrum.xs, self.spectrum.ys, 
                            color="red", align='center')
         self.add_labels_to(bars)
-        self.set_axis_labels_size()
+        self.set_axis_labels_size(self.ax)
 
     def create_head_to_tail_graph(self):
         self.figure = plt.figure(figsize = self.figsize)
@@ -92,11 +104,17 @@ class SpectraGraph:
         (ymin, ymax) = self.ax.get_ylim()
         self.ax.set_ylim(ymax, ymin) #invert y axis
         self.add_labels_to(bars)
+        self.set_axis_labels_size(self.ax)
 
         #query spectra graph
+        print "Candidate:", self.candidate
+        print self.candidate[0::2]
+        print self.candidate[1::2]
         bars = self.bx.bar(self.candidate[0::2], self.candidate[1::2], color="blue", align="center")
+        
         self.add_labels_to(bars)
-        self.set_axis_labels_size()
+        self.set_axis_labels_size(self.bx)
+        
         #move the tick labels for the query spectra to the top
         self.bx.tick_params(axis='x', bottom='off', top='on', labelbottom='off', labeltop='on')
 
@@ -106,9 +124,11 @@ class SpectraGraph:
         self.ax.set_xlim(min([axx_min, bxx_min]), max([axx_max, bxx_max]) )
         self.bx.set_xlim(min([axx_min, bxx_min]), max([axx_max, bxx_max]) )
         self.figure.subplots_adjust(hspace=0, bottom=0.2, top=0.8)
-        self.figure.text(0.5, 0.95, "Query Spectra", horizontalalignment='center')
-        self.figure.text(0.5, 0.05, self.format_title(title), horizontalalignment='center')
-
+        if (self.show_title):
+            self.figure.text(0.5, 0.95, "Query Spectra", horizontalalignment='center')
+            self.figure.text(0.5, 0.05, self.format_title(title), horizontalalignment='center')
+        
+        
 
         #in the new matplotlib we could just do..
         #self.bx.set_ticks_position('top')
@@ -137,9 +157,11 @@ class SpectraGraph:
             self.labels = labels.BarLabels(self.ax, bars)
         self.labels.create_labels()
 
-    def set_axis_labels_size(self):
+    def set_axis_labels_size(self, ax=None):
         if not self.axis_labels_size: return
-        axis_labels = self.ax.get_xticklabels() + self.ax.get_yticklabels()
+        if ax is None:
+            return
+        axis_labels = ax.get_xticklabels() + ax.get_yticklabels()
         for label in axis_labels:
             label.set_size(self.axis_labels_size)
 

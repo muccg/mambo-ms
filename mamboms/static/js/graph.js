@@ -22,13 +22,13 @@ var ImageManager = {
     },
 
     initImages: function() {
-        //if (this.queryspectra !== null){
+        if (this.queryspectra !== null){
         //    console.log('qs not null in initImages');
-        //    $( 'graphmap_img' ).src = 'htt_image/' + this.spectrumId + '/' + this.queryspectra + '/';
-        //}
-        //else{
+            $( 'graphmap_img' ).src = 'htt_imagemap/' + this.spectrumId + '/' + this.queryspectra + '/';
+        }
+        else{
             $( 'graphmap_img' ).src = 'imagemap/' + this.spectrumId + '/'; 
-        //}
+        }
         this.loadStartImage();
     },
 
@@ -236,8 +236,8 @@ function viewGraph(id, id_type) {
         param_name = 'spectrum_id';
     }
     var url = 'mamboms/graph?' + param_name + '=' + id;
-    var width = 1000;
-    var height = 700;
+    var width = '1000px';
+    var height = '700px';
     var x = (screen.width - width) / 2;
     var y = (screen.height - height) / 2;
     var props = "width=" + width + ", height=" + height + ", left=" + x + ", top=" + y;
