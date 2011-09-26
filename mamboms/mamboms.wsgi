@@ -23,6 +23,8 @@ if VIRTUAL_PYTHON:
 sys.path.append(PROJECT_DIR)
 sys.path.append(PROJECT_PARENT_DIR)
 sys.path.append(os.path.join("/usr","local","etc","ccgapps"))
+# Reverse sys.path so that virtualpython libraries override base python ones.
+sys.path.reverse()
 
 print sys.path
 
