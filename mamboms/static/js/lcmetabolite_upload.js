@@ -325,7 +325,9 @@ Ext.madasMetaboliteLCFieldCreator = function(idPrefix, readOnly) {
                     fieldLabel: 'CAS/IUPAC Name',
                     name: 'cas_name',
                     disabled: that.readOnly
-                },{
+                },{ /* As per Google Code Issue #55, LC m/z is not used, and instead each spectrum shows
+                      its Precursor Mass
+                    */
                     fieldLabel: 'm/z',
                     id: idPrefix + 'mol_weight',
                     name: 'mol_weight',

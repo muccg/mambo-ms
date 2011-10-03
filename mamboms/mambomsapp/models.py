@@ -419,7 +419,12 @@ class Spectrum(models.Model):
     precursor_selection = models.ForeignKey(PrecursorSelection, null=True, blank=True)
     collison_energy = models.CharField(max_length=255,blank=True)
     ionized_species = models.ManyToManyField(LCModification, null=True, blank=True)
-
+    #As per Google Code issue #55
+    precursor_mass = models.DecimalField(max_digits=18, decimal_places=10, verbose_name="Precursor Mass", default=Decimal("0.0"))
+    precursor_ion = models.CharField(max_length=20, blank=True, null=True, verbose_name="Precursor Ion")
+    product_ion = models.CharField(max_length=20, blank=True, null=True, verbose_name="Product Ion")
+    fragment_type = models.CharField(max_length=255, blank=True, null=True, verbose_name="Fragment Type")
+    
     @property
     def point_set(self):
         return PointSet(self.raw_points)
