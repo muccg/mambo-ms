@@ -75,7 +75,10 @@ def save_lc(request):
     lc_rec.cas_name = req.get('cas_name')
     lc_rec.cas_regno = req.get('cas_regno')
     lc_rec.molecular_formula = req.get('mol_formula')
-    lc_rec.molecular_weight = decimal.Decimal(req.get('mol_weight'))
+    
+    #As per Google Code issue 55, mol_weight may not be present.
+    if req.get('mol_weight', None) is not None:
+        lc_rec.molecular_weight = decimal.Decimal(req.get('mol_weight'))
     
         
     lc_rec.mono_isotopic_mass = decimal.Decimal(req.get('mono_isotopic_mass'))
@@ -102,6 +105,7 @@ def save_lc(request):
         lc_rec.biological_systems.add(bs)
 
     def save_spectrum(prefix, request):
+        print 'Saving spectrum'
         id = request.get(prefix + '_id')
         if id:
             spectrum = models.Spectrum.objects.get(id=id)
@@ -118,6 +122,15 @@ def save_lc(request):
         spectrum.collison_energy = request.get(prefix + '_collison_energy')
         csv_points = ",".join(request.get(prefix + '_mass_spectra').split())
         spectrum.raw_points = csv_points
+    
+        #As per Google Code issue 55, we now have precursor mass on spectrum:
+        if request.get(prefix + '_precursor_mass', None) is not None:
+            spectrum.precursor_mass = decimal.Decimal(request.get(prefix + '_precursor_mass'))
+            print 'Saving precursor mass:', spectrum.precursor_mass
+
+        spectrum.precursor_ion = request.get(prefix + '_precursor_ion')
+        spectrum.product_ion = request.get(prefix + '_product_ion')
+        spectrum.fragment_type = request.get(prefix + '_fragment_type')
         
         lc_rec.spectrum_set.add(spectrum)
         #For the many to many ionized species:
@@ -350,6 +363,10 @@ class LCLoader(CompoundLoader):
             data[prefix + 'collison_energy'] = spectrum.collison_energy
             data[prefix + 'mass_spectra'] = format_mass_spectra(spectrum.point_set)
             data[prefix + 'ionized_species'] = ','.join([str(i.id) for i in spectrum.ionized_species.all()])
+            data[prefix + 'precursor_mass'] = str(spectrum.precursor_mass)
+            data[prefix + 'precursor_ion'] = spectrum.precursor_ion
+            data[prefix + 'product_ion'] = spectrum.product_ion
+            data[prefix + 'fragment_type'] = spectrum.fragment_type
 
         return data
 # Implementation 

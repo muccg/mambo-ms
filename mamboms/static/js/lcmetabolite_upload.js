@@ -48,6 +48,82 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
             panel.setTitle('Spectrum');
         }
     };
+
+    var showMSMSFields = function(shouldShow){
+        
+        var hidefield = function(field){
+            field.disable(); //for validation
+            field.hide();
+            field.getEl().up('.x-form-item').setDisplayed(false);//hide label
+        };
+
+        var showfield = function(field){
+            field.enable(); //for validation
+            field.show();
+            field.getEl().up('.x-form-item').setDisplayed(true);//show label
+        };
+
+        
+        var form = Ext.getCmp('edit-lcmetabolite-panel').getForm();
+        if(shouldShow){
+            showfield( Ext.getCmp(idPrefix + spectrumId + 'precursor-ion') );
+            showfield( Ext.getCmp(idPrefix + spectrumId + 'product-ion') );
+            showfield( Ext.getCmp(idPrefix + spectrumId + 'fragment-type') );
+
+        }
+        else{
+            hidefield( Ext.getCmp(idPrefix + spectrumId + 'precursor-ion') );
+            hidefield( Ext.getCmp(idPrefix + spectrumId + 'product-ion') );
+            hidefield( Ext.getCmp(idPrefix + spectrumId + 'fragment-type') );
+        }
+    };
+
+    //The code below for the mass specrtra field is like this because
+    //if we use a 'select' listener for the logic, it only gets called
+    //if the user manually selects the value - it is not called when
+    //the store populates the combo.
+    //
+    //so instead, we are overriding the setValue method.
+    //we use a sequence so that we don't overwrite any of the inherited
+    //funcionality.
+    //It is a massive pain, really.
+    //change, blur listeners didn't work either.
+    var masspectratypecombo = new Ext.form.ComboBox({
+                        id: idPrefix + spectrumId + 'mass-spectra-type',
+                        fieldLabel: 'Mass Spectra Type',
+                        editable:false,
+                        forceSelection:true,
+                        displayField:'name',
+                        valueField:'id',
+                        hiddenName:spectrumId + '_mass_spectra_type',
+                        lazyRender:true,
+                        typeAhead:false,
+                        triggerAction:'all',
+                        listWidth:230,
+                        allowBlank: false,
+                        mode: 'local',
+                        disabled: readOnly,
+                        listeners: markTabInvalidListeners,
+                        store: new Ext.data.ArrayStore({
+                            idIndex: 0,
+                            fields: ['id', 'name']
+                        })
+                    });
+
+    masspectratypecombo.setValue = Ext.form.ComboBox.prototype.setValue.createSequence(function(v){
+                            var record = masspectratypecombo.store.data.map[v];
+                            if (typeof(record) == 'undefined')
+                                return;
+                            if (record.data['name'] == 'MS MS'){
+                                showMSMSFields(true);
+                            }
+                            else{
+                                showMSMSFields(false);
+                            }
+                            
+                        });
+
+
     return {
         id: idPrefix + spectrumId + '-tab',
         title:'Spectrum',
@@ -68,27 +144,8 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                         xtype: 'hidden',
                         id: idPrefix + spectrumId + 'id',
                         name: spectrumId + '_id'
-                    }, new Ext.form.ComboBox({
-                        id: idPrefix + spectrumId + 'mass-spectra-type',
-                        fieldLabel: 'Mass Spectra Type',
-                        editable:false,
-                        forceSelection:true,
-                        displayField:'name',
-                        valueField:'id',
-                        hiddenName:spectrumId + '_mass_spectra_type',
-                        lazyRender:true,
-                        typeAhead:false,
-                        triggerAction:'all',
-                        listWidth:230,
-                        allowBlank: false,
-                        mode: 'local',
-                        disabled: readOnly,
-                        listeners: markTabInvalidListeners,
-                        store: new Ext.data.ArrayStore({
-                            idIndex: 0,
-                            fields: ['id', 'name']
-                        })
-                    }),{
+                    },  masspectratypecombo, 
+                    {
                         fieldLabel: 'Description',
                         name: spectrumId + '_description',
                         allowBlank: false,
@@ -178,7 +235,27 @@ Ext.madasSpectrumTabCreator = function(idPrefix, index, readOnly) {
                         allowBlank: true,
                         disabled: readOnly,
                         mode: 'local'
-                        })]
+                    }),{
+                        xtype: 'numberfield',
+                        decimalPrecision: 10,
+                        id: idPrefix + spectrumId + 'precursor-mass',
+                        fieldLabel : 'Precursor Mass',
+                        name: spectrumId + '_precursor_mass'
+                    },{
+                        id: idPrefix + spectrumId + 'precursor-ion',
+                        fieldLabel: 'Precursor Ion',
+                        name: spectrumId + '_precursor_ion'
+                    },{
+                        id: idPrefix + spectrumId + 'product-ion',
+                        fieldLabel: 'Product Ion',
+                        name: spectrumId + '_product_ion'
+                    },{
+                        id: idPrefix + spectrumId + 'fragment-type',
+                        fieldLabel: 'Fragment Type',
+                        name: spectrumId + '_fragment_type'
+                    }
+                        
+                        ]
                     } ,{
                     columnWidth: 0.5,
                     layout: 'form',
@@ -325,17 +402,19 @@ Ext.madasMetaboliteLCFieldCreator = function(idPrefix, readOnly) {
                     fieldLabel: 'CAS/IUPAC Name',
                     name: 'cas_name',
                     disabled: that.readOnly
-                },{ /* As per Google Code Issue #55, LC m/z is not used, and instead each spectrum shows
-                      its Precursor Mass
-                    */
-                    fieldLabel: 'm/z',
-                    id: idPrefix + 'mol_weight',
-                    name: 'mol_weight',
-                    xtype: 'numberfield',
-                    decimalPrecision: 10,
-                    disabled: that.readOnly,        
-                    allowBlank: false
+                //},{ 
+                    // As per Google Code Issue #55, LC m/z is not used, and instead each spectrum shows
+                    //  its Precursor Mass
+               //     fieldLabel: 'm/z',
+               //     id: idPrefix + 'mol_weight',
+               //     name: 'mol_weight',
+               //     xtype: 'numberfield',
+               //     decimalPrecision: 10,
+               //     disabled: that.readOnly,        
+               //     allowBlank: false,
+               //     hidden: true
                 },{
+                    
                     fieldLabel: 'Calculated monoisotopic neutral mass',
                     id: that.idPrefix + 'mono_isotopic_mass',
                     name: 'mono_isotopic_mass',
@@ -387,7 +466,7 @@ Ext.madasMetaboliteLCSpec = function() {
         title: 'LCMS MA Metabolite Record',
         fieldCreator: Ext.madasMetaboliteLCFieldCreator,
         url: 'mamboms/lcmetabolite/save/',
-        clearInvalidCmps: ['mono_isotopic_mass', 'mol_weight'],
+        clearInvalidCmps: ['mono_isotopic_mass'/*, 'mol_weight'*/],
         column1Fields: [
             'id_display', 'id', 'known', 'node', 'instrument', 'method', 'platform', 'deriv_agent',
             'mz_adducts', 'mass_range', 'instrument_method', 'method_summary', 'sample_run_by', 
@@ -396,7 +475,7 @@ Ext.madasMetaboliteLCSpec = function() {
         column2Fields: [
             'column', 'compound_name', 'synonyms',
             'biological_systems', 'metabolite_class', 'cas_name', 'cas_regno', 'mol_formula', 
-            'mono_isotopic_mass', 'mol_weight', 'retention_time', 'retention_index', 'kegg_id', 
+            'mono_isotopic_mass', /*'mol_weight',*/ 'retention_time', 'retention_index', 'kegg_id', 
             'kegg_link','extract_description', 'vetted', 'can_vet'
         ],  
         southFields: ['spectrum-tabpanel'],
