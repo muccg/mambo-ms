@@ -195,7 +195,7 @@ def dotsearchJSON(request, id=0, num=0, pagenum=1):
 
 def dotsearchMain(request, id=0, num=0):
     comp = Compound.objects.get(id=id)
-    import webhelpers
+    from ccg.utils import webhelpers
     return render_to_response("mamboms/dotsearch.html", 
                             {
                                 "compoundid" : id,

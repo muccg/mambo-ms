@@ -2,8 +2,9 @@ from mamboms.mambomsapp.models import Dataset, Compound, PointSet, Spectrum, Has
 import search_datastructures as sd
 from django.http import HttpResponse
 from mamboms.decorators import authentication_required, admins_only, admins_and_nodereps_only
-from django.shortcuts import render_to_response, render_mako, get_object_or_404
-from django.utils.webhelpers import siteurl
+from django.shortcuts import render_to_response, get_object_or_404
+from ccg.utils import webhelpers
+from ccg.utils.webhelpers import siteurl
 
 #This is a manual create, if we want to do that
 @admins_only
@@ -52,7 +53,7 @@ def status(request, *args):
     #for k in d.keys():
     #    s += "%s : %s<br>" % (str(k), str(d[k]))
     
-    return render_mako("mamboms/hash_management.html", 
+    return render_to_response("mamboms/hash_management.html", 
                         stats = d,
                         APP_SECURE_URL = siteurl(request),
                         username = request.user.username)

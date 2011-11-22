@@ -1,4 +1,4 @@
-from mamboms import LDAPHandler
+from ccg.auth.ldap_helper import LDAPHandler
 from django.contrib.auth.models import User, SiteProfileNotAvailable
 import models
 
