@@ -7,6 +7,7 @@ from mamboms.mambomsapp import models
 from mamboms import settings
 from ccg.utils import webhelpers
 from ccg.utils.webhelpers import siteurl, wsgibase
+from django.shortcuts import render_to_response
 
 # "Real" view functions 
 
