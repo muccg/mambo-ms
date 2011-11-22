@@ -3,6 +3,9 @@
 # You need to have:
 #   python header files 
 
+# if any subscript fails, fail the entire script so we immediately know
+set -e
+
 PROJECT_DIR=`pwd`
 CACHE='/tmp'
 PIP_DOWNLOAD_CACHE=${CACHE}
