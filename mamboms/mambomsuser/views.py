@@ -1,5 +1,5 @@
 # Create your views here.
-from mamboms import LDAPHandler, mail_functions
+from mamboms import mail_functions
 
 from mamboms.utils import setRequestVars, jsonResponse, json_response, makeJsonFriendly
 from mamboms.mambomsapp.views.utils import json_encode

@@ -1,4 +1,5 @@
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseUnauthorized
+from django.http import HttpResponse, HttpResponseForbidden
+from ccg.http import HttpResponseUnauthorized
 
 def authentication_required(f):
 

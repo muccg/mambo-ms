@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group, UserManager
-from mamboms import LDAPHandler
+from ccg.auth.ldap_helper import LDAPHandler
 from mamboms.utils import debugPrint as dprint
 from mamboms import mambomsapp
 from mamboms import settings

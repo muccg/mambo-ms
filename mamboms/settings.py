@@ -29,6 +29,14 @@
 import os
 from ccg.utils.webhelpers import url
 
+# these settings are used when running under WSGI
+if not os.environ.has_key('SCRIPT_NAME'):
+    os.environ['SCRIPT_NAME']=''
+SCRIPT_NAME =   os.environ['SCRIPT_NAME']
+PROJECT_DIRECTORY = os.environ['PROJECT_DIRECTORY']
+
+SSL_ENABLED = True
+
 # set debug, see: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = True
 
@@ -45,11 +53,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.FetchFromCacheMiddleware'
 )
 
-INSTALLED_APPS.extend( [
+INSTALLED_APPS = ( [
     'mamboms.mambomsapp',
     'mamboms.mambomsuser',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django_extensions',
     'south'
 ] )
@@ -76,6 +85,8 @@ SESSION_COOKIE_PATH = url('/')
 SESSION_COOKIE_NAME = 'mamboms_sessionid'
 SESSION_SAVE_EVERY_REQUEST = True
 CSRF_COOKIE_NAME = "csrftoken_mamboms"
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
 
 # Locale
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
@@ -96,7 +107,9 @@ LOGOUT_URL = url('/logout')
 STATICFILES_DIRS = []
 STATIC_ROOT = os.path.join(PROJECT_DIRECTORY,"static")
 STATIC_URL = url('/static/')
-ADMIN_MEDIA_PREFIX = url('/static/admin/')
+
+# TODO This should change to be django friendly
+ADMIN_MEDIA_PREFIX = url('/static/admin-media/')
 
 # media directories
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
