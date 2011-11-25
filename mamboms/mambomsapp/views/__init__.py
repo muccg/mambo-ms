@@ -26,17 +26,22 @@ def serve_file(request, path):
     return response
 
 def site_frontend(request):
+    print "rendered site_ fe"
     force = request.GET.get('dev_force', False) #param that can be passed to force access to ccg instance, for debugging purposes
     if not force and siteurl(request).find('ccg.murdoch.edu.au') > -1:
         #display the banner
-        return render_to_response('mamboms/banner.html', APP_SECURE_URL = siteurl(request), newurl='https://mambo.bio21.unimelb.edu.au/mamboms')
+        return render_to_response('mamboms/banner.html',{ 
+                'APP_SECURE_URL': siteurl(request), 
+                'newurl':'https://mambo.bio21.unimelb.edu.au/mamboms'
+                })
     else:
         return frontend(request)
 
 @login_required
 def frontend(request):
-    return render_to_response('mamboms/frontend.html',
-                APP_SECURE_URL = siteurl(request),
-                username = request.user.username
-            )
+    print "rendered fe"
+    return render_to_response('mamboms/frontend.html', {
+                'APP_SECURE_URL': siteurl(request),
+                'username':request.user.username
+                })
 
