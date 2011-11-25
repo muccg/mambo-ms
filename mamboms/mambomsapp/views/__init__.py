@@ -36,7 +36,7 @@ def site_frontend(request):
 @login_required
 def frontend(request):
     return render_to_response('mamboms/frontend.html',
-                APP_SECURE_URL = siteurl(request),
-                username = request.user.username
+                {'username': request.user.username,
+                 'APP_SECURE_URL': siteurl(request)}
             )
 
