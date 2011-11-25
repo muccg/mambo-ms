@@ -138,9 +138,9 @@ TEMPLATE_DEBUG = DEBUG
 
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
 TEMPLATE_LOADERS = [
+    'ccg.template.loaders.makoloader.filesystem.Loader',
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    'ccg.template.loaders.makoloader.filesystem.Loader'
 ]
 
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
@@ -236,5 +236,7 @@ assert os.path.exists(PERSISTENT_FILESTORE), "This application cannot start: It 
 # global shared settings among multiple Django projects.
 try:
     from appsettings.mamboms import *
+    print "Using overrides from appsettings.mamboms"
 except ImportError, e:
+    print "No appsettings detected."
     pass

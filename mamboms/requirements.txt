@@ -31,4 +31,4 @@ South>=0.7.3
 django-extensions>=0.7.1
 psycopg2==2.0.8
 python-ldap==2.3.13
-file:eggs/search_datastructures-0.1-py2.6-linux-x86_64.egg
+file:../mamboms/eggs/search_datastructures-0.1.tar.gz
