@@ -21,6 +21,7 @@ from django.http import HttpResponseForbidden
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 
+import logging
 logger = logging.getLogger('mamboms')
 
 # TODO get read of the session and set request vars stuff
