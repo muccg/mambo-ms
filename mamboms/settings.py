@@ -212,7 +212,6 @@ CACHE_BACKEND = 'memcached://'+(';'.join(MEMCACHE_SERVERS))+"/"
 CACHE_MIDDLEWARE_SECONDS = 5
 CACHE_MIDDLEWARE_KEY_PREFIX = "mamboms-"
 
-LOGS = ['mango_ldap', 'mamboms_spectral_search_log', 'mamboms_import_log' ]
 TEST_RUNNER = 'mamboms.test.testrunner.run_mamboms_tests'
 
 PERSISTENT_FILESTORE = os.path.normpath(os.path.join(PROJECT_DIRECTORY, '..', '..', 'files')) 
@@ -222,11 +221,105 @@ PERSISTENT_FILESTORE_URL = url('/mamboms/files/')
 OUTPUT_SUBPATH = "output"
 UPLOAD_SUBPATH = "upload"
 
+#Ensure the persistent storage dir exits. If it doesn't, exit noisily.
+assert os.path.exists(PERSISTENT_FILESTORE), "This application cannot start: It expects a writeable directory at %s to use as a persistent filestore" % (PERSISTENT_FILESTORE) 
+
 if not os.path.exists(os.path.join(PERSISTENT_FILESTORE,OUTPUT_SUBPATH)):
     os.mkdir(os.path.join(PERSISTENT_FILESTORE,OUTPUT_SUBPATH))
 
-#Ensure the persistent storage dir exits. If it doesn't, exit noisily.
-assert os.path.exists(PERSISTENT_FILESTORE), "This application cannot start: It expects a writeable directory at %s to use as a persistent filestore" % (PERSISTENT_FILESTORE) 
+#LOGGING:
+# see https://docs.djangoproject.com/en/dev/topics/logging/
+LOG_DIRECTORY = os.path.join(PROJECT_DIRECTORY,"logs")
+assert os.path.exists(LOG_DIRECTORY), "No logs directory, please create one: %s" % LOG_DIRECTORY
+INSTALL_NAME = PROJECT_DIRECTORY.split('/')[-2]
+LOGS = ['mango_ldap', 'mamboms_spectral_search_log', 'mamboms_import_log' ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': 'Mamboms [%(name)s:' + INSTALL_NAME + ':%(levelname)s:%(asctime)s:%(filename)s:%(lineno)s:%(funcName)s] %(message)s'
+        },
+        'db': {
+            'format': 'Mamboms [%(name)s:' + INSTALL_NAME + ':%(duration)s:%(sql)s:%(params)s] %(message)s'
+        },
+        'simple': {
+            'format': 'Mamboms ' + INSTALL_NAME + ' %(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+    },
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file':{
+            'level':'DEBUG',
+            'class':'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(LOG_DIRECTORY, 'mamboms.log'),
+            'when':'midnight',
+            'formatter': 'verbose'
+        },
+        'db_logfile':{
+            'level':'DEBUG',
+            'class':'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(LOG_DIRECTORY, 'mamboms_db.log'),
+            'when':'midnight',
+            'formatter': 'db'
+        },
+        'syslog':{
+            'level':'DEBUG',
+            'class':'logging.handlers.SysLogHandler',
+            'address':'/dev/log',
+            'facility':'local4',
+            'formatter': 'verbose'
+        },        
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter':'verbose',
+            'include_html':True
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers':['null'],
+            'propagate': True,
+            'level':'INFO',
+        },
+        'django.request': {
+            'handlers': ['file', 'syslog', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['db_logfile', 'mail_admins'],
+            'level': 'CRITICAL',
+            'propagate': False,
+        },
+        'mamboms': {
+            'handlers': ['console', 'file', 'syslog', 'mail_admins'],
+            'level': 'DEBUG'
+        },
+        'mamboms_spectral_search_log': {
+            'handlers': ['console', 'file', 'syslog', 'mail_admins'],
+            'level': 'DEBUG'
+        },
+        'mamboms_import_log': {
+            'handlers': ['console', 'file', 'syslog', 'mail_admins'],
+            'level': 'DEBUG'
+        }
+    }
+}
+
+
 
 
 # Load instance settings.
