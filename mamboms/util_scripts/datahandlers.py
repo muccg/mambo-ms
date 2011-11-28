@@ -10,7 +10,7 @@ import os, sys
 import os.path
 from mamboms.settings import WRITABLE_DIRECTORY
 import csv
-from django.contrib import logging
+import logging
 logger = logging.getLogger('mamboms_import_log')
 
 class MSDataRecord(object):

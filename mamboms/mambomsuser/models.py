@@ -9,6 +9,7 @@ import hashlib
 import uuid
 
 NODEREP_GROUP_NAME = 'NodeRep'
+import logging
 logger = logging.getLogger('mamboms')
 
 PROFILE_PROPERTIES = {
