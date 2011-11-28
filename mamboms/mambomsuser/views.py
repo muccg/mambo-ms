@@ -21,8 +21,7 @@ from django.http import HttpResponseForbidden
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 
-from mamboms.utils import debugPrint as dprint
-dprint.register(True)
+logger = logging.getLogger('mamboms')
 
 # TODO get read of the session and set request vars stuff
 # TODO return a JSON error if the user was invalid
@@ -33,7 +32,7 @@ def load_user(request, *args):
     try:
         user = User.objects.get(username = uname)
     except User.DoesNotExist:
-        dprint('Exception: No django user existed with username %s' % (uname))
+        logger.debug('Exception: No django user existed with username %s' % (uname))
 
     # Non-admin users are allowed to load only their details
     if not request.user.get_profile().is_admin and user != request.user:
@@ -95,7 +94,7 @@ def save_user(request, *args):
         u.get_profile().save_details(updateDict, infoDict, request.user)
         success = True
     except Exception, e:
-        dprint('\tException saving details: %s' % (str(e)) )
+        logger.debug('\tException saving details: %s' % (str(e)) )
     
     if success:
         mail_functions.sendAccountModificationEmail(request, uname)
@@ -103,7 +102,7 @@ def save_user(request, *args):
     nextview = 'admin:usersearch'
 
     setRequestVars(request, success=success, authenticated=True, authorized=True, mainContentFunction = nextview)
-    dprint('*** exit ***')
+    logger.debug('*** exit ***')
 
     return jsonResponse(request, []) 
 
@@ -172,7 +171,7 @@ def list_users(request):
 
 @authentication_required
 def list_all_nodes(request, *args, **kwargs):
-    dprint('***enter***')
+    logger.debug('***enter***')
     groups = [
         {'name':'Don\'t Know', 'id':None} 
     ]
@@ -182,7 +181,7 @@ def list_all_nodes(request, *args, **kwargs):
         groups.append( { 'name': group_dict['name'], 'id': group_dict['id'] } )
 
     setRequestVars(request, success=True, items=groups, totalRows=len(groups), authenticated=True, authorized=True)
-    dprint('***exit***')
+    logger.debug('***exit***')
 
     return jsonResponse(request, [])
 
