@@ -5,6 +5,9 @@ from django.shortcuts import render_to_response, get_object_or_404
 from ccg.utils import webhelpers
 from ccg.utils.webhelpers import siteurl
 
+import logging
+logger = logging.getLogger('mamboms_search_log')
+
 FAST_SEARCH_ENABLED = False
 try:
     import search_datastructures as sd
@@ -30,7 +33,7 @@ def build_hash(request, qset = None, limit = None):
         limit = request.GET.get('limit', None)
 
         if sd.DATAHASH[0] is None or sd.DATAHASH[0].state != sd.DATAHASH[0].STATE_BUILDING:
-            print 'building datahash, limit is %s' % (str(limit))
+            logger.debug('building datahash, limit is %s' % (str(limit)) )
             
             #Here, you change your queryset...
             sd.DATAHASH[0].build(Spectrum.objects.all(), limit=limit)
@@ -49,7 +52,7 @@ def update_hash(request):
             dirty = HashMaintenance.objects.all()
             dirty_spectrums = Spectrum.objects.filter(id__in=[sp.spectrum.id for sp in dirty])
             sd.DATAHASH[0].build( dirty_spectrums )
-            print 'Updating datahash with %d records.' % (dirty.count())
+            logger.debug('Updating datahash with %d records.' % (dirty.count()) )
             #TODO: there is no proof coming from the build function that all of these were successfully added...
             for d in dirty:
                 d.delete()
