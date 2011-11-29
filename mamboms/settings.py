@@ -308,7 +308,7 @@ LOGGING = {
             'handlers': ['console', 'file', 'syslog', 'mail_admins'],
             'level': 'DEBUG'
         },
-        'mamboms_spectral_search_log': {
+        'mamboms_search_log': {
             'handlers': ['console', 'file', 'syslog', 'mail_admins'],
             'level': 'DEBUG'
         },
