@@ -15,7 +15,7 @@ try:
 except:
     pass
 
-def fast_search_disabled()
+def fast_search_disabled():
     return HttpResponse('fast search is not enabled.')
 
 #This is a manual create, if we want to do that

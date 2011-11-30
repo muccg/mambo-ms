@@ -5,19 +5,21 @@ from mamboms.mambomsapp import models
 from django.db.models import Q
 from mamboms.mambomsapp.view_models import Compounds_View, PointSet, Spectrum
 from mamboms.mambomsapp.views.utils import int_param, decimal_param, json_encode
+import logging
+logger = logging.getLogger('mamboms_search_log')
 
-FAST_NUMPY_SEARCH_ENABLED = False
+FAST_TOKYO_SEARCH_ENABLED = False
 
 try:
     from mamboms.mambomsapp import dot_product_search
     from mamboms.mambomsapp.dot_product_search import SearchAlgorithms
     import mamboms.mambomsapp.search_admin_views #this is mainly to make sure the datahash is created
-    FAST_NUMPY_SEARCH_ENABLED = True
+    FAST_TOKYO_SEARCH_ENABLED = True
+    logger.warning("Running with tokyo search enabled")    
 except Exception, e:
-    pass
+    logger.warning("Running with tokyo search disabled")    
+    FAST_TOKYO_SEARCH_SEARCH_ENABLED = False
 
-import logging
-logger = logging.getLogger('mamboms_search_log')
 
 @authentication_required
 def keyword_search(request):
@@ -80,7 +82,7 @@ def spectra_search(request, algorithm=stored_procedure_search):
     
     # so if the FAST_NUMPY_SEARCH_ENABLED is true, and 
     # tokyo is in the spectra, we will use the tokyo hash based search.
-    if FAST_NUMPY_SEARCH_ENABLED and spectra[len(spectra)-1] == 'tokyo':
+    if FAST_TOKYO_SEARCH_ENABLED and spectra[len(spectra)-1] == 'tokyo':
         tokyo = True
         spectra.pop() #get rid of 'tokyo'
     
