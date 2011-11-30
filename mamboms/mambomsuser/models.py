@@ -61,7 +61,7 @@ class UserStatus(models.Model):
         return self.name
 
 class MambomsLDAPProfile(models.Model):
-    user = models.ForeignKey(User, unique = True)
+    user = models.ForeignKey(User, unique = True, related_name='+') #related_name to satisfy south, but we don't actually want a related name
     title  = models.CharField(null=True,max_length=50)
     first_name  = models.CharField(null=True,max_length=50)
     last_name = models.CharField(null=True,max_length=50)
@@ -77,7 +77,7 @@ class MambomsLDAPProfile(models.Model):
     country = models.CharField(null=True,max_length=50)
     password_reset_token = models.CharField(null=True, db_index=True, max_length=50)
 
-    node = models.ForeignKey('mambomsapp.Node', null=True)
+    node = models.ForeignKey('mambomsapp.Node', null=True, related_name='+') #related name to satisfy south, but we don't actually want one
     status = models.ForeignKey(UserStatus)
 
     def get_details(self):
