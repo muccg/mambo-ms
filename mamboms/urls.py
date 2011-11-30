@@ -3,7 +3,7 @@ from django.contrib import admin
 from mamboms.mambomsapp import admin as mamboms_admin
 from mamboms import settings
 
-#admin.autodiscover()
+admin.autodiscover()
 
 urlpatterns = patterns('',
     # Example:
@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     (r'^mamboms/', include('mamboms.mambomsapp.urls')),
     (r'^user/', include('mamboms.mambomsuser.urls')),
     (r'^reference/', include('mamboms.mambomsapp.urls')),
-    url(r'^msadmin/', include(admin.site.urls)),
+    (r'^msadmin/', include(admin.site.urls)),
     (r'^import/fileupload$', 'util_scripts.dataimporter.datafile_upload'),
     (r'^import/definefields$', 'util_scripts.dataimporter.define_fields'),
     (r'^import/confirmimport$', 'util_scripts.dataimporter.confirm_import'),
