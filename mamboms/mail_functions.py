@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.webhelpers import siteurl, url
+from ccg.utils import webhelpers
+from ccg.utils.webhelpers import siteurl, url
 
 import os.path
 

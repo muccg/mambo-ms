@@ -1,13 +1,5 @@
 [
     {
-        "pk": 1, 
-        "model": "auth.group", 
-        "fields": {
-            "name": "NodeRep", 
-            "permissions": []
-        }
-    },
-    {
         "pk": 1,
         "model": "mambomsapp.dataset",
         "fields": {
@@ -35,42 +27,7 @@
         "pk": 1, 
         "model": "mambomsapp.node", 
         "fields": {
-            "name": "Murdoch University"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "mambomsapp.node", 
-        "fields": {
-            "name": "University of Western Australia"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "mambomsapp.node", 
-        "fields": {
-            "name": "Australian Wine Research Institute"
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "mambomsapp.node", 
-        "fields": {
-            "name": "University of Queensland"
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "mambomsapp.node", 
-        "fields": {
-            "name": "University of Melbourne"
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "mambomsapp.node", 
-        "fields": {
-            "name": "ABF"
+            "name": "Test Node"
         }
     }, 
     {

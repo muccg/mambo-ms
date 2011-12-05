@@ -5,23 +5,32 @@ from mamboms.mambomsapp import models
 from django.db.models import Q
 from mamboms.mambomsapp.view_models import Compounds_View, PointSet, Spectrum
 from mamboms.mambomsapp.views.utils import int_param, decimal_param, json_encode
-from mamboms.mambomsapp import dot_product_search
-from mamboms.mambomsapp.dot_product_search import SearchAlgorithms
-import mamboms.mambomsapp.search_admin_views #this is mainly to make sure the datahash is created
+import logging
+logger = logging.getLogger('mamboms_search_log')
+
+FAST_TOKYO_SEARCH_ENABLED = False
+
+try:
+    from mamboms.mambomsapp import dot_product_search
+    from mamboms.mambomsapp.dot_product_search import SearchAlgorithms
+    import mamboms.mambomsapp.search_admin_views #this is mainly to make sure the datahash is created
+    FAST_TOKYO_SEARCH_ENABLED = True
+    logger.warning("Running with tokyo search enabled")    
+except Exception, e:
+    logger.warning("Running with tokyo search disabled")    
+    FAST_TOKYO_SEARCH_SEARCH_ENABLED = False
 
 
 @authentication_required
 def keyword_search(request):
     req_params = request.POST
-    #for key in req_params.keys():
-    #    print '%s: %s' % (key, req_params[key])
     try:
         q = build_search_queryset(req_params, request.user)
         q = sort_queryset(q, req_params)
         start, end = get_range(req_params)
         return HttpResponse(json_encode(mapify_results(q[start:end], q.count())))
     except Exception, e:
-        print 'Problem: ', str(e)
+        logger.warning('Problem: %s' % (str(e)))
         return HttpResponse(json_encode([]) )
 
 def stored_procedure_search(spectra, limit, adjust):
@@ -32,7 +41,7 @@ def stored_procedure_search(spectra, limit, adjust):
         result = cursor.fetchone()[0]
         return [line.split() for line in result.split('\n') if line]
     except Exception, e:
-        print 'Problem running search: ', e
+        logger.warning('Problem running search: %s' % (e))
         return []
 
 def dot_product_ma_inhouse(spectra, limit, adjust):
@@ -46,12 +55,22 @@ def dot_product(spectra, limit, adjust):
     return dot_product_search.search(input, thresh = 0.2, algorithm=SearchAlgorithms.DOTPRODUCT)
 
 
+##
+# This function will feed the spectra to whichever function is
+# pointed to by 'algorithm'
+# By default, this is set to the stored_procedure_search, and
+# the choice between the 'inhouse' and 'normal' algorithms is whether
+# 'adjust' is 0 (normal) or 1 (inhouse).
+# 
+# However if the word 'tokyo' is in the input spectra, the
+# algorithm either gets set to 'dot_prouct_ma_inhouse' or 'dot_product'
+# These will use the tokyo hash based search over in the 
+# dot_product_search.search module.
+#
 @clients_forbidden
 def spectra_search(request, algorithm=stored_procedure_search):
     req_params = request.POST
     
-    print request.POST.keys()
-    print request.POST.values()
     
     spectra = req_params['spectra'].split()
     limit = int(req_params['limit'])
@@ -60,27 +79,30 @@ def spectra_search(request, algorithm=stored_procedure_search):
    
     adjust = 0;
     tokyo = False
-    if spectra[len(spectra)-1] == 'tokyo':
+    
+    # so if the FAST_NUMPY_SEARCH_ENABLED is true, and 
+    # tokyo is in the spectra, we will use the tokyo hash based search.
+    if FAST_TOKYO_SEARCH_ENABLED and spectra[len(spectra)-1] == 'tokyo':
         tokyo = True
-        spectra.pop()
-
+        spectra.pop() #get rid of 'tokyo'
+    
     if alg_selection is not None:
         alg_selection = int(alg_selection)
         if alg_selection == 1:
-            print 'using ma inhouse dot product '
+            #'using ma inhouse dot product '
             adjust = 1
             if tokyo:
                 algorithm = dot_product_ma_inhouse
         elif alg_selection == 2:
-            print 'using normal dot product '
+            #'using normal dot product '
             if tokyo:
                 algorithm = dot_product
      
-    print 'search by spectra, spectra,limit,adjust is:', spectra, limit, adjust
+    logger.debug('search by spectra, spectra : limit : adjust is: %s : %d : %d' % (spectra, limit, adjust))
     search_result = algorithm(spectra, limit, adjust)
     
 
-    print 'search result: ', search_result
+    logger.debug('search result: %s' % (search_result) )
 
     l = [(score, models.Compound.objects.get(pk=int(id))) for (score,id) in search_result]
     return HttpResponse(json_encode(mapify_scored_compound_results(l, len(l))))
@@ -119,7 +141,6 @@ def build_search_queryset(req_params, user):
         elif match_type == 'starts with':
             clause = '__istartswith'
         clause_dict = { field_name+clause: field_value }
-        print clause_dict
         #q = q.filter(**clause_dict)
         #return q
         return clause_dict
@@ -127,9 +148,9 @@ def build_search_queryset(req_params, user):
     q1 = build_clause_for_field(q, 'cas_name', req_params.get('compound_name') )
     q2 = build_clause_for_field(q, 'compound_name', req_params.get('compound_name') )
    
-    print 'doing compound name filter'
+    logger.debug('doing compound name filter')
     q = q.filter(Q(**q1) | Q(**q2) )
-    print 'finished compound name filter'
+    logger.debug('finished compound name filter')
 
     mol_weight_start = decimal_param(req_params, 'mol_weight_start')
     mol_weight_end = decimal_param(req_params, 'mol_weight_end')

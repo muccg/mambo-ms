@@ -3,8 +3,8 @@ import time
 import gc
 import search_datastructures as sd
 
-from django.contrib import logging
-logger = logging.getLogger('mamboms_spectral_search_log')
+import logging
+logger = logging.getLogger('mamboms_search_log')
 
 
 class SearchAlgorithms:
@@ -81,15 +81,15 @@ def test(i, thresh=1.0):
         top_ten = top_ten[:10]
         count += 1
 
-    print '%d buckets.' % (len(k))
+    logger.debug('%d buckets.' % (len(k)) )
 
-    print 'Top Ten: '
+    logger.debug( 'Top Ten: ')
     for compscore in top_ten:
         comp = Spectrum.objects.get(id=compscore[1]).compound
-        print '%f : %s (%s) [bucket %s [score: %s]]' % (compscore[0] * 100, comp.cas_name, comp.link_to_graph(), str(compscore[2]), str(compscore[3]) )
+        logger.debug( '%f : %s (%s) [bucket %s [score: %s]]' % (compscore[0] * 100, comp.cas_name, comp.link_to_graph(), str(compscore[2]), str(compscore[3]) ) )
 
-    print 'find_matches: ', total_time   
-    print 'total time: ', time.time() - t0
+    logger.debug( 'find_matches: %s' % (total_time) )   
+    logger.debug( 'total time: %s' %  (time.time() - t0) )
 
 
 def search(xys, thresh = 1.0, algorithm=SearchAlgorithms.DOTPRODUCT_MA):
