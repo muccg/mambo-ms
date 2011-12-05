@@ -74,7 +74,7 @@ action="${form_url or ''}" method="post" id="${opts.module_name}_form">${ csrf_t
 % if save_on_top:
 <%namespace file="admin/submit_line.html" name="sl"/>
 <%
-    from django.contrib.admin.templatetags.admin_modify import submit_row
+    from django.contrib.admin.templatetags.mako.admin_modify import submit_row
 %>
 
 ${ sl.submit_line( submit_row(context) ) }
@@ -128,7 +128,7 @@ ${ sl.submit_line( submit_row(context) ) }
 
 <%namespace file="admin/submit_line.html" name="sl"/>
 <%
-    from django.contrib.admin.templatetags.admin_modify import submit_row
+    from django.contrib.admin.templatetags.mako.admin_modify import submit_row
 %>
 
 ${ sl.submit_line( submit_row(context) ) }
@@ -142,7 +142,7 @@ ${ sl.submit_line( submit_row(context) ) }
 
 <%namespace file="admin/prepopulated_fields_js.html" name="ppf"/>
 <%
-    from django.contrib.admin.templatetags.admin_modify import prepopulated_fields_js
+    from django.contrib.admin.templatetags.mako.admin_modify import prepopulated_fields_js
 %>
 
 ${ ppf.prepopulated_fields(*prepopulated_fields_js(context)) }
