@@ -7,8 +7,75 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        from django.core.management import call_command
-        call_command("loaddata", "reference_data.json", exceptiononerror = True)        
+        import datetime
+        from decimal import Decimal
+
+        mambomsapp_dataset_1 = orm['mambomsapp.dataset']()
+        mambomsapp_dataset_1.name = u'NIST'
+        mambomsapp_dataset_1.description = u'As imported from the NIST 2008 data file'
+        mambomsapp_dataset_1.save()
+
+        mambomsapp_dataset_2 = orm['mambomsapp.dataset']()
+        mambomsapp_dataset_2.name = u'MA GC'
+        mambomsapp_dataset_2.description = u'MA GC metabolite records'
+        mambomsapp_dataset_2.save()
+
+        mambomsapp_dataset_3 = orm['mambomsapp.dataset']()
+        mambomsapp_dataset_3.name = u'MA LC'
+        mambomsapp_dataset_3.description = u'MA LC metabolite records'
+        mambomsapp_dataset_3.save()
+
+        mambomsapp_node_1 = orm['mambomsapp.dataset']()
+        mambomsapp_node_1.name = u'Test Node'
+        mambomsapp_node_1.save()
+
+        mambomsapp_precursortype_1 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_1.name = u'[M+H]+'
+        mambomsapp_precursortype_1.polarity = u'P'
+        mambomsapp_precursortype_1.save()
+
+        mambomsapp_precursortype_2 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_2.name = u'[M+Na]+'
+        mambomsapp_precursortype_2.polarity = u'P'
+        mambomsapp_precursortype_2.save()
+
+        mambomsapp_precursortype_3 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_3.name = u'[M+K]+'
+        mambomsapp_precursortype_3.polarity = u'P'
+        mambomsapp_precursortype_3.save()
+
+        mambomsapp_precursortype_4 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_4.name = u'[M-H20+H]+'
+        mambomsapp_precursortype_4.polarity = u'P'
+        mambomsapp_precursortype_4.save()
+
+        mambomsapp_precursortype_5 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_5.name = u'[M-H]-'
+        mambomsapp_precursortype_5.polarity = u'N'
+        mambomsapp_precursortype_5.save()
+
+        mambomsapp_precursortype_6 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_6.name = u'[M+FA-H]-'
+        mambomsapp_precursortype_6.polarity = u'N'
+        mambomsapp_precursortype_6.save()
+
+        mambomsapp_precursortype_7 = orm['mambomsapp.precursortype']()
+        mambomsapp_precursortype_7.name = u'[M+HAc-H]-'
+        mambomsapp_precursortype_7.polarity = u'N'
+        mambomsapp_precursortype_7.save()
+
+        mambomsapp_precursorselection_1 = orm['mambomsapp.precursorselection']()
+        mambomsapp_precursorselection_1.name = u'Quadrupole'
+        mambomsapp_precursorselection_1.save()
+
+        mambomsapp_precursorselection_2 = orm['mambomsapp.precursorselection']()
+        mambomsapp_precursorselection_2.name = u'Paul Trap'
+        mambomsapp_precursorselection_2.save()
+
+        mambomsapp_precursorselection_3 = orm['mambomsapp.precursorselection']()
+        mambomsapp_precursorselection_3.name = u'ISCID'
+        mambomsapp_precursorselection_3.save()
+
 
     def backwards(self, orm):
         "Write your backwards methods here."
