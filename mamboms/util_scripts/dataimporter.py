@@ -21,7 +21,8 @@ import re
 from django.db.models.fields import DecimalField, BooleanField, TextField, CharField, IntegerField, FloatField
 from mambomsapp.models import GCMARecord, LCMARecord, Compound
 from django.db.models.fields.related import ForeignKey, ManyToOneRel, ManyToManyField
-from django.contrib import logging
+
+import logging
 logger = logging.getLogger('mamboms_import_log')
 
 

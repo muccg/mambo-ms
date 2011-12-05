@@ -7,9 +7,7 @@ from mamboms.mambomsapp.graph_cache import cache
 from mamboms import settings
 import logging
 import os
-LOG_FILENAME = os.path.join(settings.WRITABLE_DIRECTORY, 'mamboms.log')
-logging.basicConfig(filename=LOG_FILENAME, level=None)#logging.DEBUG)
-dprint = logging.debug #function shortcut
+logger = logging.getLogger('mamboms')
 
 def graph(request, compound_id):
     compound = get_object_or_404(Compound, pk=compound_id)
@@ -77,11 +75,11 @@ def dot_product_N(u, l, fn):
     udata = np.array([u.xs,u.ys]) #construct numpy array from unknown x's and y's
     ldata = np.array([l.xs,l.ys]) #construct numpy array from library x's and y's
 
-    dprint('numpy version(l): %s' % (str(ldata[0])) ) #debug message
-    dprint('numpy version(u): %s' % (str(udata[0])) ) #debug message
+    logger.debug('numpy version(l): %s' % (str(ldata[0])) ) #debug message
+    logger.debug('numpy version(u): %s' % (str(udata[0])) ) #debug message
 
     common_masses = np.intersect1d(ldata[0], udata[0])  #find the intersection of masses
-    dprint('Common masses: %s'%(str(common_masses)) )   #debug message
+    logger.debug('Common masses: %s'%(str(common_masses)) )   #debug message
    
     #build lists containing each common mass and the corrosponding intensity.
     #We cannot use numpy for this, so we use standard python lists
@@ -137,7 +135,7 @@ def dotsearchTest(request, id=0, num=0):
     l = Compound.objects.get(id = id)
 
     u = Compound.objects.all()[:num]
-    dprint('Beginning dot search: %s against %s compounds' % (str(id), str(num)) )
+    logger.debug('Beginning dot search: %s against %s compounds' % (str(id), str(num)) )
 
     resultstr = ""
     resultstr += "Reference: %s<br>" % (l.link_to_graph())
@@ -157,7 +155,7 @@ def dotsearchTest(request, id=0, num=0):
         
 
     t2 = time.time()
-    dprint('Time was: %s' %(str(t2-t)))
+    logger.debug('Time was: %s' %(str(t2-t)))
     return HttpResponse('Done.<br>%s' % resultstr)
 
 def dotsearchJSON(request, id=0, num=0, pagenum=1):
@@ -172,7 +170,7 @@ def dotsearchJSON(request, id=0, num=0, pagenum=1):
 
     l = Compound.objects.all()[num*(pagenum-1):num*pagenum] #paginate the compound list
 
-    dprint('Beginning dot search: %s against %s compounds' % (str(id), str(num)) )
+    logger.debug('Beginning dot search: %s against %s compounds' % (str(id), str(num)) )
 
     resultstr = ""
     resultstr += "Reference: %s<br>" % (u.link_to_graph())
@@ -188,14 +186,14 @@ def dotsearchJSON(request, id=0, num=0, pagenum=1):
     results_list.sort(cmp=lambda x,y: int(x[0]*100000-y[0]*100000) ) #sort on the 0th element of each tuple
 
     t2 = time.time()
-    dprint('Time was: %s' %(str(t2-t)))
+    logger.debug('Time was: %s' %(str(t2-t)))
     a = simplejson.dumps(results_list)
-    dprint('JSON is : %s' % (str(a)) )
+    logger.debug('JSON is : %s' % (str(a)) )
     return HttpResponse(a)
 
 def dotsearchMain(request, id=0, num=0):
     comp = Compound.objects.get(id=id)
-    import webhelpers
+    from ccg.utils import webhelpers
     return render_to_response("mamboms/dotsearch.html", 
                             {
                                 "compoundid" : id,

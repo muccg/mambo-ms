@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     (r'^mamboms/', include('mamboms.mambomsapp.urls')),
     (r'^user/', include('mamboms.mambomsuser.urls')),
     (r'^reference/', include('mamboms.mambomsapp.urls')),
-    (r'^msadmin/(.*)', admin.site.root),
+    (r'^msadmin/', include(admin.site.urls)),
     (r'^import/fileupload$', 'util_scripts.dataimporter.datafile_upload'),
     (r'^import/definefields$', 'util_scripts.dataimporter.define_fields'),
     (r'^import/confirmimport$', 'util_scripts.dataimporter.confirm_import'),
@@ -22,6 +22,5 @@ urlpatterns = patterns('',
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^(.*)static/(?P<path>.*)$', 'django.views.static.serve', {'document_root' : settings.STATIC_SERVER_PATH} ),
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root' : settings.STATIC_ROOT, 'SSL' : settings.SSL_ENABLED} ),
     )
-

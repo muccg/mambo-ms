@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group, UserManager
-from mamboms import LDAPHandler
-from mamboms.utils import debugPrint as dprint
+from ccg.auth.ldap_helper import LDAPHandler
 from mamboms import mambomsapp
 from mamboms import settings
 
@@ -10,9 +9,8 @@ import hashlib
 import uuid
 
 NODEREP_GROUP_NAME = 'NodeRep'
-
-dprint.register(True, 'mambomsuser.log')
-
+import logging
+logger = logging.getLogger('mamboms')
 
 PROFILE_PROPERTIES = {
     'firstname': 'first_name', 
@@ -63,7 +61,7 @@ class UserStatus(models.Model):
         return self.name
 
 class MambomsLDAPProfile(models.Model):
-    user = models.ForeignKey(User, unique = True)
+    user = models.ForeignKey(User, unique = True, related_name='+') #related_name to satisfy south, but we don't actually want a related name
     title  = models.CharField(null=True,max_length=50)
     first_name  = models.CharField(null=True,max_length=50)
     last_name = models.CharField(null=True,max_length=50)
@@ -79,7 +77,7 @@ class MambomsLDAPProfile(models.Model):
     country = models.CharField(null=True,max_length=50)
     password_reset_token = models.CharField(null=True, db_index=True, max_length=50)
 
-    node = models.ForeignKey('mambomsapp.Node', null=True)
+    node = models.ForeignKey('mambomsapp.Node', null=True, related_name='+') #related name to satisfy south, but we don't actually want one
     status = models.ForeignKey(UserStatus)
 
     def get_details(self):
@@ -95,8 +93,8 @@ class MambomsLDAPProfile(models.Model):
         returndict['isAdmin'] = self.is_admin
         returndict['isNodeRep'] = self.is_noderep
         returndict['isClient'] = self.is_client
-        dprint('get_details returning isAdmin: %s' % (str(returndict['isAdmin']) ) )
-        dprint('get_details returning isNodeRep: %s' % (str(returndict['isNodeRep']) ) )
+        logger.debug('get_details returning isAdmin: %s' % (str(returndict['isAdmin']) ) )
+        logger.debug('get_details returning isNodeRep: %s' % (str(returndict['isNodeRep']) ) )
         
         return returndict
 
@@ -112,7 +110,7 @@ class MambomsLDAPProfile(models.Model):
         #   This is so we know if that person was an admin, noderep etc, and therefore what 
         #   they are and are not allowed to update.
 
-        dprint('***enter***')
+        logger.debug('***enter***')
         changed_details = False
    
         set_properties(self, PROFILE_PROPERTIES, detailsDict)        
@@ -139,7 +137,7 @@ class MambomsLDAPProfile(models.Model):
         self.user.save()
         self.save()
 
-        dprint('***exit***')
+        logger.debug('***exit***')
         return changed_details
 
     def change_password(self, new_password):
@@ -151,7 +149,7 @@ class MambomsLDAPProfile(models.Model):
                 u = self.user.username
                 adminld.ldap_update_user(u, u, new_password, {}, pwencoding='md5')
             except Exception, e:
-                dprint('Exception updating %s: %s' % (str(u), str(e)) )
+                logger.debug('Exception updating %s: %s' % (str(u), str(e)) )
                 raise 
         else:
            self.user.set_password(new_password)
