@@ -198,7 +198,7 @@ MEMCACHE_KEYSPACE = "mamboms-"
 
 # uncomment to use memcache for sessions, be sure to have uncommented memcache settings above
 # see https://docs.djangoproject.com/en/dev/ref/settings/#session-engine
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 CACHE_BACKEND = 'memcached://'+(';'.join(MEMCACHE_SERVERS))+"/"
 
 
