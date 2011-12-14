@@ -15,7 +15,7 @@
 #
 Fabric==1.2.2
 Werkzeug==0.6.2
-http://ccg-python-build.googlecode.com/files/ccg-python-build_v2_2_6.tar.gz
+http://ccg-python-build.googlecode.com/files/ccg-python-build-2.2.8.tar.gz
 paramiko==1.7.7.1
 pycrypto>=2.1
 virtualenv==1.6.4
