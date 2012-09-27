@@ -1,0 +1,8 @@
+.*\.pyc$
+^appsettings*
+^mamboms/appsettings*
+^mamboms/virt*
+^mamboms/tmp/*
+^mamboms/scratch/*
+^mamboms/log/*
+^mamboms/settings.py$

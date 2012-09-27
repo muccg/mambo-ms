@@ -1,0 +1,172 @@
+<html>
+<head>
+    <title>Dot product search</title>
+    <link rel="stylesheet" type="text/css" href="site_media/css/main.css"></link>
+    <script type="text/javascript" src="site_media/scripts/cropper/lib/prototype.js" language="javascript" ></script>
+    <script type="text/javascript" src="site_media/scripts/cropper/lib/scriptaculous.js?load=builder,dragdrop" language="javascript" ></script>
+    <script type="text/javascript" language="javascript">
+        function result(value, name, link)
+        {
+            this.value = parseFloat(value)
+            this.name = name
+            this.link = link
+        }
+        function sortbyvalue(a,b)
+        {
+            //I have reversed x and y here in the assignment, so that
+            //the list is sorted backwards - i.e. it orders values in descending order
+            var y = a.value 
+            var x = b.value
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0)); 
+        }
+
+        var DotSearchRequester = {
+
+            init: function(compoundId, compares, urlbase) {
+                this.infoList = new Array();
+                this.compoundId = compoundId;
+                this.currentPage = 0;
+                this.comparesPerPage=compares;
+                this.urlbase = urlbase;
+                this.finished = 0;
+                this.redraw();
+                this.lowerthreshold = document.getElementById('lower').value;
+                this.upperthreshold = document.getElementById('upper').value;
+            },
+
+            setFilter: function(){
+                low = document.getElementById('lower');
+                high = document.getElementById('upper');
+                DotSearchRequester.lowerthreshold = low.value; 
+                DotSearchRequester.upperthreshold = high.value;
+                DotSearchRequester.redrawList();
+                //alert('upper: ' + DotSearchRequester.upperthreshold + ' Lower: ' + DotSearchRequester.lowerthreshold);
+            },
+
+            redrawList: function(){
+
+                                
+                //now sort the list
+                DotSearchRequester.infoList.sort(sortbyvalue);
+
+                //alert('called callback');
+                var datadiv = document.getElementById("resultsdiv"); 
+                //alert('Got div!' + datadiv);
+                datadiv.innerHTML = '';
+                newHTML = '';
+                l = DotSearchRequester.infoList;
+                var count = 0;
+                var i;
+                for (i = 0; i < l.length; i++)
+                {
+                    if ( (l[i].value >= DotSearchRequester.lowerthreshold) && (l[i].value <= DotSearchRequester.upperthreshold ) )
+                    {
+                        newHTML += l[i].value + ', ' + l[i].name + ', ' + l[i].link + '<br>'
+                        count += 1;
+                    }
+                }
+                datadiv.innerHTML = newHTML;
+
+                var pdiv = document.getElementById('progress');
+                pdiv.innerHTML = l.length + ' compounds processed. ' + count + ' results for current filter.';
+
+
+                
+
+            },
+            
+            notifyEndData: function(){
+                //alert('called callback');
+                var pdiv = document.getElementById("progress_img");
+                pdiv.innerHTML = '<img src="site_media/stop.gif" />';
+                
+                var datadiv = document.getElementById("progress"); 
+                //alert('Got div!' + datadiv);
+                datadiv.innerHTML += ' Search Ended' + '<br>';
+            },
+
+            redrawCallback: function(transport) {
+                response = transport.responseText.evalJSON(true);
+                //if we reached the end of the data, we should set this.finished to FALSE 
+                if (response.length < DotSearchRequester.comparesPerPage)
+                {
+                    DotSearchRequester.finished = 1;
+                }
+                
+                //this.curPageInfo = response;
+                
+                var i;
+                //Add the data to the array
+                for (i = 0; i < response.length; i++)
+                {
+                    DotSearchRequester.infoList[DotSearchRequester.infoList.length++] = new result(response[i][0], response[i][1], response[i][2]);
+                }
+                DotSearchRequester.redrawList();
+
+                DotSearchRequester.redraw();
+            },
+
+            redraw: function(request) {
+                this.currentPage += 1;
+                this.compoundId += 0;
+                if (this.finished) {
+                    //Write the last little bit of data
+                    this.notifyEndData();
+
+                }
+                else {
+                    new Ajax.Request(this.urlbase + this.compoundId + '/' + this.comparesPerPage + '/' + this.currentPage + '/', {
+                        postBody: Object.toJSON(request),
+                        onSuccess: this.redrawCallback
+                    });
+                } 
+            },
+
+
+            onEndData: function(coords, dimensions)
+            {
+                // if the cropper was reset
+                if (coords.x1 == 0 && coords.x2 == 0) {
+                    return;
+                }
+                ImageManager.crop(coords.x1, coords.x2);
+                
+            },
+
+            stop: function()
+            {
+                DotSearchRequester.finished = 1;
+            },
+
+            }; //end class
+
+        function onLoad() {
+            DotSearchRequester.init(${compoundid}, ${perpage}, "${urlbase}");
+            var pdiv = document.getElementById("progress_img");
+            pdiv.innerHTML = '<img width=50px height=50px src="site_media/wait.gif" alt="Currently processing" />';
+
+            
+            Event.observe('stop', 'click', DotSearchRequester.stop);
+            Event.observe('filter', 'click', DotSearchRequester.setFilter);
+        }
+ 
+        Event.observe(window, 'load', onLoad);
+    </script>
+</head>
+<body>
+<div id="north"><div id="appTitle">Mambo-MS: Dot Product Search</div></div>
+<div id="compound"><div style='float:left'><b>Compound:</b></div><div style='text-align: right;'>${compoundname}</div></div>
+<div id="data_container" style='clear:both; width: 700px; height: 300px; padding-left: 100px; padding-top: 30px'>
+        <b>Search Compound:</b> ${compoundname} ${compoundgraph}
+        <div id="buttons" align='center'>
+        <div id="progress_img" style='width:50px;height:50px; clear:none;'></div>
+        <div id="progress"></div>
+        <input id="lower" type="text" size=10 value=0.8 />
+        <input id="upper" type="text" size=10 value=0.999 />
+        <input id="filter" class='buttonstyle' type="button" value="update filter"/>
+        <input id="stop" class='buttonstyle' type="button" value="stop" />
+    </div>
+    <div id='resultsdiv'>Searching...</div>
+</div>
+</body>
+</html>
