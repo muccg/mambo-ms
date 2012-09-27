@@ -1,5 +1,7 @@
 .*\.pyc$
 ^appsettings*
+^localappsettings*
+^devappsettings*
 ^mamboms/appsettings*
 ^mamboms/virt*
 ^mamboms/tmp/*

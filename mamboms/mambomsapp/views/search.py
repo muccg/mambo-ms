@@ -70,6 +70,7 @@ def dot_product(spectra, limit, adjust):
 @clients_forbidden
 def spectra_search(request, algorithm=stored_procedure_search):
     req_params = request.POST
+    print req_params
     
     
     spectra = req_params['spectra'].split()
