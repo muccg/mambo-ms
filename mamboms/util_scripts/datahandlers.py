@@ -63,14 +63,17 @@ def save_uploaded_file(f):
 def extract_file_data(filename):
     parseddata = None
     success = False
-    with open(filename) as f:
-        if is_valid_nist_file(filename):
-            reader = NistEntryReader(f)
-        else:
-            reader = CSVEntryReader(f)
+    try:
+        with open(filename) as f:
+            if is_valid_nist_file(filename):
+                reader = NistEntryReader(f)
+            else:
+                reader = CSVEntryReader(f)
 
-        parseddata = parseData(reader)
-        success = True
+            parseddata = parseData(reader)
+            success = True
+    except Exception, e:
+        logger.debug("Exception parsing data: %s" % (e))
 
     metadata = None
     
@@ -81,7 +84,7 @@ def extract_file_data(filename):
         metadata["min_fields"] = parseddata["data"][parseddata["minindex"]].num_fields()
         metadata["max_fields"] = parseddata["data"][parseddata["maxindex"]].num_fields()
         metadata["sampledata"] = parseddata["data"][parseddata["maxindex"]].get_data()
-    
+
     return {"data": parseddata, "metadata": metadata}
 
 
@@ -89,7 +92,9 @@ def is_valid_nist_file(filename):
     if not os.path.isfile(filename): return False
     with open(filename) as f:
         first_line = f.readline()
-        if first_line.startswith('##TITLE'): return True    
+        if first_line.startswith('##TITLE'): 
+            logger.debug("%s was a valid JCA* file" % (filename))
+            return True    
     logger.debug('%s was not a JCA* file' % (filename) )
     return False
 
@@ -180,17 +185,21 @@ def parseData(reader):
     minrecordindex = 0
     maxrecordindex = 0
     numrecords = 0
-    for entry in reader:
-        data[count] = MSDataRecord()
-        data[count].import_data(entry)
-        if minrecord is None or len(minrecord) > len(entry):
-            minrecord = entry 
-            minrecordindex = count
-        if maxrecord is None or len(maxrecord) < len(entry):
-            maxrecord = entry 
-            maxrecordindex = count
-        numrecords += 1    
-        count += 1
-        
-    ret = {"data": data, "minindex": minrecordindex, "maxindex": maxrecordindex, "numrecords": numrecords }    
+    error = None
+    try:
+        for entry in reader:
+            data[count] = MSDataRecord()
+            data[count].import_data(entry)
+            if minrecord is None or len(minrecord) > len(entry):
+                minrecord = entry 
+                minrecordindex = count
+            if maxrecord is None or len(maxrecord) < len(entry):
+                maxrecord = entry 
+                maxrecordindex = count
+            numrecords += 1    
+            count += 1
+    except Exception, e:
+        error = "%s [The first %d records were successfully parsed]" % (str(e), numrecords)
+
+    ret = {"data": data, "minindex": minrecordindex, "maxindex": maxrecordindex, "numrecords": numrecords, "error": error }    
     return ret

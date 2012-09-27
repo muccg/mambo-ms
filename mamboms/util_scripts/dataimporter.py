@@ -94,10 +94,15 @@ def datafile_upload(request):
     dataset = request.POST.get('dataset', None)
     try:
         filename = datahandlers.save_uploaded_file(fileobj)
+        if filename:
+            logger.debug("Saved upload as %s" % (filename))
         file_data_result = datahandlers.extract_file_data(filename)
+        logger.debug("File data result was: %s" % (str(file_data_result)) )
         metadata = file_data_result["metadata"]
-        if metadata is None:
-            raise Exception("File %s could not be parsed for dataset %s" % (filename, dataset))
+        errorstring = file_data_result["data"]["error"]
+        if metadata is None or errorstring is not None:
+            errorstring = "%s\n%s" % ("File %s could not be parsed for dataset %s" % (filename, dataset), errorstring)
+            raise Exception(errorstring)
         
         metadata["dataset"] = dataset
         importable_fields = get_importable_fields(dataset)

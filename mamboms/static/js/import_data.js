@@ -167,7 +167,7 @@ Ext.mambomsDataImportFileImportPanel = {
                         {
                             Ext.MessageBox.hide(); //hide the 'uploading' box
                             Ext.Msg.alert("Data Import failed: " + action.result.text, "(this message will auto-close in 5 seconds)");
-                            setTimeout(function() {Ext.Msg.hide();}, 5000);
+                            //setTimeout(function() {Ext.Msg.hide();}, 5000);
                             //do nothing special. this gets called on validation failures and server errors
                         }
                     }
