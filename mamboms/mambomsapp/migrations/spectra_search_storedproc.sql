@@ -52,29 +52,32 @@ def remove_duplicates(sorted_result_list):
         seen.add(result[1])
     return result_list
 
-def main(xys, limit, adjust):
+def main(xys, limit, adjust, dataset_ids):
     querydict = create_querydict(xys)
     tot_mq = len(querydict)
 
     result_list = []
-    compounds = plpy.execute("SELECT c.id, s.raw_points FROM mambomsapp_compound c JOIN mambomsapp_spectrum s ON c.id = s.compound_id")
-    for c in compounds:
-        sum_IqIl,sum_Iq2,sum_Il2,tot_cm,tot_ml = calculate_values(c, querydict)
-        if tot_cm:
-            B = float(sum_IqIl * sum_IqIl) / float(sum_Iq2*sum_Il2)
-            C = 0
-            if adjust:
-                A = float(tot_cm * tot_cm) / float(tot_mq * tot_ml)
-                C = A*B
-            else:
-                C = B
+    if len(dataset_ids) > 0:
+        where_clause = "WHERE c.dataset_id in (%s)" % (where_clause, ",".join([str(x) for x in dataset_ids]))
+    
+        compounds = plpy.execute("SELECT c.id, s.raw_points FROM mambomsapp_compound c JOIN mambomsapp_spectrum s ON c.id = s.compound_id")
+        for c in compounds:
+            sum_IqIl,sum_Iq2,sum_Il2,tot_cm,tot_ml = calculate_values(c, querydict)
+            if tot_cm:
+                B = float(sum_IqIl * sum_IqIl) / float(sum_Iq2*sum_Il2)
+                C = 0
+                if adjust:
+                    A = float(tot_cm * tot_cm) / float(tot_mq * tot_ml)
+                    C = A*B
+                else:
+                    C = B
 
-            if not result_list or (C >= result_list[-1][0]):
-                result_list.append( (C, c['id']) )
-                result_list.sort(key=lambda x: x[0],reverse=True)
-                result_list = remove_duplicates(result_list)
-                while len(result_list) > limit:
-                    result_list.pop()
+                if not result_list or (C >= result_list[-1][0]):
+                    result_list.append( (C, c['id']) )
+                    result_list.sort(key=lambda x: x[0],reverse=True)
+                    result_list = remove_duplicates(result_list)
+                    while len(result_list) > limit:
+                        result_list.pop()
 
     result = ""
     for score, id in result_list: 
@@ -83,7 +86,7 @@ def main(xys, limit, adjust):
     return result
 
 
-return main(args[0].split(','),args[1], args[2])
+return main(args[0].split(','),args[1], args[2], args[3])
 
 $$ LANGUAGE plpythonu;
 

@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     (r'^import/fileupload$', 'util_scripts.dataimporter.datafile_upload'),
     (r'^import/definefields$', 'util_scripts.dataimporter.define_fields'),
     (r'^import/confirmimport$', 'util_scripts.dataimporter.confirm_import'),
-    (r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'admin/login.html', 'SSL':True }),
+    (r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'admin/login.html', 'SSL': settings.SSL_ENABLED }),
     (r'^logout/$', 'django.contrib.auth.views.logout'),
 )
 
