@@ -1,0 +1,23 @@
+Mambo-MS is based on the following technologies:
+
+mango: http://code.google.com/p/mango-py/
+matplotlib: http://matplotlib.sourceforge.net
+numpy: http://numpy.scipy.org/
+psycopg2: http://pypi.python.org/pypi/psycopg2/
+python-ldap: http://www.python-ldap.org/
+
+Installation involves downloading the Mambo-MS codebase, which is a mango progect. Mango is based on Django (www.djangoproject.com/): more details on Mango are available on the Mango Google Code page at (http://code.google.com/p/mango-py/). Other than the dependencies, Mambo-MS is started/stopped/deployed/configured in a similar way to any normal Django project.
+
+Some of the features of Mambo-MS and/or Mango depend on othe libraries, which are listed above and need to be present in your python web deployment for Mambo-MS to function correctly.
+
+As of the time of writing, the library versions known to work together are:
+
+mango-py-r76
+matplotlib-0.98.3
+numpy-1.2.1
+psycopg2-2.0.8
+python-ldap-2.3.5
+
+This is an example working set of library versions - obviously many other configuratins are possible now, and in the future.
+
+

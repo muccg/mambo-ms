@@ -1,0 +1,86 @@
+[
+    {
+        "pk": 1, 
+        "model": "mambomsuser.userstatus", 
+        "fields": {
+            "name": "Active"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "mambomsuser.userstatus", 
+        "fields": {
+            "name": "Pending"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "mambomsuser.userstatus", 
+        "fields": {
+            "name": "Rejected"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "mambomsuser.userstatus", 
+        "fields": {
+            "name": "Deleted"
+        }
+    }, 
+
+    {
+        "pk": 1, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "NodeRep", 
+            "permissions": []
+        }
+    }, 
+
+
+    {
+        "pk": 1, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "admin@mambo-ms.com", 
+            "first_name": "Admin", 
+            "last_name": "User", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2011-05-10 14:03:44", 
+            "groups": [
+                1
+            ], 
+            "user_permissions": [], 
+            "password": "sha1$7f57a$97456404bf498ef0474fcc3209279255c9115610", 
+            "email": "admin@mambo-ms.com", 
+            "date_joined": "2010-05-05 11:11:27"
+        }
+    },
+
+    {
+        "pk": 1, 
+        "model": "mambomsuser.mambomsldapprofile", 
+        "fields": {
+            "node": null, 
+            "status": 1, 
+            "first_name": null, 
+            "last_name": null, 
+            "supervisor": null, 
+            "office": null, 
+            "title": null, 
+            "institute": null, 
+            "country": null, 
+            "office_phone": null, 
+            "area_of_interest": null, 
+            "user": 1, 
+            "home_phone": null, 
+            "address": null, 
+            "department": null, 
+            "position": null, 
+            "password_reset_token": null
+        }
+    }
+]
+

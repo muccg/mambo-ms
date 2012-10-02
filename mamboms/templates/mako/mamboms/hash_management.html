@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>MAMBO MS- Spectral Search Hash Management</title>
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="static/css/main.css"></link>
+<link rel="stylesheet" type="text/css" href="static/css/graph.css"></link>
+<link rel="stylesheet" type="text/css" href="static/css/main.css"></link>
+</head>
+<body>
+
+<div id="north"><div id="appTitle">
+<div id="headermenu">
+
+Welcome
+<b>
+${username}
+</b>.
+<a href="${ APP_SECURE_URL }">Home</a> / <a href="${ APP_SECURE_URL }logout/">Log out</a> 
+</div>
+<a id="appTitleLink" href="${ APP_SECURE_URL }">MAMBO MS</a>
+</div>
+<div id="toolbar"></div>
+
+A very quick page for spectral search hash management.<br/>
+Some quick stats: <br/>
+<ul>
+%for stat in stats.keys():
+<li>
+    ${stat} : ${stats[stat]}
+</li>
+%endfor
+</ul>
+<br/><br/>
+And some maintenance links:<br/>
+<ul>
+    <li> Build the hash: <a href="${ APP_SECURE_URL }mamboms/search/build/">Warning...slow!</a></li>
+    <li> Build the hash (with a limit -edit the url to supply): <a href="${ APP_SECURE_URL }mamboms/search/build/?limit=0">Limit Build</a></li>
+    <li> Clear the hash (delete all data ready for rebuild): <a href="${ APP_SECURE_URL }mamboms/search/clear/">Clear</a></li>
+    <li> Update dirty data from database:: <a href="${ APP_SECURE_URL }mamboms/search/update/">Update</a></li>
+</ul>
+
+<!--
+<div id="import_form">
+    <form method='post' action='' enctype='multipart/form-data'>
+        Dataset: <input type='text' name='dataset' /><br />
+        File: <input type='file' name='upload_file' size='40'><br />
+        <input type="submit" /><br />
+    </form>
+</div>
+-->
+<div id="south">(c) CCG 2010</div>
+<div id="centerDiv"></div>
+<form id="hiddenForm"/>
+
+
+</body>
+</html>
