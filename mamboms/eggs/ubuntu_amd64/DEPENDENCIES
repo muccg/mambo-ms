@@ -1,4 +1,0 @@
-#Deps for ubuntu_amd64 eggs
-To use these eggs, you need to apt-get install the following:
-
-python-dev subversion libpq-dev libtokyocabinet-dev libldap2-dev libsasl2-dev fort77 libfreetype6-dev libpng12-dev
