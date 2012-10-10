@@ -107,7 +107,7 @@ LOGOUT_URL = url('/logout')
 # see: https://docs.djangoproject.com/en/dev/howto/static-files/
 # deployment uses an apache alias
 STATICFILES_DIRS = []
-STATIC_ROOT = os.path.join(PROJECT_DIRECTORY,"mambomsapp", "static")
+STATIC_ROOT = os.path.join(PROJECT_DIRECTORY, "static")
 STATIC_URL = url('/static/')
 
 # TODO This should change to be django friendly
@@ -141,13 +141,7 @@ TEMPLATE_DEBUG = DEBUG
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
 TEMPLATE_LOADERS = [
     'ccg.template.loaders.makoloader.filesystem.Loader',
-    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-]
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
-TEMPLATE_DIRS = [
-    os.path.join(PROJECT_DIRECTORY,"mambomsapp/templates"),
 ]
 
 # mako compiled templates directory
