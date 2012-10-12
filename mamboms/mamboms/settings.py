@@ -33,7 +33,11 @@ from ccg.utils.webhelpers import url
 if not os.environ.has_key('SCRIPT_NAME'):
     os.environ['SCRIPT_NAME']=''
 SCRIPT_NAME =   os.environ['SCRIPT_NAME']
-PROJECT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+#PROJECT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+
+WEBAPP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+PROJECT_DIRECTORY = WEBAPP_ROOT
 
 SSL_ENABLED = False
 
