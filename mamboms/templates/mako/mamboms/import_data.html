@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>MAMBO MS- Import Data</title>
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="static/css/main.css"></link>
+<link rel="stylesheet" type="text/css" href="static/css/graph.css"></link>
+<link rel="stylesheet" type="text/css" href="static/css/main.css"></link>
+<link rel="stylesheet" type="text/css" href="static/js/ext/resources/css/ext-all.css"></link>
+<link rel="stylesheet" type="text/css" href="static/css/toolbar.css"></link>
+<link rel="stylesheet" type="text/css" href="static/js/ext_extensions/superboxselect.css"></link>
+<link rel="stylesheet" type="text/css" href="static/js/ext_extensions/file-upload.css"></link>
+<link rel="stylesheet" type="text/css" href="static/js/ext_extensions/Ext.ux.form.LovCombo.css"></link>
+<link rel="stylesheet" type="text/css" href="static/js/ext_extensions/Ext.ux.form.LovCombo_selectall.css"></link>
+
+<!-- Ext scripts -->
+<script type="text/javascript" src="static/js/ext/adapter/ext/ext-base-debug.js"></script>
+<script type="text/javascript" src="static/js/ext/ext-all-debug.js"></script>
+<script type="text/javascript" src="static/js/GridSearch.js"></script>
+<script type="text/javascript" src="static/js/ext_extensions/FileUploadField.js"></script>
+<script type="text/javascript" src="static/js/ext_extensions/SuperBoxSelect.js"></script>
+<script type="text/javascript" src="static/js/ext_extensions/Ext.ux.form.LovCombo.js"></script>
+<script type="text/javascript" src="static/js/ext_extensions/Ext.ux.form.LovCombo_selectall.js"></script>
+
+<!-- Madas scripts -->
+<script type="text/javascript" src="static/js/load_combo_data.js"></script>
+<script type="text/javascript" src="static/js/ajax_common.js"></script>
+<script type="text/javascript" src="static/js/auth.js"></script>
+<script type="text/javascript" src="static/js/countries.js"></script>
+<script type="text/javascript" src="static/js/menu.js"></script>
+<script type="text/javascript" src="static/js/metabolite_upload.js"></script>
+<script type="text/javascript" src="static/js/import_data.js"></script>
+<script type="text/javascript" src="static/js/lcmetabolite_upload.js"></script>
+<script type="text/javascript" src="static/js/controller.js"></script>
+<script type="text/javascript" src="static/js/search_results_cmps.js"></script>
+<script type="text/javascript" src="static/js/search_by_spectra.js"></script>
+<script type="text/javascript" src="static/js/search_by_spectra_results.js"></script>
+<script type="text/javascript" src="static/js/search_by_keyword.js"></script>
+<script type="text/javascript" src="static/js/search_by_keyword_results.js"></script>
+<script type="text/javascript" src="static/js/user_edit_cmps.js"></script>
+<script type="text/javascript" src="static/js/user.js"></script>
+<script type="text/javascript" src="static/js/admin.js"></script>
+<script type="text/javascript" src="static/js/import_data.js"></script>
+<script type="text/javascript" src="static/js/controller.js"></script>
+
+
+</head>
+<body>
+
+<script>
+Ext.onReady(function(){
+
+    Ext.madasInitApplication('${ APP_SECURE_URL }');
+    Ext.madasChangeMainContent("dataimport");
+});
+</script>
+<div id="north"><div id="appTitle">
+<div id="headermenu">
+
+Welcome
+<b>
+${username}
+</b>.
+<a href="${ APP_SECURE_URL }">Home</a> / <a href="${ APP_SECURE_URL }logout/">Log out</a> 
+</div>
+<a id="appTitleLink" href="${ APP_SECURE_URL }">MAMBO MS</a>
+</div>
+<div id="toolbar"></div>
+There should be stuff here
+<!--
+<div id="import_form">
+    <form method='post' action='' enctype='multipart/form-data'>
+        Dataset: <input type='text' name='dataset' /><br />
+        File: <input type='file' name='upload_file' size='40'><br />
+        <input type="submit" /><br />
+    </form>
+</div>
+-->
+<div id="south">(c) CCG 2010</div>
+<div id="centerDiv"></div>
+<form id="hiddenForm"/>
+
+
+</body>
+</html>
