@@ -1,8 +1,16 @@
 .*\.pyc$
+.*\.DS_Store
+^virt_mamboms*
 ^appsettings*
+^bootstrap*
+
+^mamboms/dist*
 ^mamboms/appsettings*
 ^mamboms/virt*
 ^mamboms/tmp/*
 ^mamboms/scratch/*
 ^mamboms/log/*
 ^mamboms/settings.py$
+^mamboms/build*
+^mamboms/django_mamboms.egg-info*
+^mamboms/mamboms/scratch*
