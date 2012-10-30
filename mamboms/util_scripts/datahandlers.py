@@ -199,7 +199,7 @@ def parseData(reader):
             numrecords += 1    
             count += 1
     except Exception, e:
-        error = "%s [The first %d records were successfully parsed]" % (str(e), numrecords)
+        error = "%s [The first %d records were successfully parsed] [last line processed was: %s]" % (str(e), numrecords, reader.reader.last_line)
 
     ret = {"data": data, "minindex": minrecordindex, "maxindex": maxrecordindex, "numrecords": numrecords, "error": error }    
     return ret
