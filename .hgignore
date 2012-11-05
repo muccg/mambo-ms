@@ -1,9 +1,8 @@
 .*\.pyc$
 .*\.DS_Store
-^virt_mamboms*
-^appsettings*
+^localappsettings*
+^devappsettings*
 ^bootstrap*
-
 ^mamboms/dist*
 ^mamboms/appsettings*
 ^mamboms/virt*

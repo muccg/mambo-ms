@@ -70,10 +70,17 @@ def dot_product(spectra, limit, adjust):
 @clients_forbidden
 def spectra_search(request, algorithm=stored_procedure_search):
     req_params = request.POST
+    print req_params
     
     
     spectra = req_params['spectra'].split()
     limit = int(req_params['limit'])
+
+    
+    #'NIST' ,  'nist_dataset_spectra'
+    #'MA GC' , 'ma_gc_dataset_spectra'
+    #'MA LC' , 'ma_lc_dataset_spectra'
+
 
     alg_selection = request.POST.get('spectral_algorithm', None)
    
