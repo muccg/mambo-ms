@@ -13,13 +13,13 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
-from django.utils.webhelpers import siteurl
+from ccg.utils.webhelpers import siteurl
 from mamboms.mambomsapp.views.utils import json_encode
 import re
 
 #for model introspection
 from django.db.models.fields import DecimalField, BooleanField, TextField, CharField, IntegerField, FloatField
-from mambomsapp.models import GCMARecord, LCMARecord, Compound
+from mamboms.mambomsapp.models import GCMARecord, LCMARecord, Compound
 from django.db.models.fields.related import ForeignKey, ManyToOneRel, ManyToManyField
 
 import logging
