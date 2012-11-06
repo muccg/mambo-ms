@@ -3,6 +3,7 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from mamboms import settings
 
 class Migration(SchemaMigration):
 
@@ -45,8 +46,8 @@ class Migration(SchemaMigration):
             LEFT OUTER JOIN
                 mambomsapp_lcmarecord_biological_systems ON (mambomsapp_lcmarecord.compound_ptr_id = mambomsapp_lcmarecord_biological_systems.lcmarecord_id);
         COMMIT;        
-        ALTER TABLE public.mambomsapp_compounds_view OWNER TO mambomsapp;
         '''
+        sql += "ALTER TABLE public.mambomsapp_compounds_view OWNER TO %s;" % (settings.DATABASES['default']['USER'])
         db.execute_many(sql)
 
     def backwards(self, orm):
