@@ -230,7 +230,7 @@ UPLOAD_SUBPATH = "upload"
 
 #LOGGING:
 # see https://docs.djangoproject.com/en/dev/topics/logging/
-LOG_DIRECTORY = WRITABLE_DIRECTORY #os.path.join(PROJECT_DIRECTORY,"logs")
+LOG_DIRECTORY = os.path.join(PROJECT_DIRECTORY,"logs")
 #if not os.path.exists(LOG_DIRECTORY):
 #    os.makedirs(LOG_DIRECTORY)
 
