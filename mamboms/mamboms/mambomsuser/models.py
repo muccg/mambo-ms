@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group, UserManager
 from ccg.auth.ldap_helper import LDAPHandler
 from mamboms import mambomsapp
-from mamboms import settings
+from django.conf import settings
 
 import base64
 import hashlib

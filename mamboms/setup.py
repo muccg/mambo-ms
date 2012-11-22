@@ -4,7 +4,7 @@ from setuptools import setup
 
 data_files = {}
 start_dir = os.getcwd()
-for package in ('mambomsapp', 'mambomsuser'):
+for package in ('mambomsapp', 'mambomsuser', 'util_scripts'):
     data_files['mamboms.' + package] = []
     os.chdir(os.path.join('mamboms', package))
     for data_dir in ('templates', 'static', 'migrations', 'fixtures', 'views'):
@@ -21,7 +21,8 @@ setup(name='django-mamboms',
     packages=[
         'mamboms',
         'mamboms.mambomsapp',
-        'mamboms.mambomsuser'
+        'mamboms.mambomsuser',
+        'mamboms.util_scripts'
     ],
     package_data=data_files,
     zip_safe=False,

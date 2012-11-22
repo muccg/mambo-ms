@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
-from mamboms import settings
+from django.conf import settings
 
 urlpatterns = patterns('',
     (r'^getUserInfo', 'mamboms.mambomsuser.views.get_user_info'),

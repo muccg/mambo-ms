@@ -4,7 +4,7 @@ from pytc import *
 import cPickle
 #import cjson
 import os
-import settings
+from django.conf import settings
 
 #limits on how many records to import
 chunk_size = 2000

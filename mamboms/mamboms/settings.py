@@ -60,6 +60,7 @@ MIDDLEWARE_CLASSES = (
 INSTALLED_APPS = ( [
     'mamboms.mambomsapp',
     'mamboms.mambomsuser',
+    'mamboms.util_scripts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -321,3 +322,11 @@ LOGGING = {
         }
     }
 }
+
+try:
+    print
+    print 'Attepting to import appsettings.mamboms if it exists ...',
+    from appsettings.mamboms import *
+    print 'OK'
+except Exception, e:
+    print 'Fail'

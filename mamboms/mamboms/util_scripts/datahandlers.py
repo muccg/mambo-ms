@@ -8,7 +8,7 @@ into an MSDataRecord, so they can be processed by the dataimport functions.
 
 import os, sys
 import os.path
-from mamboms.settings import WRITABLE_DIRECTORY
+from django.conf.settings import WRITABLE_DIRECTORY
 import csv
 import logging
 logger = logging.getLogger('mamboms_import_log')

@@ -14,7 +14,7 @@ from django.utils.translation import force_unicode
 from django.utils.encoding import smart_unicode
 
 import os
-from mamboms import settings
+from django.conf import settings
 
 def makeJsonFriendly(data):
     '''
