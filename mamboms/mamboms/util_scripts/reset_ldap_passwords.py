@@ -3,7 +3,7 @@ Resets the ldap user passwords to a predefined password.
 Should be executed from django shell.
 '''
 
-from mamboms import settings
+from django.conf import settings
 from django.contrib.auth.ldap_helper import LDAPHandler 
 
 def nema_users(lh):

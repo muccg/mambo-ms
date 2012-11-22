@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
-from mamboms.settings import WRITABLE_DIRECTORY
+from django.conf.settings import WRITABLE_DIRECTORY
 from ccg.utils.webhelpers import siteurl
 from mamboms.mambomsapp.views.utils import json_encode
 

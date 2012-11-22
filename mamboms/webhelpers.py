@@ -3,7 +3,7 @@
 """Some web helpers taken from the Pylons camp"""
 
 import os
-import settings
+from django.conf import settings
 
 basejs="javascript"
 basecss="css"

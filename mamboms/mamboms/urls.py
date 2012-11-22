@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from mamboms.mambomsapp import admin as mamboms_admin
-from mamboms import settings
+from django.conf import settings
 
 admin.autodiscover()
 

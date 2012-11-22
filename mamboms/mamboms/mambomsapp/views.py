@@ -4,7 +4,7 @@ from django.utils import simplejson
 from mamboms.mambomsapp.models import Compound
 from mamboms.mambomsapp.spectra_graph import SpectraGraph
 from mamboms.mambomsapp.graph_cache import cache
-from mamboms import settings
+from django.conf import settings
 import logging
 import os
 logger = logging.getLogger('mamboms')
