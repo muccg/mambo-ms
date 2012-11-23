@@ -8,7 +8,7 @@ into an MSDataRecord, so they can be processed by the dataimport functions.
 
 import os, sys
 import os.path
-from django.conf.settings import WRITABLE_DIRECTORY
+from django.conf import settings 
 import csv
 import logging
 logger = logging.getLogger('mamboms_import_log')
@@ -47,7 +47,7 @@ class MSDataRecord(object):
 
 
 def save_uploaded_file(f):
-    name = os.path.join(WRITABLE_DIRECTORY, f.name)
+    name = os.path.join(settings.WRITABLE_DIRECTORY, f.name)
     try:
         destination = open(name, 'wb+')
         for chunk in f.chunks():
