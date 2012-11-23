@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from mamboms.mambomsapp import admin as mamboms_admin
-from mamboms import settings
+from django.conf import settings
 
 admin.autodiscover()
 
@@ -13,9 +13,9 @@ urlpatterns = patterns('',
     (r'^user/', include('mamboms.mambomsuser.urls')),
     (r'^reference/', include('mamboms.mambomsapp.urls')),
     (r'^msadmin/', include(admin.site.urls)),
-    (r'^import/fileupload$', 'util_scripts.dataimporter.datafile_upload'),
-    (r'^import/definefields$', 'util_scripts.dataimporter.define_fields'),
-    (r'^import/confirmimport$', 'util_scripts.dataimporter.confirm_import'),
+    (r'^import/fileupload$', 'mamboms.util_scripts.dataimporter.datafile_upload'),
+    (r'^import/definefields$', 'mamboms.util_scripts.dataimporter.define_fields'),
+    (r'^import/confirmimport$', 'mamboms.util_scripts.dataimporter.confirm_import'),
     (r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'admin/login.html', 'SSL':settings.SSL_ENABLED }),
     (r'^logout/$', 'django.contrib.auth.views.logout'),
 )

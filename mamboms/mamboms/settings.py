@@ -60,6 +60,7 @@ MIDDLEWARE_CLASSES = (
 INSTALLED_APPS = ( [
     'mamboms.mambomsapp',
     'mamboms.mambomsuser',
+    'mamboms.util_scripts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -230,7 +231,7 @@ UPLOAD_SUBPATH = "upload"
 
 #LOGGING:
 # see https://docs.djangoproject.com/en/dev/topics/logging/
-LOG_DIRECTORY = WRITABLE_DIRECTORY #os.path.join(PROJECT_DIRECTORY,"logs")
+LOG_DIRECTORY = os.path.join(PROJECT_DIRECTORY,"logs")
 #if not os.path.exists(LOG_DIRECTORY):
 #    os.makedirs(LOG_DIRECTORY)
 
@@ -321,3 +322,11 @@ LOGGING = {
         }
     }
 }
+
+try:
+    print
+    print 'Attepting to import appsettings.mamboms if it exists ...',
+    from appsettings.mamboms import *
+    print 'OK'
+except Exception, e:
+    print 'Fail'
