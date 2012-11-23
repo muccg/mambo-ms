@@ -4,7 +4,7 @@ from setuptools import setup
 
 data_files = {}
 start_dir = os.getcwd()
-for package in ('mambomsapp', 'mambomsuser'):
+for package in ('mambomsapp', 'mambomsuser', 'util_scripts'):
     data_files['mamboms.' + package] = []
     os.chdir(os.path.join('mamboms', package))
     for data_dir in ('templates', 'static', 'migrations', 'fixtures', 'views'):
@@ -21,11 +21,13 @@ setup(name='django-mamboms',
     packages=[
         'mamboms',
         'mamboms.mambomsapp',
-        'mamboms.mambomsuser'
+        'mamboms.mambomsuser',
+        'mamboms.util_scripts'
     ],
     package_data=data_files,
     zip_safe=False,
     install_requires=[
+        #'numpy==1.6.2',
         'numpy',
         'Mango-py==1.3.1-ccg1-3',
         'South==0.7.3',
@@ -33,8 +35,8 @@ setup(name='django-mamboms',
         'ccg-auth==0.3.2',
         'ccg-makoloader==0.2.4',
         'Cython==0.12',
-        'ccg-python-build==2.2.8',
         'matplotlib',
+        #'matplotlib==1.0.1',
         'django-picklefield==0.1.9',
         'django-templatetag-sugar==0.1',
         'pyparsing==1.5.6',

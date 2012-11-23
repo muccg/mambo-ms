@@ -33,23 +33,23 @@ def keyword_search(request):
         logger.warning('Problem: %s' % (str(e)))
         return HttpResponse(json_encode([]) )
 
-def stored_procedure_search(spectra, limit, adjust):
+def stored_procedure_search(spectra, limit, adjust, datasets):
     from django.db import connection
     cursor = connection.cursor()
     try:
-        cursor.callproc('search_by_spectra', (",".join(spectra), limit, adjust))
+        cursor.callproc('search_by_spectra', (",".join(spectra), limit, adjust, datasets))
         result = cursor.fetchone()[0]
         return [line.split() for line in result.split('\n') if line]
     except Exception, e:
         logger.warning('Problem running search: %s' % (e))
         return []
 
-def dot_product_ma_inhouse(spectra, limit, adjust):
+def dot_product_ma_inhouse(spectra, limit, adjust, datasets):
     # TODO search should accept limit as a param
     input = PointSet(','.join(spectra))
     return dot_product_search.search(input, thresh = 0.2, algorithm=SearchAlgorithms.DOTPRODUCT_MA)
 
-def dot_product(spectra, limit, adjust):
+def dot_product(spectra, limit, adjust, datasets):
     # TODO search should accept limit as a param
     input = PointSet(','.join(spectra))
     return dot_product_search.search(input, thresh = 0.2, algorithm=SearchAlgorithms.DOTPRODUCT)
@@ -70,10 +70,17 @@ def dot_product(spectra, limit, adjust):
 @clients_forbidden
 def spectra_search(request, algorithm=stored_procedure_search):
     req_params = request.POST
-    
-    
     spectra = req_params['spectra'].split()
     limit = int(req_params['limit'])
+    datasetlist = []
+    datasetnames = []
+    
+    if ('dataset' in req_params):
+        datasetnames = req_params.getlist('dataset')
+    #The dataset list is strings, we need to turn it into IDs.
+    if len(datasetnames):
+        qs = models.Dataset.objects.filter(name__in=datasetnames)
+        datasetlist = [ds.id for ds in qs] 
 
     alg_selection = request.POST.get('spectral_algorithm', None)
    
@@ -98,8 +105,8 @@ def spectra_search(request, algorithm=stored_procedure_search):
             if tokyo:
                 algorithm = dot_product
      
-    logger.debug('search by spectra, spectra : limit : adjust is: %s : %d : %d' % (spectra, limit, adjust))
-    search_result = algorithm(spectra, limit, adjust)
+    logger.debug('search by spectra, spectra : limit : adjust : datasetlist is: %s : %d : %d : %s' % (spectra, limit, adjust, datasetlist))
+    search_result = algorithm(spectra, limit, adjust, datasetlist)
     
 
     logger.debug('search result: %s' % (search_result) )

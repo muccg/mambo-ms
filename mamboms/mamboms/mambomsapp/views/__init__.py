@@ -4,7 +4,7 @@ from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from mamboms.decorators import admins_and_nodereps_only
 from mamboms.mambomsapp import models
-from mamboms import settings
+from django.conf import settings
 from ccg.utils import webhelpers
 from ccg.utils.webhelpers import siteurl, wsgibase
 from django.shortcuts import render_to_response
