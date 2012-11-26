@@ -65,7 +65,9 @@ def main(xys, limit, adjust, dataset_ids):
            actually end up coming through as a string. So rather than using the where clause below, 
            we just use one that chops the [ and ] off the list.'''
         '''where_clause = "WHERE c.dataset_id in (%s)" % (",".join([str(x) for x in dataset_ids]))'''
-        where_clause = "WHERE c.dataset_id in (%s)" % (dataset_ids[1:-1])
+        '''Update: On postgres 8.4 I see the above behaviour. On 9.x it comes through correctly.
+                   To make it work consistently, cast to string in all cases'''
+        where_clause = "WHERE c.dataset_id in (%s)" % ( str(dataset_ids)[1:-1] )
 
     
         compounds = plpy.execute("SELECT c.id, s.raw_points FROM mambomsapp_compound c JOIN mambomsapp_spectrum s ON c.id = s.compound_id %s" % (where_clause))
