@@ -26,8 +26,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: x86_64
 Vendor: Centre for Comparative Genomics <web@ccg.murdoch.edu.au>
-BuildRequires: python-setuptools
-Requires: httpd mod_wsgi postgresql-libs
+BuildRequires: python-setuptools openldap-devel openssl-devel postgresql-devel
+Requires: httpd mod_wsgi openldap-clients openssl postgresql-libs
 
 %description
 Mastr MS
@@ -70,7 +70,7 @@ find %{buildinstalldir} -name '*.py' -type f | xargs sed -i 's:^#!/usr/local/bin
 find %{buildinstalldir} -name '*.py' -type f | xargs sed -i 's:^#!/usr/local/python:#!/usr/bin/python:'
 
 %post
-mastrms collectstatic --noinput > /dev/null
+mamboms collectstatic --noinput > /dev/null
 chown -R apache:apache %{webapps}/%{name}/logs
 sudo service httpd restart
 

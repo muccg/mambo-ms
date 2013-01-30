@@ -26,7 +26,9 @@ import django.core.handlers.wsgi
 
 # This is the WSGI application booter
 def application(environ, start):
-    os.environ['SCRIPT_NAME']=environ['SCRIPT_NAME']
+    if "HTTP_SCRIPT_NAME" in environ:
+        environ['SCRIPT_NAME']=environ['HTTP_SCRIPT_NAME']
+        os.environ['SCRIPT_NAME']=environ['HTTP_SCRIPT_NAME']
     if 'DJANGODEV' in environ:
        os.environ['DJANGODEV']=environ['DJANGODEV']
     return django.core.handlers.wsgi.WSGIHandler()(environ,start)
