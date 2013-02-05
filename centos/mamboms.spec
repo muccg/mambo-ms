@@ -8,7 +8,7 @@
 %define buildinstalldir %{buildroot}/%{installdir}
 %define settingsdir %{buildinstalldir}/settings
 %define logsdir %{buildinstalldir}/logs
-%define scratchdir %{buildinstalldir}/scratch
+%define scratchdir %{buildinstalldir}/%{webapps}/writeable/{%name}
 %define staticdir %{buildinstalldir}/static
 
 # Turn off brp-python-bytecompile because it makes it difficult to generate the file list
@@ -70,6 +70,7 @@ find %{buildinstalldir} -name '*.py' -type f | xargs sed -i 's:^#!/usr/local/bin
 find %{buildinstalldir} -name '*.py' -type f | xargs sed -i 's:^#!/usr/local/python:#!/usr/bin/python:'
 
 %post
+mkdir -p %{webapps}/writeable/%{name}
 mamboms collectstatic --noinput > /dev/null
 chown -R apache:apache %{webapps}/%{name}/logs
 sudo service httpd restart
