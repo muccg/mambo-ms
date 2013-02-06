@@ -179,7 +179,7 @@ SECRET_KEY = 'change_this'
 
 # email settings so yabi can send email error alerts etc
 # see https://docs.djangoproject.com/en/dev/ref/settings/#email-host
-EMAIL_HOST = 'set_this'
+EMAIL_HOST = 'ccg.murdoch.edu.au'
 EMAIL_APP_NAME = "Mamboms "
 SERVER_EMAIL = "apache@set_this"                      # from address
 EMAIL_SUBJECT_PREFIX = "DEV "
