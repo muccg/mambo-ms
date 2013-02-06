@@ -54,7 +54,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'ccg.middleware.ssl.SSLRedirect',
-    'django.middleware.cache.FetchFromCacheMiddleware'
+    'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware'
 )
 
 INSTALLED_APPS = ( [
@@ -145,7 +146,7 @@ TEMPLATE_DEBUG = DEBUG
 
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
 TEMPLATE_LOADERS = [
-    'ccg.template.loaders.makoloader.filesystem.Loader',
+    #'ccg.template.loaders.makoloader.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 ]
 
