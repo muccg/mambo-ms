@@ -47,7 +47,7 @@ class MSDataRecord(object):
 
 
 def save_uploaded_file(f):
-    name = os.path.join(settings.WRITABLE_DIRECTORY, f.name)
+    name = os.path.join(settings.CCG_WRITEABLE_DIRECTORY, f.name)
     try:
         destination = open(name, 'wb+')
         for chunk in f.chunks():
