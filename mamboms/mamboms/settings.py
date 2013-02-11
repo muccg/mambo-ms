@@ -1,256 +1,146 @@
 # -*- coding: utf-8 -*-
-### BEGIN COPYRIGHT ###
-#
-# (C) Copyright 2011, Centre for Comparative Genomics, Murdoch University.
-# All rights reserved.
-#
-# This product includes software developed at the Centre for Comparative Genomics 
-# (http://ccg.murdoch.edu.au/).
-# 
-# TO THE EXTENT PERMITTED BY APPLICABLE LAWS, MAMBO-MS IS PROVIDED TO YOU "AS IS," 
-# WITHOUT WARRANTY. THERE IS NO WARRANTY FOR MAMBO-MS, EITHER EXPRESSED OR IMPLIED, 
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS. 
-# THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF MAMBO-MS IS WITH YOU.  SHOULD 
-# MAMBO-MS PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR
-# OR CORRECTION.
-# 
-# TO THE EXTENT PERMITTED BY APPLICABLE LAWS, OR AS OTHERWISE AGREED TO IN 
-# WRITING NO COPYRIGHT HOLDER IN MAMBO-MS, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
-# REDISTRIBUTE MAMBO-MS AS PERMITTED IN WRITING, BE LIABLE TO YOU FOR DAMAGES, INCLUDING 
-# ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE 
-# USE OR INABILITY TO USE MAMBO-MS (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR 
-# DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES 
-# OR A FAILURE OF MAMBO-MS TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER 
-# OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-# 
-### END COPYRIGHT ###
-
 import os
-from ccg.utils.webhelpers import url
+import logging
+import logging.handlers
 
-# these settings are used when running under WSGI
-if not os.environ.has_key('SCRIPT_NAME'):
-    os.environ['SCRIPT_NAME']=''
-SCRIPT_NAME =   os.environ['SCRIPT_NAME']
-#PROJECT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+CCG_INSTALL_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-WEBAPP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CCG_WRITEABLE_DIRECTORY = os.path.join(CCG_INSTALL_ROOT,"scratch")
 
-PROJECT_DIRECTORY = WEBAPP_ROOT
-
-SSL_ENABLED = False
-
-# set debug, see: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
-SITE_ID = 1
-
-# mamboms uses a slightly different set of middleware, so define here
-MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
+# see: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # !!!At the moment the app is not using CSRF!!!
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'ccg.middleware.ssl.SSLRedirect',
-    'django.middleware.cache.FetchFromCacheMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware'
-)
+    'django.contrib.messages.middleware.MessageMiddleware',
+]
 
-INSTALLED_APPS = ( [
+# see: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
+INSTALLED_APPS = [
     'mamboms.mambomsapp',
     'mamboms.mambomsuser',
     'mamboms.util_scripts',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.admin',
     'django.contrib.staticfiles',
+    'django.contrib.messages',
     'django_extensions',
     'south'
-] )
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
-ROOT_URLCONF = 'mamboms.urls'
+    ]
 
 # these determine which authentication method to use
-# yabi uses modelbackend by default, but can be overridden here
+# apps use modelbackend by default, but can be overridden here
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
+ 'django.contrib.auth.backends.ModelBackend'
 ]
 
-# code used for additional user related operations
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#auth-profile-module
-AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
+# We have a puppet function to generate these by hashing appname and a secret
+SECRET_KEY = 'change-it'
 
-# cookies
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-age
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-name
-SESSION_COOKIE_AGE = 60*60
-SESSION_COOKIE_PATH = url('/')
-SESSION_COOKIE_NAME = 'mamboms_sessionid'
-SESSION_SAVE_EVERY_REQUEST = True
-CSRF_COOKIE_NAME = "csrftoken_mamboms"
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False
+# Default SSL on and forced, turn off if necessary
+SSL_ENABLED = False # !!!Changed from default True!!!
+SSL_FORCE = False # !!!Change from default True!!!
 
-# Locale
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
-#      https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-#      https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
-TIME_ZONE = 'Australia/Perth'
-LANGUAGE_CODE = 'en-us'
-USE_I18N = True
+# Debug off by default
+DEBUG = True
 
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = url('/login/')
-LOGIN_REDIRECT_URL = url('/')
-LOGOUT_URL = url('/logout')
+# Default the site ID to 1, even if the sites framework isn't being used
+SITE_ID = 1
 
-### static file management ###
-# see: https://docs.djangoproject.com/en/dev/howto/static-files/
-# deployment uses an apache alias
-STATICFILES_DIRS = []
-STATIC_ROOT = os.path.join(PROJECT_DIRECTORY, "static")
-STATIC_URL = url('/static/')
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#root-urlconf
+ROOT_URLCONF = 'mamboms.urls'
 
-# TODO This should change to be django friendly
-ADMIN_MEDIA_PREFIX = url('/static/admin-media/')
+# This one's a constant, where puppet will have collect static files to
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#static-root
+STATIC_ROOT=os.path.join(CCG_INSTALL_ROOT, 'static')
 
-# media directories
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = os.path.join(PROJECT_DIRECTORY,"mambomsapp", "static", "media")
-MEDIA_URL = url('/static/media/')
+# These may be overridden, but it would be nice to stick to this convention
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#static-url
+STATIC_URL = '{0}/static/'.format(os.environ.get("SCRIPT_NAME", ""))
 
-# a directory that will be writable by the webserver, for storing various files...
-WRITABLE_DIRECTORY = os.path.join(PROJECT_DIRECTORY,"scratch")
+# Another puppet-enforced content for location of user-uploaded data
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#media-root
+MEDIA_ROOT = os.path.join(CCG_WRITEABLE_DIRECTORY,"static","media")
 
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#append-slash
-APPEND_SLASH = True
+# This may be overridden
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#media-url
+MEDIA_URL = '{0}/static/media/'.format(os.environ.get("SCRIPT_NAME", ""))
 
-## CAPTCHA settings
-##
-# the filesystem space to write the captchas into
-CAPTCHA_ROOT = os.path.join(MEDIA_ROOT, 'captchas')
-
-# the url base that points to that directory served out
-CAPTCHA_URL = os.path.join(MEDIA_URL, 'captchas')
-
-# captcha image directory
-CAPTCHA_IMAGES = os.path.join(WRITABLE_DIRECTORY, "captcha")
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
-TEMPLATE_DEBUG = DEBUG
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
+# All templates must be loaded from within an app, so these are the only
+# ones that should be enabled.
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#template-loaders
 TEMPLATE_LOADERS = [
-    #'ccg.template.loaders.makoloader.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.app_directories.Loader'
 ]
 
-# mako compiled templates directory
-MAKO_MODULE_DIR = os.path.join(WRITABLE_DIRECTORY, "mambomsapp/templates")
-
-# mako module name
-MAKO_MODULENAME_CALLABLE = ''
-
-
-### USER SPECIFIC SETUP ###
-# these are the settings you will most likely change to reflect your setup
-
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'mamboms',
-        'NAME': 'mamboms',
-        'PASSWORD': 'mamboms',
-        'HOST': '',
-        'PORT': '',
-    }
-}
-
-# Make this unique, and don't share it with anybody.
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-SECRET_KEY = 'change_this'
-
-# email settings so yabi can send email error alerts etc
-# see https://docs.djangoproject.com/en/dev/ref/settings/#email-host
-EMAIL_HOST = 'ccg.murdoch.edu.au'
-EMAIL_APP_NAME = "Mamboms "
-SERVER_EMAIL = "apache@set_this"                      # from address
-EMAIL_SUBJECT_PREFIX = "DEV "
-
-# admins to email error reports to
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#admins
+# Default all email to ADMINS and MANAGERS to root@localhost.
+# Puppet redirects this to something appropriate depend on the environment.
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#admins
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#managers
 ADMINS = [
-    ( 'alert', 'alerts@set_this.com' )
+    ( 'alert', 'root@localhost' )
 ]
-
-# see: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
-# memcache server list
-# add a list of your memcache servers
-MEMCACHE_SERVERS = ['localhost.localdomain:11211']
-MEMCACHE_KEYSPACE = "mamboms-"
+# Mail relay settings for those projects that need it
+# Local non-smtp delivery and forwarding is the alternative
+EMAIL_USE_TLS = False
+EMAIL_HOST = '127.0.0.1'
+EMAIL_PORT = 25
+EMAIL_APP_NAME = "Mamboms"
+SERVER_EMAIL = "apache@localhost"  # from address
 
-# uncomment to use memcache for sessions, be sure to have uncommented memcache settings above
-# see https://docs.djangoproject.com/en/dev/ref/settings/#session-engine
-#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-CACHE_BACKEND = 'memcached://'+(';'.join(MEMCACHE_SERVERS))+"/"
+# Default cookie settings
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#session-cookie-age and following
+SESSION_COOKIE_AGE = 60*60
+SESSION_COOKIE_PATH = '/'
+SESSION_COOKIE_NAME = 'mamboms_sessionid'
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_HTTPONLY = False # Changed from default True
+SESSION_COOKIE_SECURE = False # Changed from default True
 
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#csrf-cookie-name and following
+CSRF_COOKIE_NAME = "csrftoken_mamboms"
+CSRF_COOKIE_SECURE = False # !!!Changed from default True!!! 
 
-### LEGACY SETUP ###
-# these are the settings that seem to be specific to Mamboms
+# Default date input formats, may be overridden
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#date-input-formats
+TIME_ZONE = 'Australia/Perth'
+LANGUAGE_CODE = 'en-us'
+USE_I18N = False
+USE_L10N = False
+DATE_INPUT_FORMATS = ('%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y','%d %m %Y','%d %m %y', '%d %b %Y')
+DATE_FORMAT = "d-m-Y"
+SHORT_DATE_FORMAT = "d/m/Y"
 
+# This honours the X-Forwarded-Host header set by our nginx frontend when
+# constructing redirect URLS.
+# see: https://docs.djangoproject.com/en/1.4/ref/settings/#use-x-forwarded-host
+USE_X_FORWARDED_HOST = True
 
-##
-## cache middleware settings, these are mamboms specific
-##
-CACHE_MIDDLEWARE_SECONDS = 5
-CACHE_MIDDLEWARE_KEY_PREFIX = "mamboms-"
+# Log directory created and enforced by puppet
+CCG_LOG_DIRECTORY = os.path.join(CCG_WRITEABLE_DIRECTORY, "logs")
 
-TEST_RUNNER = 'mamboms.test.testrunner.run_mamboms_tests'
-
-PERSISTENT_FILESTORE = WRITABLE_DIRECTORY #os.path.normpath(os.path.join(PROJECT_DIRECTORY, 'files')) 
-PERSISTENT_FILESTORE_URL = url('/mamboms/files/')
-
-# which directory we put the processed files in
-OUTPUT_SUBPATH = "output"
-UPLOAD_SUBPATH = "upload"
-
-#Ensure the persistent storage dir exits. If it doesn't, exit noisily.
-#if not os.path.exists(PERSISTENT_FILESTORE):
-#    os.makedirs(PERSISTENT_FILESTORE)
-
-#if not os.path.exists(os.path.join(PERSISTENT_FILESTORE,OUTPUT_SUBPATH)):
-#    os.mkdir(os.path.join(PERSISTENT_FILESTORE,OUTPUT_SUBPATH))
-
-#LOGGING:
-# see https://docs.djangoproject.com/en/dev/topics/logging/
-LOG_DIRECTORY = os.path.join(PROJECT_DIRECTORY,"logs")
-#if not os.path.exists(LOG_DIRECTORY):
-#    os.makedirs(LOG_DIRECTORY)
-
-INSTALL_NAME = PROJECT_DIRECTORY.split('/')[-2]
-LOGS = ['mango_ldap', 'mamboms_spectral_search_log', 'mamboms_import_log' ]
-
+# Default logging configuration, can be overridden
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
-            'format': 'Mamboms [%(name)s:' + INSTALL_NAME + ':%(levelname)s:%(asctime)s:%(filename)s:%(lineno)s:%(funcName)s] %(message)s'
+            'format': 'mamboms [%(name)s:%(levelname)s:%(asctime)s:%(filename)s:%(lineno)s:%(funcName)s] %(message)s'
         },
         'db': {
-            'format': 'Mamboms [%(name)s:' + INSTALL_NAME + ':%(duration)s:%(sql)s:%(params)s] %(message)s'
+            'format': 'mamboms [%(name)s:%(duration)s:%(sql)s:%(params)s] %(message)s'
         },
         'simple': {
-            'format': 'Mamboms ' + INSTALL_NAME + ' %(levelname)s %(message)s'
+            'format': 'mamboms %(levelname)s %(message)s'
         },
     },
     'filters': {
@@ -268,14 +158,14 @@ LOGGING = {
         'file':{
             'level':'DEBUG',
             'class':'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(LOG_DIRECTORY, 'mamboms.log'),
+            'filename': os.path.join(CCG_LOG_DIRECTORY, 'mamboms.log'),
             'when':'midnight',
             'formatter': 'verbose'
         },
         'db_logfile':{
             'level':'DEBUG',
             'class':'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(LOG_DIRECTORY, 'mamboms_db.log'),
+            'filename': os.path.join(CCG_LOG_DIRECTORY, 'mamboms_db.log'),
             'when':'midnight',
             'formatter': 'db'
         },
@@ -285,7 +175,7 @@ LOGGING = {
             'address':'/dev/log',
             'facility':'local4',
             'formatter': 'verbose'
-        },        
+        },    
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
@@ -310,24 +200,30 @@ LOGGING = {
             'propagate': False,
         },
         'mamboms': {
-            'handlers': ['console', 'file', 'syslog', 'mail_admins'],
-            'level': 'DEBUG'
-        },
-        'mamboms_search_log': {
-            'handlers': ['console', 'file', 'syslog', 'mail_admins'],
-            'level': 'DEBUG'
-        },
-        'mamboms_import_log': {
-            'handlers': ['console', 'file', 'syslog', 'mail_admins'],
+            'handlers': ['console', 'file', 'syslog'],
             'level': 'DEBUG'
         }
     }
 }
 
-try:
-    print
-    print 'Attepting to import appsettings.mamboms if it exists ...',
-    from appsettings.mamboms import *
-    print 'OK'
-except Exception, e:
-    print 'Fail'
+
+#-=-=-=-=-=-=-=-=-=-=-#
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': 'mamboms',
+        'NAME': 'mamboms',
+        'PASSWORD': 'mamboms',
+        'HOST': '',
+        'PORT': '',
+    }
+}
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_URL = '/logout'
+
+PERSISTENT_FILESTORE = CCG_WRITEABLE_DIRECTORY #os.path.normpath(os.path.join(PROJECT_DIRECTORY, 'files')) 
+PERSISTENT_FILESTORE_URL = '/mamboms/files/'
+
+AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
