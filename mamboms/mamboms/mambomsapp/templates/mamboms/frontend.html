@@ -47,6 +47,11 @@
 <script>
 Ext.onReady(function(){
 
+    Ext.Ajax.defaultHeaders = {
+      'X-CSRFToken': Ext.util.Cookies.get("csrftoken_mamboms"),
+      'Accept': '*/*'
+    };
+
     Ext.madasInitApplication('{{ APP_SECURE_URL }}');
 
 });
