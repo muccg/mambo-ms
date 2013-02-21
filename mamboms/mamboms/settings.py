@@ -5,7 +5,18 @@ import logging.handlers
 
 CCG_INSTALL_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CCG_WRITEABLE_DIRECTORY = os.path.join(CCG_INSTALL_ROOT,"scratch")
+CCG_WRITEABLE_DIRECTORY = os.path.join(CCG_INSTALL_ROOT,"writeable")
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': 'mamboms',
+        'NAME': 'mamboms',
+        'PASSWORD': 'mamboms',
+        'HOST': '',
+        'PORT': '',
+    }
+}
 
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
 MIDDLEWARE_CLASSES = [
@@ -32,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django_extensions',
     'south'
-    ]
+]
 
 # these determine which authentication method to use
 # apps use modelbackend by default, but can be overridden here
@@ -206,24 +217,23 @@ LOGGING = {
     }
 }
 
-
 #-=-=-=-=-=-=-=-=-=-=-#
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'mamboms',
-        'NAME': 'mamboms',
-        'PASSWORD': 'mamboms',
-        'HOST': '',
-        'PORT': '',
-    }
-}
 
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_URL = '/logout'
+# see: https://docs.djangoproject.com/en/dev/ref/settings/#login-url
+LOGIN_URL = '{0}/login/'.format(os.environ.get("SCRIPT_NAME", ""))
+LOGOUT_URL = '{0}/logout/'.format(os.environ.get("SCRIPT_NAME", ""))
+LOGIN_REDIRECT_URL = '{0}/'.format(os.environ.get("SCRIPT_NAME", ""))
 
 PERSISTENT_FILESTORE = CCG_WRITEABLE_DIRECTORY #os.path.normpath(os.path.join(PROJECT_DIRECTORY, 'files')) 
 PERSISTENT_FILESTORE_URL = '/mamboms/files/'
 
 AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
+
+#-=-=-=-=-=-=-=-=-=-=-#
+
+try:
+    print "Attempting to import local settings as appsettings.mamboms"
+    from appsettings.mamboms import *
+    print "Successfully imported appsettings.mamboms"
+except ImportError, e:
+    print "Failed to import appsettings.mamboms"
