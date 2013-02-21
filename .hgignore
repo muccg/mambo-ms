@@ -14,3 +14,4 @@
 ^mamboms/build*
 ^mamboms/django_mamboms.egg-info*
 ^mamboms/mamboms/scratch*
+^mamboms/writeable*

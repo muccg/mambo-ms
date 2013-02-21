@@ -228,6 +228,7 @@ PERSISTENT_FILESTORE = CCG_WRITEABLE_DIRECTORY #os.path.normpath(os.path.join(PR
 PERSISTENT_FILESTORE_URL = '/mamboms/files/'
 
 AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'
+MPLCONFIGDIR = settings.CCG_WRITEABLE_DIRECTORY
 
 #-=-=-=-=-=-=-=-=-=-=-#
 

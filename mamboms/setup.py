@@ -28,7 +28,6 @@ setup(name='django-mamboms',
     zip_safe=False,
     install_requires=[
         'numpy==1.6.2',
-        'numpy',
         'Django==1.4.3',
         'South==0.7.3',
         'ccg-extras==0.1.5',
