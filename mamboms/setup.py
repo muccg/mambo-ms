@@ -33,8 +33,6 @@ setup(name='django-mamboms',
         'ccg-extras==0.1.5',
         'ccg-auth==0.3.2',
         'Cython==0.12',
-        'matplotlib',
-        'matplotlib==1.0.1',
         'django-picklefield==0.1.9',
         'django-templatetag-sugar==0.1',
         'pyparsing==1.5.6',
@@ -45,6 +43,7 @@ setup(name='django-mamboms',
         'python-ldap==2.3.13'
     ],
     dependency_links = [
-        "http://repo.ccgapps.com.au"
+        "http://repo.ccgapps.com.au",
+        "https://github.com/mradochonski/matplotlib/archive/ccg_matplotlib.tar.gz"
     ],
 )
