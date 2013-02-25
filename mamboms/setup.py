@@ -13,7 +13,7 @@ for package in ('mambomsapp', 'mambomsuser', 'util_scripts'):
     os.chdir(start_dir)
 
 setup(name='django-mamboms',
-    version='1.2.0',
+    version='1.2.1',
     description='Mambo MS',
     long_description='Django Mambo MS web application',
     author='Centre for Comparative Genomics',
@@ -28,6 +28,7 @@ setup(name='django-mamboms',
     zip_safe=False,
     install_requires=[
         'numpy==1.6.2',
+        'matplotlib==1.2.0',
         'Django==1.4.3',
         'South==0.7.3',
         'ccg-extras==0.1.5',
@@ -44,6 +45,7 @@ setup(name='django-mamboms',
     ],
     dependency_links = [
         "http://repo.ccgapps.com.au",
-        "https://github.com/mradochonski/matplotlib/archive/ccg_matplotlib.tar.gz"
+        "http://http-syd.s3.amazonaws.com/python/centos/6/x86_64/matplotlib-1.2.0-py2.6-linux-x86_64.egg",
+        "http://http-syd.s3.amazonaws.com/python/centos/6/x86_64/numpy-1.6.2-py2.6-linux-x86_64.egg"
     ],
 )
