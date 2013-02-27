@@ -137,7 +137,7 @@ SHORT_DATE_FORMAT = "d/m/Y"
 USE_X_FORWARDED_HOST = True
 
 # Log directory created and enforced by puppet
-CCG_LOG_DIRECTORY = os.path.join(CCG_WRITEABLE_DIRECTORY, "logs")
+CCG_LOG_DIRECTORY = os.path.join(CCG_INSTALL_ROOT, "logs")
 
 # Default logging configuration, can be overridden
 LOGGING = {
