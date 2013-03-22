@@ -26,8 +26,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: x86_64
 Vendor: Centre for Comparative Genomics <web@ccg.murdoch.edu.au>
-BuildRequires: python-setuptools mysql-devel
-Requires: python-setuptools httpd mod_wsgi mysql-libs
+BuildRequires: python-setuptools postgresql-devel openldap-devel openssl-devel
+Requires: python-setuptools httpd mod_wsgi postgresql-libs openldap-libs openssl
 
 %description
 Django iVEC Allocation web application
@@ -57,7 +57,7 @@ mkdir -p %{buildinstalldir}/{lib,bin,include}
 # Install package into the prefix
 cd $CCGSOURCEDIR
 export PYTHONPATH=%{buildinstalldir}/lib
-easy_install -O1 --prefix %{buildinstalldir} --install-dir %{buildinstalldir}/lib .
+python26 /usr/bin/easy_install -O1 --prefix %{buildinstalldir} --install-dir %{buildinstalldir}/lib .
 
 # Create settings symlink so we can run collectstatic with the default settings
 touch %{settingsdir}/__init__.py
