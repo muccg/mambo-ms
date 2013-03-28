@@ -27,8 +27,7 @@ setup(name='django-mamboms',
     package_data=data_files,
     zip_safe=False,
     install_requires=[
-        'numpy==1.6.2',
-        'matplotlib==1.2.0',
+        'matplotlibnumpy==1',
         'Django==1.4.5',
         'South==0.7.3',
         'ccg-extras==0.1.5',
@@ -45,7 +44,5 @@ setup(name='django-mamboms',
     ],
     dependency_links = [
         "http://repo.ccgapps.com.au",
-        "http://http-syd.s3.amazonaws.com/python/centos/6/x86_64/matplotlib-1.2.0-py2.6-linux-x86_64.egg",
-        "http://http-syd.s3.amazonaws.com/python/centos/6/x86_64/numpy-1.6.2-py2.6-linux-x86_64.egg"
     ],
 )
