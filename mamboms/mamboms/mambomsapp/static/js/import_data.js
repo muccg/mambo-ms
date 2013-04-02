@@ -240,7 +240,7 @@ var createFieldMappingForm = function(metadata){
         var field = metadata.importable_fields[index];
         importable_fields.push(that.create_importable_dropdown(field.display, 
                                                                field.id, 
-                                                               field.null, 
+                                                               null, 
                                                                jsonfields));
     }
     
@@ -300,38 +300,36 @@ var createFieldMappingForm = function(metadata){
     style:'margin-left:30px;margin-top:20px;',
     defaults: {width: 240},
     defaultType: 'textfield',
-    items: [
-            {xtype: 'fieldset',
-             title: 'Field Configuration',
-             id: 'dataimportwarning',
-             autoHeight : true,
-             autoWidth: true,
-             items: [
-            
-        {
+    items: [{
+        xtype: 'fieldset',
+        title: 'Field Configuration',
+        id: 'dataimportwarning',
+        autoHeight : true,
+        autoWidth: true,
+        items: [{
             id: 'warningText',
-            html: fconftext, 
-                  
+            html: fconftext,       
             style: {
                 'margin' : '0px 0px 5px 0px'
             }
-        }]},
-        
-        { xtype: 'fieldset',
-          title: 'Importable Fields',
-          id: 'dataimportablefields',
-          autoHeight: true,
-          autoWidth: true,
-          items: [ importable_fields ]
-        },
-        
-        { xtype: 'fieldset',
-          title: 'Spectrum Data (optional)',
-          id: 'dataspectrumfield',
-          autoHeight: true,
-          autoWidth: true,
-          items: [
-          new Ext.form.ComboBox({
+        }]
+    },{ 
+        xtype: 'fieldset',
+        title: 'Importable Fields',
+        id: 'dataimportablefields',
+        autoHeight: true,
+        autoWidth: true,
+        items: [ 
+            importable_fields 
+        ]
+    },{ 
+        xtype: 'fieldset',
+        title: 'Spectrum Data (optional)',
+        id: 'dataspectrumfield',
+        autoHeight: true,
+        autoWidth: true,
+        items: [
+            new Ext.form.ComboBox({
                 fieldLabel: "Points Field",
                 name: 'spectrumfield',
                 hiddenName: 'spectrumfield',
@@ -351,32 +349,28 @@ var createFieldMappingForm = function(metadata){
                     editable: true,
                     forceSelection: false
                 })
-          ]},
-        
-        { xtype: 'fieldset',
-          title: 'Unimportable Fields',
-          id: 'dataiunmportablefields',
-          autoHeight: true,
-          autoWidth: true,
-          items: [
-
-             // {
+          ]
+    },{ 
+        xtype: 'fieldset',
+        title: 'Unimportable Fields',
+        id: 'dataiunmportablefields',
+        autoHeight: true,
+        autoWidth: true,
+        items: [
+        // {
         //    fieldLabel: 'Dataset (NIST, MA GC, MA LC):',
         //    name: 'dataset',
         //    disabled: that.readOnly,        
         //    allowBlank: false
         // },
-            {
+        {
             id: 'unimportableText',
             html: "These fields are not importable from a data file.<br> Use the dropdown menus to select values to " + 
                   "assign to all records.", 
-                  
             style: {
                 'margin' : '0px 0px 5px 0px'
             }
-            },
-
-         {
+        },{
             xtype:'checkbox',
             name: 'known',
             id: 'known',
@@ -384,7 +378,7 @@ var createFieldMappingForm = function(metadata){
             chedked: true,
             disabled: false,        
             fieldLabel: 'Known'
-         }, 
+        }, 
         new Ext.ux.form.SuperBoxSelect({
             allowBlank: true,
             fieldLabel: 'Biological Systems',
@@ -405,8 +399,7 @@ var createFieldMappingForm = function(metadata){
             disabled: that.readOnly,
             forceSelection : true
         }), 
-
-          new Ext.form.ComboBox({
+        new Ext.form.ComboBox({
             fieldLabel: 'Uploading Node',
             name: 'node',
             editable:false,
@@ -428,7 +421,7 @@ var createFieldMappingForm = function(metadata){
                 fields: ['name', 'id']
             })
         }),
-         new Ext.form.ComboBox({
+        new Ext.form.ComboBox({
             fieldLabel: 'Instrument',
             name: 'instrument',
             editable:false,
@@ -479,7 +472,8 @@ var createFieldMappingForm = function(metadata){
             disabled: that.readOnly,        
             mode: 'local',
             store: that.create_store('reference/columns?all=True/')
-        }), new Ext.form.ComboBox({
+        }), 
+        new Ext.form.ComboBox({
             fieldLabel: 'Sample Run By',
             name: 'sample_run_by',
             editable:false,
@@ -500,7 +494,8 @@ var createFieldMappingForm = function(metadata){
                 autoLoad: true,
                 fields: ['username', 'name', 'id']
             })
-        }), new Ext.form.ComboBox({
+        }), 
+        new Ext.form.ComboBox({
             fieldLabel: 'Record Uploaded By',
             //id: that.idPrefix + 'metabolite-uploaded-by',
             name: 'record_uploaded_by',
@@ -528,11 +523,9 @@ var createFieldMappingForm = function(metadata){
             name: 'uploaded_date',
             value: 'To be generated on Save',
             disabled: true
-        }]},
-                
-        
-        ],
-    buttons: [
+        }]
+        }],
+        buttons: [
             {
                 text: 'Back to Step 1',
                 id:'requestImportBack',
