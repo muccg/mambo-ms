@@ -13,18 +13,17 @@ Ext.madasSearchBySpectraResultsGridCmp = Ext.madasCreateSearchResultsGridCmp({
         store: Ext.madasSearchBySpectraResultsStore,
         idPrefix: 'searchbyspectra-',
         componentName: 'search:byspectraresults',
-        extraColumns: [
-                {position: 2,
-                 column: {
-                    id: 'score_col',
-                    header: "Score (%)",
-                    dataIndex: 'score',
-                    align: 'center',
-                    width: 20,
-                    sortable: true
-                   }
-                }
-            ],
+        extraColumns: [{
+            position: 2,
+            column: {
+                id: 'score_col',
+                header: "Score (%)",
+                dataIndex: 'score',
+                align: 'center',
+                width: 20,
+                sortable: true
+            }
+        }]
 });
 //Override the single click behaviour
 Ext.madasSearchBySpectraResultsGridCmp.items[0].listeners.rowclick = function(grid, rowIndex, evt){
