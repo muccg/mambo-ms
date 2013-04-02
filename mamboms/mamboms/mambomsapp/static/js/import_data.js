@@ -33,7 +33,7 @@ that.create_importable_dropdown = function(displayname, name, nullable, datafiel
         displayField: 'fielddisplay',
         valueField: 'fieldvalue',
         editable: true,
-        forceSelection: false,
+        forceSelection: false
     });
 };
 
@@ -346,12 +346,11 @@ var createFieldMappingForm = function(metadata){
                     root: 'data',
                     data: jsonfields,
                     fields: ['fielddisplay', 'fieldvalue']}),
-                displayField: 'fielddisplay',
-                valueField: 'fieldvalue',
-                editable: true,
-                forceSelection: false,
-            })
-
+                    displayField: 'fielddisplay',
+                    valueField: 'fieldvalue',
+                    editable: true,
+                    forceSelection: false
+                })
           ]},
         
         { xtype: 'fieldset',
@@ -704,23 +703,20 @@ var createImportConfirmForm = function(import_results, isFinalStep) {
     style:'margin-left:30px;margin-top:20px;',
     defaults: {width: 240},
     defaultType: 'textfield',
-    items: [
-            {xtype: 'fieldset',
-             title: resultstitle, 
-             id: 'dataimportinfo',
-             autoHeight : true,
-             autoWidth: true,
-             items: [
-            
-        {
-            id: 'importinfoText',
-            html: importinfotext, 
-                  
-            style: {
-                'margin' : '0px 0px 5px 0px'
-            }
-        }]},
-    ],
+    items: [{
+            xtype: 'fieldset',
+            title: resultstitle, 
+            id: 'dataimportinfo',
+            autoHeight : true,
+            autoWidth: true,
+            items: [{
+                id: 'importinfoText',
+                html: importinfotext, 
+                style: {
+                    'margin' : '0px 0px 5px 0px'
+                }
+            }]
+    }],
     buttons: formbuttons
 
     };
