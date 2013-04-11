@@ -26,7 +26,7 @@ Prefix: %{_prefix}
 BuildArch: x86_64
 Vendor: Centre for Comparative Genomics <web@ccg.murdoch.edu.au>
 BuildRequires: python26-distribute postgresql84-devel openldap-devel openssl-devel atlas-devel blas-devel
-Requires: python26-distibute httpd python26-mod_wsgi postgresql84-libs postgresql84-plpython openldap-clients openssl atlas blas
+Requires: python26-distribute httpd python26-mod_wsgi postgresql84-libs postgresql84-plpython openldap-clients openssl atlas blas
 
 %description
 Django iVEC Allocation web application
@@ -68,8 +68,7 @@ ln -fs /var/lib/%{name}/scratch %{buildinstalldir}/scratch
 ln -fs /var/lib/%{name}/media %{buildinstalldir}/media
 
 # Install WSGI configuration into httpd/conf.d
-install -D centos/%{name}_mod_wsgi_daemons.conf %{buildroot}/etc/httpd/conf.d/%{name}_mod_wsgi_daemons.conf
-install -D centos/%{name}_mod_wsgi.conf %{buildroot}/etc/httpd/conf.d/%{name}_mod_wsgi.conf
+install -D centos/%{name}.ccg %{buildroot}/etc/httpd/conf.d/%{name}.ccg
 install -D centos/django.wsgi %{buildinstalldir}/django.wsgi
 install -m 0755 -D centos/%{name}-manage.py %{buildroot}/%{_bindir}/%{name}
 
