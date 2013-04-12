@@ -2,6 +2,10 @@
 import os
 import sys
 
+(uid, gid) = pwd.getpwnam('apache')[2:4]
+os.setegid(gid)
+os.seteuid(uid)
+
 if __name__ == "__main__":
 
     webapp_name = os.path.basename(sys.argv[0])
