@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.6
 import os
 import sys
+import pwd
 
 (uid, gid) = pwd.getpwnam('apache')[2:4]
 os.setegid(gid)
