@@ -1,5 +1,4 @@
-import os
-
+#import os
 #if os.environ.has_key('DUMMY_LDAP'):
 #     from mamboms.dummy_ldap import LDAPSearchResult, LDAPHandler
 #else:
