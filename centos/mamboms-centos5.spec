@@ -19,7 +19,7 @@ Summary: mamboms
 Name: %{name}
 Version: %{version}
 Release: %{release}
-License: UNKNOWN
+License: GNU GPL v2
 Group: Applications/Internet
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
@@ -29,7 +29,7 @@ BuildRequires: python26-distribute postgresql84-devel openldap-devel openssl-dev
 Requires: python26-distribute httpd python26-mod_wsgi postgresql84-libs postgresql84-plpython openldap-clients openssl atlas blas
 
 %description
-Django iVEC Allocation web application
+Django Mamboms web application
 
 %prep
 #%setup -n %{name}-%{unmangled_version} -n %{name}-%{unmangled_version}
