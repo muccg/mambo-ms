@@ -39,7 +39,6 @@ setup(name='django-mamboms',
         'wsgiref==0.1.2',
         'python-memcached==1.44',
         'django-extensions>=0.7.1',
-        'psycopg2==2.0.8',
         'python-ldap==2.3.13'
     ],
     dependency_links = [
