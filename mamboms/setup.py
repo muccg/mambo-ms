@@ -13,7 +13,7 @@ for package in ('mambomsapp', 'mambomsuser', 'util_scripts'):
     os.chdir(start_dir)
 
 setup(name='django-mamboms',
-    version='1.2.2',
+    version='1.2.3',
     description='Mambo MS',
     long_description='Django Mambo MS web application',
     author='Centre for Comparative Genomics',
