@@ -66,6 +66,7 @@ echo "build.host=\"$HOSTNAME\"" >> build-number.txt
 cp build-number.txt %{buildinstalldir}/
 
 export PYTHONPATH=%{buildinstalldir}/lib
+python /usr/bin/easy_install -O1 --prefix %{buildinstalldir} --install-dir %{buildinstalldir}/lib numpy==1.6.2 || true
 python /usr/bin/easy_install -O1 --prefix %{buildinstalldir} --install-dir %{buildinstalldir}/lib .
 
 # Create settings symlink so we can run collectstatic with the default settings
