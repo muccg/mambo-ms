@@ -44,9 +44,6 @@ function ci_remote_build() {
     time ccg ${AWS_BUILD_INSTANCE} puppet
     time ccg ${AWS_BUILD_INSTANCE} shutdown:50
 
-    # numpy causes us grief, install it manually first
-    time ccg ${AWS_BUILD_INSTANCE} dsudo:'python-pip install numpy\=\=1.6.2'
-
     EXCLUDES="('bootstrap'\, '.hg*'\, 'virt*'\, '*.log'\, '*.rpm')"
     SSH_OPTS="-o StrictHostKeyChecking\=no"
     RSYNC_OPTS="-l"
