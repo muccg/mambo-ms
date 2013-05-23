@@ -14,7 +14,7 @@ PROJECT_NAME='mamboms'
 AWS_BUILD_INSTANCE='rpmbuild-centos6-aws'
 TARGET_DIR="/usr/local/src/${PROJECT_NAME}"
 CLOSURE="/usr/local/closure/compiler.jar"
-MODULES="psycopg2==2.4.6 Werkzeug flake8"
+MODULES="numpy==1.6.2 psycopg2==2.4.6 Werkzeug flake8"
 PIP_OPTS="-v -M --download-cache ~/.pip/cache"
 
 
@@ -114,10 +114,10 @@ function installapp() {
 
     echo "Install ${PROJECT_NAME}"
     virtualenv --system-site-packages virt_${PROJECT_NAME}
+    virt_${PROJECT_NAME}/bin/pip install ${PIP_OPTS} ${MODULES}
     pushd ${PROJECT_NAME}
     ../virt_${PROJECT_NAME}/bin/pip install ${PIP_OPTS} -e .
     popd
-    virt_${PROJECT_NAME}/bin/pip install ${PIP_OPTS} ${MODULES}
 }
 
 
