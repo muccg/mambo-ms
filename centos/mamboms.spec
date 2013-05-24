@@ -25,8 +25,11 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: x86_64
 Vendor: Centre for Comparative Genomics <web@ccg.murdoch.edu.au>
-BuildRequires: python-setuptools postgresql-devel openldap-devel openssl-devel atlas-devel blas-devel freetype-devel libpng-devel python-devel 
-Requires: python-setuptools httpd mod_wsgi postgresql-libs openldap-clients openssl atlas blas freetype libpng
+BuildRequires: python-setuptools postgresql-devel openldap-devel openssl-devel atlas-devel blas-devel python-devel 
+Requires: python-setuptools httpd mod_wsgi postgresql-libs openldap-clients openssl 
+
+# Note: The application also depends on Matplotlib (and hence numpy) but they are not described in this RPM. Installation
+# documents require Matplotlib to be installed prior to installation of this RPM.
 
 %description
 Django Mamboms web application
@@ -66,7 +69,6 @@ echo "build.host=\"$HOSTNAME\"" >> build-number.txt
 cp build-number.txt %{buildinstalldir}/
 
 export PYTHONPATH=%{buildinstalldir}/lib
-python /usr/bin/easy_install -O1 --prefix %{buildinstalldir} --install-dir %{buildinstalldir}/lib numpy==1.6.2 || true
 python /usr/bin/easy_install -O1 --prefix %{buildinstalldir} --install-dir %{buildinstalldir}/lib .
 
 # Create settings symlink so we can run collectstatic with the default settings
