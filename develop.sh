@@ -12,6 +12,7 @@ PORT='8000'
 
 PROJECT_NAME='mamboms'
 AWS_BUILD_INSTANCE='aws_rpmbuild_centos6'
+AWS_BUILD_INSTANCE_5='aws_rpmbuild_centos5'
 AWS_STAGING_INSTANCE='aws_syd_mamboms_staging'
 TARGET_DIR="/usr/local/src/${PROJECT_NAME}"
 CLOSURE="/usr/local/closure/compiler.jar"
@@ -21,7 +22,7 @@ PIP_OPTS="-v -M --download-cache ~/.pip/cache"
 
 function usage() {
     echo ""
-    echo "Usage ./develop.sh (test|lint|jslint|dropdb|start|install|clean|purge|pipfreeze|pythonversion|ci_remote_build|ci_staging|ci_rpm_publish|ci_remote_destroy)"
+    echo "Usage ./develop.sh (test|lint|jslint|dropdb|start|install|clean|purge|pipfreeze|pythonversion|ci_remote_build|ci_remote_build_5|ci_staging|ci_rpm_publish|ci_remote_destroy)"
     echo ""
 }
 
@@ -53,6 +54,41 @@ function ci_remote_build() {
 
     mkdir -p build
     ccg ${AWS_BUILD_INSTANCE} getfile:rpmbuild/RPMS/x86_64/${PROJECT_NAME}*.rpm,build/
+}
+
+
+# build centos 5 RPMs on a remote host from ci environment
+# not very dry
+function ci_remote_build_5() {
+    time ccg ${AWS_BUILD_INSTANCE_5} boot
+    time ccg ${AWS_BUILD_INSTANCE_5} puppet
+    #time ccg ${AWS_BUILD_INSTANCE_5} shutdown:50
+
+    EXCLUDES="('bootstrap'\, '.hg*'\, 'virt*'\, '*.log'\, '*.rpm')"
+    SSH_OPTS="-o StrictHostKeyChecking\=no"
+    RSYNC_OPTS="-l"
+    time ccg ${AWS_BUILD_INSTANCE_5} rsync_project:local_dir=./,remote_dir=${TARGET_DIR}/,ssh_opts="${SSH_OPTS}",extra_opts="${RSYNC_OPTS}",exclude="${EXCLUDES}",delete=True
+
+    centos5_rpm_build
+
+    mkdir -p build
+    ccg ${AWS_BUILD_INSTANCE_5} getfile:/usr/src/redhat/RPMS/x86_64/${PROJECT_NAME}*.rpm,build/
+}
+
+
+# bespoke commands to build on centos 5. Haven't looked into why this is necesary yet.
+function centos5_rpm_build() {
+    #export CCGSOURCEDIR=`pwd`
+    EPACKAGES="postgresql-devel postgresql"
+    ccg ${AWS_BUILD_INSTANCE_5} dsudo:"yum -q -y erase $EPACKAGES"
+
+    PACKAGES="python26-distribute python26-devel postgresql84-devel openldap-devel openssl-devel atlas-devel blas-devel freetype-devel libpng-devel python-devel"
+    ccg ${AWS_BUILD_INSTANCE_5} dsudo:"yum install -q -y $PACKAGES"
+    
+    ccg ${AWS_BUILD_INSTANCE_5} dsudo:"chown -R ec2-user:ec2-user /usr/src/redhat/*"
+    ccg ${AWS_BUILD_INSTANCE_5} drun:"rpmbuild -bs /usr/local/src/${PROJECT_NAME}/centos/${PROJECT_NAME}-centos5.spec"
+    time ccg ${AWS_BUILD_INSTANCE_5} dsudo:"yum-builddep /usr/src/redhat/SRPMS/${PROJECT_NAME}*.src.rpm"
+    time ccg ${AWS_BUILD_INSTANCE_5} drun:"CCGSOURCEDIR\=/usr/local/src/${PROJECT_NAME} rpmbuild -bb /usr/local/src/${PROJECT_NAME}/centos/${PROJECT_NAME}-centos5.spec"
 }
 
 
@@ -210,6 +246,10 @@ ci_remote_build)
     ci_ssh_agent
     ci_remote_build
     ;;
+ci_remote_build_5)
+    ci_ssh_agent
+    ci_remote_build_5
+    ;;
 ci_remote_destroy)
     ci_ssh_agent
     ci_remote_destroy
@@ -236,4 +276,5 @@ purge)
     ;;
 *)
     usage
+    exit 1
 esac
