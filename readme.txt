@@ -1,12 +1,11 @@
 Metabolomics Australia MetaBOlite Mass Spectral database (MAMBO-MS)
 -------------------------------------------------------------------
 
-*MAMBO-MS* is [http://www.metabolomics.net.au Metabolomics Australia]'s (MA) central library of metabolites. It aimed to assist in the
+MAMBO-MS is Metabolomics Australia's (MA) (http://www.metabolomics.net.au) central library of metabolites. It aimed to assist in the
 interpretation of hyphenated mass spectrometry (gas chromatography-mass spectrometry/liquid chromatography mass spectrometry)
 metabolomics experiments.
 
-
-*MAMBO-MS* consists of three major components
+MAMBO-MS consists of three major components
 
 1) User Management System
 The User management system consists of managing different user groups such as System Administrator, Node Representative, MA Lab Staff
