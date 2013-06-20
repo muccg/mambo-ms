@@ -22,7 +22,7 @@ PIP_OPTS="-v -M --download-cache ~/.pip/cache"
 
 function usage() {
     echo ""
-    echo "Usage ./develop.sh (test|lint|jslint|dropdb|start|install|clean|purge|pipfreeze|pythonversion|ci_remote_build|ci_remote_build_5|ci_staging|ci_rpm_publish|ci_remote_destroy)"
+    echo "Usage ./develop.sh (test|lint|jslint|dropdb|start|install|clean|purge|pipfreeze|pythonversion|ci_remote_build|ci_remote_build_5|ci_staging|ci_rpm_publish|ci_rpm_publish_5|ci_remote_destroy)"
     echo ""
 }
 
@@ -71,8 +71,8 @@ function ci_remote_build_5() {
 
     centos5_rpm_build
 
-    mkdir -p build
-    ccg ${AWS_BUILD_INSTANCE_5} getfile:/usr/src/redhat/RPMS/x86_64/${PROJECT_NAME}*.rpm,build/
+    mkdir -p build5
+    ccg ${AWS_BUILD_INSTANCE_5} getfile:/usr/src/redhat/RPMS/x86_64/${PROJECT_NAME}*.rpm,build5/
 }
 
 
@@ -95,6 +95,12 @@ function centos5_rpm_build() {
 # publish rpms 
 function ci_rpm_publish() {
     time ccg ${AWS_BUILD_INSTANCE} publish_rpm:build/${PROJECT_NAME}*.rpm,release=6
+}
+
+
+# publish rpms 
+function ci_rpm_publish_5() {
+    time ccg ${AWS_BUILD_INSTANCE} publish_rpm:build5/${PROJECT_NAME}*.rpm,release=5
 }
 
 
@@ -258,6 +264,10 @@ ci_rpm_publish)
     ci_ssh_agent
     ci_rpm_publish
     ;;
+ci_rpm_publish_5)
+    ci_ssh_agent
+    ci_rpm_publish_5
+    ;;
 ci_staging)
     ci_ssh_agent
     ci_staging
@@ -277,4 +287,5 @@ purge)
 *)
     usage
     exit 1
+    ;;
 esac
