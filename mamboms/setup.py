@@ -40,7 +40,7 @@ setup(name='django-mamboms',
         'django-templatetag-sugar==0.1',
         'pyparsing==1.5.6',
         'wsgiref==0.1.2',
-        'python-memcached==1.44',
+        'python-memcached==1.53',
         'django-extensions>=0.7.1',
         'python-ldap==2.3.13'
     ],
