@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
 
 from mamboms.mambomsapp import models
 from mamboms.mambomsapp.graph_cache import cache
@@ -36,7 +37,7 @@ def page(request, template="mamboms/graph.html"):
     if queryvalues is not False:
         templateargs['queryspectra'] = queryvalues
 
-    return render_to_response(template, templateargs)
+    return render_to_response(template, templateargs, context_instance=RequestContext(request))
 @login_required
 def page_htt(request):
     return page(request, template="mamboms/graph_htt.html")
