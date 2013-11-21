@@ -18,3 +18,6 @@ sudo yum install -y openldap-devel
 sudo yum install -y openssl-devel
 sudo yum install -y atlas-devel
 sudo yum install -y blas-devel
+sudo yum install -y freetype-devel
+sudo yum install -y libpng-devel
+sudo yum install -y python-devel
