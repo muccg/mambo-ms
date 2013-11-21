@@ -254,7 +254,7 @@ MA Team
 ~~~~~~~
 
 **MA Informatics Group Leader**
-  Dr. Vladimir Likic
+  Prof. Malcolm McConville
 **Computer Scientist**
   Dr. Saravanan Dayalan
 **System Administrator**
