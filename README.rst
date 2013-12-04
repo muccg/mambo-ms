@@ -76,7 +76,7 @@ Addtionally, Mambo-MS requires a higher version of `matplotlib`_ than
 is available in Centos 6.x. It can be installed using the ``pip``
 python package installer::
 
-    sudo yum install freetype-devel libpng-devel
+    sudo yum install freetype-devel libpng-devel python-pip
     sudo pip install --upgrade numpy==1.6.2
     sudo pip install --upgrade matplotlib==1.2.1
 
