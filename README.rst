@@ -131,7 +131,7 @@ Run Django syncdb and South migrate::
 
 The preconfigured user will have e-mail address ``admin@mambo-ms.com``
 with password ``admin``. Once you have set up your own users, the
-``admin@example.com`` user can be deleted.
+``admin@mambo-ms.com`` user can be deleted.
 
 
 Apache Web Server
@@ -230,7 +230,13 @@ server with::
     service httpd restart
 
 Mambo-MS is available at https://your-web-host/mamboms/. A login page
-should be visible at this URL.
+should be visible at this URL. The default login details are:
+
++----------+------------------------+
+| Username | ``admin@mambo-ms.com`` |
++----------+------------------------+
+| Password | ``admin``              |
++----------+------------------------+
 
 Source Code and Issue Tracking
 ------------------------------
