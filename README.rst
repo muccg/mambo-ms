@@ -72,6 +72,16 @@ Mambo-MS RPM, so have to be installed manually::
 
     sudo yum install postgresql-server python-psycopg2 postgresql-plpython
 
+Addtionally, Mambo-MS requires a higher version of `matplotlib`_ than
+is available in Centos 6.x. It can be installed using the ``pip``
+python package installer::
+
+    sudo yum install freetype-devel libpng-devel
+    sudo pip install --upgrade numpy==1.6.2
+    sudo pip install --upgrade matplotlib==1.2.1
+
+.. _matplotlib: http://matplotlib.org/
+
 Install
 ~~~~~~~
 
