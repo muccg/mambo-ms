@@ -1,2 +1,0 @@
-include search_datastructures.c
-include search_datastructures.pyx
