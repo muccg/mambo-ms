@@ -67,7 +67,6 @@ Some typical usages of the convenience develop.sh script are:
 - **./develop.sh build builder**
 - **./develop.sh build dev**
         To build all the docker containers needed for dev.
-
 - **./develop.sh up**
         To start up all the docker containers needed for dev. 
         You can access the Mamboms application on http://localhost:8000.
@@ -78,10 +77,8 @@ which is a Debian image and dependencies. Steps for building prod image:
 
 - **./develop.sh build base builder**
         Build base image and builder image.
-
 - **./develop.sh run-builder**
         Run the builder image to make a tarball of the application.
-
 - **./develop.sh build prod**
         Build the prod image.
 
