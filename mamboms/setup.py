@@ -43,7 +43,7 @@ setup(name='django-mamboms',
         'pyparsing==1.5.6',
         'python-memcached==1.53',
         'wsgiref==0.1.2',
-        'South==0.7.3',
+        'South==1.0.2',
         'uwsgi==2.0.13.1',
     ],
 )
