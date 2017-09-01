@@ -13,7 +13,7 @@ for package in ('mambomsapp', 'mambomsuser', 'util_scripts'):
     os.chdir(start_dir)
 
 setup(name='django-mamboms',
-    version='1.2.4',
+    version='1.2.5',
     description='Mambo MS',
     long_description='Django Mambo MS web application',
     author='Centre for Comparative Genomics',
@@ -27,9 +27,6 @@ setup(name='django-mamboms',
     package_data=data_files,
     zip_safe=False,
     install_requires=[
-        # matplotlib (and hence numpy) is a requirement, but installing it cleanly from setup.py
-        # is a challenge that has defeated me. Adding matplotlib to installation docs outside
-        # the setup.py / RPM etc
         'matplotlib==1.4.3',
         'ccg-django-utils==0.4.2',
         'Cython==0.26.1',
