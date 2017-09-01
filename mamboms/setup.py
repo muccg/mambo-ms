@@ -32,7 +32,7 @@ setup(name='django-mamboms',
         # the setup.py / RPM etc
         'matplotlib==1.4.3',
         'ccg-django-utils==0.4.2',
-        'Cython==0.12',
+        'Cython==0.26.1',
         'Django==1.4.22',
         'django-extensions>=0.7.1,<1.0.0',
         'django-picklefield==0.1.9',
