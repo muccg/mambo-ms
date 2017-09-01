@@ -63,26 +63,26 @@ the variables CCG_PIP_PROXY and CCG_HTTP_PROXY control usage of the local proxie
 
 Some typical usages of the convenience develop.sh script are:
 
-- ./develop.sh build base
-- ./develop.sh build builder
-- ./develop.sh build dev
+- **./develop.sh build base**
+- **./develop.sh build builder**
+- **./develop.sh build dev**
         To build all the docker containers needed for dev.
 
-- ./develop.sh up
+- **./develop.sh up**
         To start up all the docker containers needed for dev. 
-        You can access the Mastrms application on http://localhost:8000.
+        You can access the Mamboms application on http://localhost:8000.
         You can login with *admin@mambo-ms.com/admin*.
 
 Our production Docker image (``Dockerfile-prod``) is built by creating a tarball of the application and placing it the base image (``Dockerfile-base``)
 which is a Debian image and dependencies. Steps for building prod image:
 
-- ./develop.sh build base builder
+- **./develop.sh build base builder**
         Build base image and builder image.
 
-- ./develop.sh run-builder
+- **./develop.sh run-builder**
         Run the builder image to make a tarball of the application.
 
-- ./develop.sh build prod
+- **./develop.sh build prod**
         Build the prod image.
 
 The prod image exposes the application via uwsgi, we typically deploy that behind nginx. We've also done RPM + Apache + mod_wsgi deployments but are not
