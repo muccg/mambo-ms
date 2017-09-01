@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
-from ccg.utils.webhelpers import siteurl
+from ccg_django_utils.webhelpers import siteurl
 from mamboms.mambomsapp.views.utils import json_encode
 import re
 
@@ -30,15 +30,15 @@ logger = logging.getLogger('mamboms_import_log')
 import datahandlers
 
 #These constants are based on the strings in the database for the three datasets.
-#javascript deliberately uses these strings, and if they ever change in the DB, 
-#they need to change here and in the JS. 
+#javascript deliberately uses these strings, and if they ever change in the DB,
+#they need to change here and in the JS.
 DATASET_NIST = 'NIST'
 DATASET_GCMA = 'MA GC'
 DATASET_LCMA = 'MA LC'
 
 MODEL_MAPPINGS = {}
 MODEL_MAPPINGS[DATASET_NIST] = Compound
-MODEL_MAPPINGS[DATASET_GCMA] = GCMARecord 
+MODEL_MAPPINGS[DATASET_GCMA] = GCMARecord
 MODEL_MAPPINGS[DATASET_LCMA] = LCMARecord
 
 #these are the three session variables we will set -
@@ -54,19 +54,19 @@ def main(limit=None):
     import_file('../docs/nist08_fixed.jca', limit)
 
 def get_importable_fields(dataset):
-    '''Return the set of importable fieldnames (displayname, fieldname) for 
+    '''Return the set of importable fieldnames (displayname, fieldname) for
        a dataset. '''
     importable_fields = []
     IModel = None #IModel is the model you will be introspecting
     if dataset == DATASET_GCMA:
-        IModel = GCMARecord    
+        IModel = GCMARecord
     elif dataset == DATASET_LCMA:
         IModel = LCMARecord
     elif dataset == DATASET_NIST:
         IModel = Compound
     else:
         raise Exception("Unsupported dataset type: %s" % (dataset))
-    
+
     #introspect the model:
     for field in IModel._meta.fields:
         #The field 'known' is a special case. It is non importable, so ignore it if you find it.
@@ -74,7 +74,7 @@ def get_importable_fields(dataset):
             pass
         elif type(field) in [DecimalField, BooleanField, TextField, CharField, IntegerField, FloatField]:
             canBeNull = field.null
-            if type(field) in [TextField, CharField]: 
+            if type(field) in [TextField, CharField]:
                 canBeNull = True #if they pass no value, we will set the empty string
             importable_fields.append({"id" : field.name, "display" : field.verbose_name, "null": canBeNull})
 
@@ -103,12 +103,12 @@ def datafile_upload(request):
         if metadata is None or errorstring is not None:
             errorstring = "%s\n%s" % ("File %s could not be parsed for dataset %s" % (filename, dataset), errorstring)
             raise Exception(errorstring)
-        
+
         metadata["dataset"] = dataset
         importable_fields = get_importable_fields(dataset)
         metadata["importable_fields"] = importable_fields
         retval["metadata"] = metadata
-        retval["success"] = True 
+        retval["success"] = True
         request.session[SESSION_IMPORT_FILENAME_KEY] = filename
         request.session[SESSION_IMPORT_DATASET_KEY] = dataset
     except Exception, e:
@@ -119,12 +119,12 @@ def datafile_upload(request):
     return HttpResponse(json_encode(retval))
 
 def define_fields(request):
-    #fields to associate in the file and in the database records, 
+    #fields to associate in the file and in the database records,
     #as well as default fields for record fields that arent in the file.
     #plus the data to use for fields which can never come from the file (uploader, for instance).
     #returns info on how many records would be created, how many would fail, etc.
     #would be good to return line numbers of broken lines.
-    field_definitions = {} 
+    field_definitions = {}
     for fieldname in request.POST.keys():
         #print "POST fieldname %s, value %s, type:%s" % (fieldname, request.POST.get(fieldname, None), str(type(request.POST.get(fieldname, None))) )
         #field_definitions[fieldname] = request.POST.get(fieldname, None)
@@ -137,7 +137,7 @@ def define_fields(request):
     dataset = request.session[SESSION_IMPORT_DATASET_KEY]
     #save the field defs
     request.session[SESSION_IMPORT_FIELDMAP_KEY] = field_definitions
-    
+
     dry_run_import_result = import_data(filename, field_definitions, dataset, dryrun=True)
     if len(dry_run_import_result['failed'].keys()) == 0:
         dry_run_import_result["success"] = True
@@ -149,7 +149,7 @@ def define_fields(request):
     return HttpResponse(json_encode(dry_run_import_result))
 
 def confirm_import(request):
-    #confirms that the user wants to do the import with 
+    #confirms that the user wants to do the import with
     #the filename in the session and
     #the data definition in the session.
     #essentially the same as the dry run, but actually saving the models.
@@ -174,13 +174,13 @@ def confirm_import(request):
 
 # all fields are passed through as a list. Likely they will only contain one value
 def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
-    
-    dataset_rec= models.Dataset.objects.get(name=dataset)    
+
+    dataset_rec= models.Dataset.objects.get(name=dataset)
     imported_records = 0
     error_records = 0
     file_data = datahandlers.extract_file_data(filename)
     data = file_data["data"]["data"]
-    logger.debug('extracted file data is %s' % (str(data)) ) 
+    logger.debug('extracted file data is %s' % (str(data)) )
     metadata = file_data["metadata"]
     failed = {}
     passed = 0
@@ -217,14 +217,14 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                         pass
 
                     value = data[recordid].get_value(record_field)
-            
+
                 if fieldname == 'spectrumfield':
                     spectrumpoints = value
                 else:
                     #If this is a foreign key, we need to go get it
                     model_field = candidate._meta.get_field_by_name(fieldname)[0]
                     if isinstance(model_field, ForeignKey):
-                        
+
                         phase="Foreign Key"
                         key = int(value)
                         rel_model = model_field.rel.to
@@ -237,8 +237,8 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                         ismanytomany = True
                         #the data could either be a single value, or a list.
                         valueslist = []
-                        
-                        
+
+
                         if isinstance(value, list):
                             a = [int(n) for n in value]
                             valueslist = set(a) #make unique
@@ -261,7 +261,7 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                         #then set the value to None, and pass to the db.
                         #If null=False and the field has 'blank=True', then
                         #leave the value alone - the model will know what to do with it
-                        
+
                         if str(value) is "" and model_field.blank:
                             logger.debug("%s: empty value and field can be blank" % (fieldname))
                             if model_field.null:
@@ -283,25 +283,25 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                                     value = True
                                 else:
                                     value = False
-                        
+
                         phase = "%s (field=%s, value=%s)" % (phase, fieldname, value)
                         logger.debug("Setting field: %s" % phase)
                         setattr(candidate, fieldname, value)
-           
-                candidate.dataset = dataset_rec 
+
+                candidate.dataset = dataset_rec
 
             if dryrun:
                 logger.debug("Doing full clean, candidate.method = %s" % (str(candidate.method)) )
-                
+
                 candidate.full_clean() #this causes django to validate the model, but not save
-                #We cant test spectrum with 'full clean' because we cant link it 
+                #We cant test spectrum with 'full clean' because we cant link it
                 #to an unsaved compound. Instead, we just check that the
                 #'createSpectrumFromPoints' function can successfully parse
                 #the points (it will throw if it can't)
                 if spectrumpoints is not None:
                     phase="Checking Spectrum"
                     spectrum = createSpectrumFromPoints(spectrumpoints)
-                    
+
             else:
                 logger.debug("Saving model")
                 save_models(candidate, spectrumpoints)
@@ -317,24 +317,24 @@ def import_data(filename, fieldmap, dataset=DATASET_NIST, dryrun=False):
                         mgr.add(item)
                         #mtomfield.add(item)
                 #candidate.save()
-            
-            
+
+
             passed += 1
         except Exception, e:
             logger.warning("Error: %s (%s)" % (e, phase))
             failed[count] = str("Error: %s (%s)" % (e, phase))
-        count += 1        
-    ret =  {"passed": passed, "failed": failed, "dataset": dataset} 
+        count += 1
+    ret =  {"passed": passed, "failed": failed, "dataset": dataset}
     return ret
 
 def createSpectrumFromPoints(points):
     flat_points = []
-    for p in points: 
+    for p in points:
         flat_points.extend( (str(p[0]), str(p[1])) )
     csv_points = ",".join(flat_points)
     spectrum = models.Spectrum()
     spectrum.raw_points = csv_points
-    return spectrum 
+    return spectrum
 
 @transaction.commit_on_success
 def save_models(compound, points = None):

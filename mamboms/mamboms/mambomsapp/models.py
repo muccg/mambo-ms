@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from ccg.utils.webhelpers import *
+from ccg_django_utils.webhelpers import *
 
 class NotAuthorizedError(StandardError):
     pass
@@ -15,7 +15,7 @@ class Dataset(models.Model):
     description = models.TextField()
 
     def __unicode__(self):
-        return self.name    
+        return self.name
 
 class Compound(models.Model):
     dataset = models.ForeignKey(Dataset)
@@ -40,7 +40,7 @@ class Compound(models.Model):
             n = self.name
 
         return n
-    
+
     truncated_name.short_description = 'name'
 
     @property
@@ -80,17 +80,17 @@ class Compound(models.Model):
     @property
     def record_uploaded_by(self):
         if self.is_gcma:
-            return self.gcmarecord.record_uploaded_by 
-        elif self.is_lcma: 
-            return self.lcmarecord.record_uploaded_by 
+            return self.gcmarecord.record_uploaded_by
+        elif self.is_lcma:
+            return self.lcmarecord.record_uploaded_by
         return None
 
     @property
     def node(self):
         if self.is_gcma:
-            return self.gcmarecord.node 
-        elif self.is_lcma: 
-            return self.lcmarecord.node 
+            return self.gcmarecord.node
+        elif self.is_lcma:
+            return self.lcmarecord.node
         return None
 
     def can_be_deleted_by(self, user):
@@ -98,24 +98,24 @@ class Compound(models.Model):
             return False
         profile = user.get_profile()
         return (profile.is_admin or (profile.is_noderep and profile.node == self.node.name))
-       
+
     def delete_by(self, user):
         if not self.can_be_deleted_by(user):
             raise NotAuthorizedError()
         super(Compound, self).delete()
- 
+
     @property
-    def record_vets(self):    
+    def record_vets(self):
         assert (self.is_gcma or self.is_lcma), "Only GCMA and LCMA record have vets"
         if self.is_gcma:
             return self.gcmarecord.record_vets
-        elif self.is_lcma: 
+        elif self.is_lcma:
             return self.lcmarecord.record_vets
 
     def can_be_vetted_by(self, user):
         profile = user.get_profile()
         return (
-            self.record_uploaded_by != user 
+            self.record_uploaded_by != user
             and user not in self.record_vets.all()
             and profile.is_noderep and profile.node != self.node)
 
@@ -140,7 +140,7 @@ class PointSet:
         if predicate is None:
             predicate = lambda p: True
         for p in self.all():
-            if predicate(p): 
+            if predicate(p):
                 return p
 
     def round(self, f):
@@ -157,7 +157,7 @@ class PointSet:
 
 class Point():
     '''This used to be a Django model, but now we store the points as a raw
-    comma-separated points. 
+    comma-separated points.
     This class and PointSet are used to keep the same API working.'''
 
     def __init__(self, x, y):
@@ -215,7 +215,7 @@ class MethodBase(models.Model):
     POLARITY_CHOICES = (
         ('P', 'Positive'),
         ('N', 'Negative'),
-    )    
+    )
 
     FILE_PREFIX = 'methods'
 
@@ -228,8 +228,8 @@ class MethodBase(models.Model):
     ms_geometry = models.ForeignKey(MSGeometry, verbose_name='MS Geometry')
     ionization_mode = models.ForeignKey(IonizationMode)
     polarity = models.CharField(max_length=1, choices=POLARITY_CHOICES)
-    derivitization_agent = models.CharField(max_length=255) 
-    mass_range_acquired = models.CharField(max_length=255, verbose_name='Mass Range Acquired') 
+    derivitization_agent = models.CharField(max_length=255)
+    mass_range_acquired = models.CharField(max_length=255, verbose_name='Mass Range Acquired')
     instrument_method = models.FileField("Instrument Method (Proprietary file)",
             upload_to='method/instrument', storage=fs, max_length=500, null=True)
     method_summary = models.FileField("Method Summary (Text file)",
@@ -237,7 +237,7 @@ class MethodBase(models.Model):
 
     @property
     def polarity_name(self):
-        return dict(MethodBase.POLARITY_CHOICES)[self.polarity] 
+        return dict(MethodBase.POLARITY_CHOICES)[self.polarity]
 
     @property
     def platform(self):
@@ -251,7 +251,7 @@ class GCMethod(MethodBase):
     class Meta:
         verbose_name = 'GC Method'
 
-    mass_exp_deriv_adducts = models.CharField(max_length=255, verbose_name='Mass of Expected Derivitization Adducts') 
+    mass_exp_deriv_adducts = models.CharField(max_length=255, verbose_name='Mass of Expected Derivitization Adducts')
 
     @property
     def platform(self):
@@ -263,12 +263,12 @@ class LCMethod(MethodBase):
     class Meta:
         verbose_name = 'LC Method'
 
-    mz_exp_deriv_adducts = models.CharField(max_length=255, verbose_name='m/z of Expected Derivitization Adducts') 
-    flow_rate = models.CharField(max_length=255) 
-    solvent_composition_a = models.CharField(max_length=255) 
-    solvent_composition_b = models.CharField(max_length=255) 
-    solvent_composition_c = models.CharField(max_length=255) 
-    solvent_composition_d = models.CharField(max_length=255) 
+    mz_exp_deriv_adducts = models.CharField(max_length=255, verbose_name='m/z of Expected Derivitization Adducts')
+    flow_rate = models.CharField(max_length=255)
+    solvent_composition_a = models.CharField(max_length=255)
+    solvent_composition_b = models.CharField(max_length=255)
+    solvent_composition_c = models.CharField(max_length=255)
+    solvent_composition_d = models.CharField(max_length=255)
 
 class LCModification(models.Model):
     class Meta:
@@ -278,9 +278,9 @@ class LCModification(models.Model):
     mass = models.CharField(max_length=255)
     molecular_formula = models.CharField(max_length=255)
 
-    #Google Code issue #41, mass field should be 
+    #Google Code issue #41, mass field should be
     #called 'Accurate Mass' in admin.
-    mass.verbose_name = 'Accurate Mass' 
+    mass.verbose_name = 'Accurate Mass'
 
     def __unicode__(self):
         return self.name_of_compound
@@ -318,7 +318,7 @@ class MARecordVet(models.Model):
 
     user = models.ForeignKey(User)
     record_vetted_on = models.DateField(auto_now_add=True)
-    
+
     def set_compound(self, compound):
         assert (compound.is_gcma or compound.is_lcma), "Only GCMA or LCMA records can be vetted"
         if compound.is_gcma:
@@ -351,23 +351,23 @@ class MARecordBase(Compound):
     record_vets = models.ManyToManyField(User, through='MARecordVet', related_name='%(class)s_vetted_records')
     biological_systems = models.ManyToManyField(BiologicalSystem, verbose_name="Biological Systems")
     metabolite_class = models.ForeignKey(MetaboliteClass, verbose_name="Metabolite Class")
-    retention_time = models.CharField(max_length=255, blank=True, verbose_name="Retention Time")   
+    retention_time = models.CharField(max_length=255, blank=True, verbose_name="Retention Time")
     retention_index = models.CharField(max_length=255, blank=True, verbose_name="Retention Index")
-    kegg_id = models.CharField(max_length=255, blank=True, verbose_name="KEGG ID")   
-    kegg_link = models.CharField(max_length=255, blank=True, verbose_name="KEGG Link")   
+    kegg_id = models.CharField(max_length=255, blank=True, verbose_name="KEGG ID")
+    kegg_link = models.CharField(max_length=255, blank=True, verbose_name="KEGG Link")
     extract_description = models.TextField(verbose_name="Extract Description", blank=True)
     structure = models.FileField(upload_to='marecord/structure/', storage=fs, max_length=500, blank=True)
- 
+
 class GCMARecord(MARecordBase):
     method = models.ForeignKey(GCMethod)
     quant_ion = models.DecimalField(max_digits=10, decimal_places=3,null=True, blank=True, verbose_name="Quant Ion")
     qualifying_ion_1 = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Qualifying Ion 1")
     qualifying_ion_2 = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Qualifying Ion 2")
     qualifying_ion_3 = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Qualifying Ion 3")
- 
+
     class Meta:
         verbose_name = 'GC MA Record'
-        
+
     def qualifying_ion_ratio(self, ion1, ion2):
         p1 = self.point_set.first(lambda p: p.x == ion1)
         p2 = self.point_set.first(lambda p: p.x == ion2)
@@ -397,7 +397,7 @@ class PrecursorType(models.Model):
     polarity = models.CharField(max_length=1, choices=MethodBase.POLARITY_CHOICES)
     def __unicode__(self):
         return self.name
-        
+
 class PrecursorSelection(models.Model):
     name = models.CharField(max_length=50)
 
@@ -424,7 +424,7 @@ class Spectrum(models.Model):
     precursor_ion = models.CharField(max_length=20, blank=True, null=True, verbose_name="Precursor Ion")
     product_ion = models.CharField(max_length=20, blank=True, null=True, verbose_name="Product Ion")
     fragment_type = models.CharField(max_length=255, blank=True, null=True, verbose_name="Fragment Type")
-    
+
     @property
     def point_set(self):
         return PointSet(self.raw_points)
@@ -460,11 +460,11 @@ def spectrum_post_save(sender, instance, created, **kwargs):
         #otherwise, it could be: lets check
         try:
             h = HashMaintenance.objects.get(spectrum__id = instance__id)
-            print 'Found updated spectrum in our update list'    
+            print 'Found updated spectrum in our update list'
         except Exception, e:
-            print 'Updated spectrum was not in our update list'    
-            h = HashMaintenance() 
-    
+            print 'Updated spectrum was not in our update list'
+            h = HashMaintenance()
+
     #In all cases, update the 'spectrum' of h, and save
     h.spectrum = instance;
     h.save()

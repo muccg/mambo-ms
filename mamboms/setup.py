@@ -9,7 +9,7 @@ for package in ('mambomsapp', 'mambomsuser', 'util_scripts'):
     os.chdir(os.path.join('mamboms', package))
     for data_dir in ('templates', 'static', 'migrations', 'fixtures', 'views'):
         data_files['mamboms.' + package].extend(
-            [os.path.join(subdir,f) for (subdir, dirs, files) in os.walk(data_dir) for f in files]) 
+            [os.path.join(subdir,f) for (subdir, dirs, files) in os.walk(data_dir) for f in files])
     os.chdir(start_dir)
 
 setup(name='django-mamboms',
@@ -30,21 +30,20 @@ setup(name='django-mamboms',
         # matplotlib (and hence numpy) is a requirement, but installing it cleanly from setup.py
         # is a challenge that has defeated me. Adding matplotlib to installation docs outside
         # the setup.py / RPM etc
-        #'matplotlib==1.2.1',
-        'Django==1.4.5',
-        'South==0.7.3',
-        'ccg-extras==0.1.5',
-        'ccg-auth==0.3.2',
+        'matplotlib==1.4.3',
+        'ccg-django-utils==0.4.2',
         'Cython==0.12',
+        'Django==1.4.5',
+        'django-extensions>=0.7.1,<1.0.0',
         'django-picklefield==0.1.9',
+        'django-secure==1.0.1',
         'django-templatetag-sugar==0.1',
+        'psycopg2>=2.7.0,<2.8.0',
+        'pyinotify==0.9.6',
         'pyparsing==1.5.6',
-        'wsgiref==0.1.2',
         'python-memcached==1.53',
-        'django-extensions>=0.7.1',
-        'python-ldap==2.3.13'
-    ],
-    dependency_links = [
-        "http://repo.ccgapps.com.au",
+        'wsgiref==0.1.2',
+        'South==0.7.3',
+        'uwsgi==2.0.13.1',
     ],
 )

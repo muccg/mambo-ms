@@ -10,10 +10,10 @@ CCG_WRITEABLE_DIRECTORY = os.path.join(CCG_INSTALL_ROOT,"scratch")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'mamboms',
-        'NAME': 'mamboms',
-        'PASSWORD': 'mamboms',
-        'HOST': '',
+        'USER': 'webapp',
+        'NAME': 'webapp',
+        'PASSWORD': 'webapp',
+        'HOST': 'db',
         'PORT': '',
     }
 }
@@ -25,7 +25,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # !!!At the moment the app is not using CSRF!!!
     #'django.middleware.csrf.CsrfViewMiddleware',
-    'ccg.middleware.ssl.SSLRedirect',
+    'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.messages',
     'django_extensions',
-    'south'
+    'south',
+    'djangosecure'
 ]
 
 # these determine which authentication method to use
@@ -61,6 +62,17 @@ SSL_FORCE = False # !!!Change from default True!!!
 
 # Debug off by default
 DEBUG = True
+PRODUCTION = False
+
+# django-secure
+SECURE_SSL_REDIRECT = PRODUCTION
+SECURE_HSTS_SECONDS = 500
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_FRAME_DENY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
 
 # Default the site ID to 1, even if the sites framework isn't being used
 SITE_ID = 1
@@ -119,7 +131,7 @@ SESSION_COOKIE_SECURE = False # Changed from default True
 
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#csrf-cookie-name and following
 CSRF_COOKIE_NAME = "csrftoken_mamboms"
-CSRF_COOKIE_SECURE = False # !!!Changed from default True!!! 
+CSRF_COOKIE_SECURE = False # !!!Changed from default True!!!
 
 # Default date input formats, may be overridden
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#date-input-formats
@@ -145,65 +157,57 @@ LOGGING = {
     'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
-            'format': 'mamboms [%(name)s:%(levelname)s:%(asctime)s:%(filename)s:%(lineno)s:%(funcName)s] %(message)s'
+            'format': '[%(name)s:%(levelname)s:%(asctime)s:%(filename)s:%(lineno)s:%(funcName)s] %(message)s'
         },
         'db': {
-            'format': 'mamboms [%(name)s:%(duration)s:%(sql)s:%(params)s] %(message)s'
+            'format': '[%(name)s:%(duration)s:%(sql)s:%(params)s] %(message)s'
         },
         'simple': {
-            'format': 'mamboms %(levelname)s %(message)s'
+            'format': '%(levelname)s %(filename)s:%(lineno)s (%(funcName)s)  %(message)s'
         },
     },
     'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
     },
     'handlers': {
-        'null': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler',
-        },
         'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-            'formatter': 'verbose'
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
         'file':{
-            'level':'DEBUG',
-            'class':'logging.handlers.TimedRotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(CCG_LOG_DIRECTORY, 'mamboms.log'),
-            'when':'midnight',
+            'when': 'midnight',
             'formatter': 'verbose'
         },
         'db_logfile':{
-            'level':'DEBUG',
-            'class':'logging.handlers.TimedRotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(CCG_LOG_DIRECTORY, 'mamboms_db.log'),
-            'when':'midnight',
+            'when': 'midnight',
             'formatter': 'db'
         },
-        'syslog':{
-            'level':'DEBUG',
-            'class':'logging.handlers.SysLogHandler',
-            'address':'/dev/log',
-            'facility':'local4',
-            'formatter': 'verbose'
-        },    
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
-            'formatter':'verbose',
+            'formatter': 'verbose',
             'include_html':True
         }
     },
     'loggers': {
-        'django': {
-            'handlers':['null'],
-            'propagate': True,
-            'level':'INFO',
+        '': {
+            'handlers': ['console', 'file', ],
+            'level': 'WARNING',
         },
         'django.request': {
-            'handlers': ['file', 'syslog', 'mail_admins'],
+            'handlers': ['mail_admins'],
             'level': 'ERROR',
-            'propagate': False,
+            'propagate': True,
         },
         'django.db.backends': {
             'handlers': ['db_logfile', 'mail_admins'],
@@ -211,9 +215,10 @@ LOGGING = {
             'propagate': False,
         },
         'mamboms': {
-            'handlers': ['console', 'file', 'syslog'],
-            'level': 'DEBUG'
-        }
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
     }
 }
 
@@ -224,7 +229,7 @@ LOGIN_URL = '{0}/login/'.format(os.environ.get("SCRIPT_NAME", ""))
 LOGOUT_URL = '{0}/logout/'.format(os.environ.get("SCRIPT_NAME", ""))
 LOGIN_REDIRECT_URL = '{0}/'.format(os.environ.get("SCRIPT_NAME", ""))
 
-PERSISTENT_FILESTORE = CCG_WRITEABLE_DIRECTORY #os.path.normpath(os.path.join(PROJECT_DIRECTORY, 'files')) 
+PERSISTENT_FILESTORE = CCG_WRITEABLE_DIRECTORY #os.path.normpath(os.path.join(PROJECT_DIRECTORY, 'files'))
 PERSISTENT_FILESTORE_URL = '/mamboms/files/'
 
 AUTH_PROFILE_MODULE = 'mambomsuser.MambomsLDAPProfile'

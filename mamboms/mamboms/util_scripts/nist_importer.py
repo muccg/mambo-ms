@@ -17,7 +17,7 @@ from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf.settings import WRITABLE_DIRECTORY
-from ccg.utils.webhelpers import siteurl
+from ccg_django_utils.webhelpers import siteurl
 from mamboms.mambomsapp.views.utils import json_encode
 
 def main(limit=None):
@@ -34,7 +34,7 @@ def handle_uploaded_file(f):
         return name
     except Exception, e:
         print 'Error handling file upload, %s' % (str(e))
-        
+
     return None
 
 def data_import_view(request):
@@ -45,14 +45,14 @@ def data_import_view(request):
 
 def data_import_present(request):
     print 'IMPORT PRESENT'
-    return render_to_response('mamboms/import_data.html', 
+    return render_to_response('mamboms/import_data.html',
                                 {'APP_SECURE_URL': siteurl(request),
                                  'username': request.user.username}
-                             )   
+                             )
 
 def data_import_process(request):
     print 'IMPORT PROCESS'
-    #use request.files[whatever], pass that object into the import file, with 
+    #use request.files[whatever], pass that object into the import file, with
     #a param to indicate it is an already open file object.
     print str(request.POST)
     print str(request.FILES)
@@ -83,9 +83,9 @@ def import_file(filename, limit=None, dataset_name='NIST', extrafields=None):
         raise Exception( "'%s' doesn't seem to be a valid NIST file!" % filename )
     print 'WAS VALID'
     dataset_qs = models.Dataset.objects.filter(name=dataset_name)
-    if len(dataset_qs) != 1 : 
+    if len(dataset_qs) != 1 :
         raise Exception("Couldn't identify a unique dataset with name '%s'" % dataset_name )
-    
+
     if limit is None:
         limit = sys.maxint
     dataset = dataset_qs[0]
@@ -102,7 +102,7 @@ def import_file(filename, limit=None, dataset_name='NIST', extrafields=None):
                 for bsid in biosysids:
                     bs = models.BiologicalSystem.objects.get(pk = bsid)
                     compound.biological_systems.add(bs)
-                compound.save()    
+                compound.save()
 
             importedrecords += 1
     return importedrecords
@@ -110,11 +110,11 @@ def import_file(filename, limit=None, dataset_name='NIST', extrafields=None):
 def is_valid_nist_file(filename):
     print 'filename is ', filename
     if not os.path.isfile(filename): return False
-    print 'opening file' 
+    print 'opening file'
     with open(filename) as f:
         print 'reading file'
         first_line = f.readline()
-        if first_line.startswith('##TITLE'): return True    
+        if first_line.startswith('##TITLE'): return True
     print 'returning false'
     return False
 
@@ -156,7 +156,7 @@ class NistEntryReader():
             (x,y) = line.strip().split()
             points.append((x.strip(),y.strip()))
             line = self.next_line()
-        if line.startswith('##'): 
+        if line.startswith('##'):
             self.reader.reprocess_last_line = True
         return points
 
@@ -184,7 +184,7 @@ class NistEntryReader():
         yield entry
 
 def convert_nist_to_models(nist_entry,dataset, extrafields=None):
-    return compound(nist_entry,dataset, extrafields=extrafields), points(nist_entry) 
+    return compound(nist_entry,dataset, extrafields=extrafields), points(nist_entry)
 
 def compound(nist_entry,dataset, extrafields=None):
     if dataset.name.strip() == 'MA GC':
@@ -206,7 +206,7 @@ def compound(nist_entry,dataset, extrafields=None):
                 dataset = dataset,
                 cas_regno = nist_entry['CAS REGISTRY NO'],
                 molecular_formula = nist_entry['MOLFORM'],
-                molecular_weight = Decimal(nist_entry['MW']), 
+                molecular_weight = Decimal(nist_entry['MW']),
                 #MA Record Base fields
                 known = known,
                 node = node,
@@ -221,11 +221,11 @@ def compound(nist_entry,dataset, extrafields=None):
                 method = method)
 
 
-        return gcma                
+        return gcma
     elif dataset.name == 'MA LC':
         raise Exception('LC not supported')
-    elif dataset.name == 'NIST':    
-    
+    elif dataset.name == 'NIST':
+
         return models.Compound(
                 cas_name = nist_entry['CAS NAME'],
                 dataset = dataset,
@@ -245,7 +245,7 @@ def points(nist_entry):
 @transaction.commit_on_success
 def save_models(compound, points):
     flat_points = []
-    for p in points: 
+    for p in points:
         flat_points.extend( (str(p[0]), str(p[1])) )
     csv_points = ",".join(flat_points)
     spectrum = models.Spectrum()

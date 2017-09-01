@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User, Group, UserManager
-from ccg.auth.ldap_helper import LDAPHandler
 from mamboms import mambomsapp
 from django.conf import settings
 
@@ -13,19 +12,19 @@ import logging
 logger = logging.getLogger('mamboms')
 
 PROFILE_PROPERTIES = {
-    'firstname': 'first_name', 
-    'lastname': 'last_name', 
+    'firstname': 'first_name',
+    'lastname': 'last_name',
     'telephoneNumber': 'office_phone',
-    'homephone': 'home_phone', 
-    'physicalDeliveryOfficeName': 'office', 
-    'title': 'title', 
-    'dept': 'department', 
+    'homephone': 'home_phone',
+    'physicalDeliveryOfficeName': 'office',
+    'title': 'title',
+    'dept': 'department',
     'areaOfInterest': 'area_of_interest',
-    'address': 'address', 
-    'institute': 'institute', 
-    'supervisor': 'supervisor', 
-    'country': 'country', 
-    'node': 'node', 
+    'address': 'address',
+    'institute': 'institute',
+    'supervisor': 'supervisor',
+    'country': 'country',
+    'node': 'node',
     'status': 'status'
 }
 
@@ -85,7 +84,7 @@ class MambomsLDAPProfile(models.Model):
         returndict = extract_properties(self, PROFILE_PROPERTIES)
         #the 'node' field needs to be the node id, not the node name
         if self.node not in [None, '']:
-            returndict['node'] = self.node.id    
+            returndict['node'] = self.node.id
         returndict['email'] = self.user.username
         returndict['username'] = self.user.username
         returndict['originalEmail'] = self.user.username
@@ -95,11 +94,11 @@ class MambomsLDAPProfile(models.Model):
         returndict['isClient'] = self.is_client
         logger.debug('get_details returning isAdmin: %s' % (str(returndict['isAdmin']) ) )
         logger.debug('get_details returning isNodeRep: %s' % (str(returndict['isNodeRep']) ) )
-        
+
         return returndict
 
     def save_details(self, detailsDict, infoDict, updaterUser):
-        # The detailsDict is a dictionary with key, value pairs of data to set. It should be 
+        # The detailsDict is a dictionary with key, value pairs of data to set. It should be
         #   as close to the set of storable 'user attributes' as you can get, although some data massaging
         #   may need to take place before saving
         #   Blank values will be replaced with current values.
@@ -107,13 +106,13 @@ class MambomsLDAPProfile(models.Model):
         #   about how to update and save the data. This is specific to the application - the frontend being used,
         #   the user attributes present on this type of user etc.
         # The updateUser is the user object of the person MAKING the update.
-        #   This is so we know if that person was an admin, noderep etc, and therefore what 
+        #   This is so we know if that person was an admin, noderep etc, and therefore what
         #   they are and are not allowed to update.
 
         logger.debug('***enter***')
         changed_details = False
-   
-        set_properties(self, PROFILE_PROPERTIES, detailsDict)        
+
+        set_properties(self, PROFILE_PROPERTIES, detailsDict)
 
         newnode = infoDict.get('node')
         if newnode:
@@ -133,7 +132,7 @@ class MambomsLDAPProfile(models.Model):
                     self.user.groups.remove(noderepgroup)
 
         self.change_password(infoDict['password'])
-       
+
         self.user.save()
         self.save()
 
@@ -145,12 +144,13 @@ class MambomsLDAPProfile(models.Model):
             return
         if True in [b.endswith('LDAPBackend') for b in settings.AUTHENTICATION_BACKENDS]:
             try:
+                from ccg.auth.ldap_helper import LDAPHandler
                 adminld = LDAPHandler(userdn = settings.LDAPADMINUSERNAME, password = settings.LDAPADMINPASSWORD)
                 u = self.user.username
                 adminld.ldap_update_user(u, u, new_password, {}, pwencoding='md5')
             except Exception, e:
                 logger.debug('Exception updating %s: %s' % (str(u), str(e)) )
-                raise 
+                raise
         else:
            self.user.set_password(new_password)
 
@@ -174,11 +174,11 @@ class MambomsLDAPProfile(models.Model):
             return True
         except Group.DoesNotExist:
             return False
-   
+
     @property
     def is_admin(self):
         return self.user.is_superuser
-    
+
     @property
     def is_client(self):
         if self.is_admin or self.is_noderep:
