@@ -25,9 +25,11 @@ WORKDIR /app
 RUN env | sort
 
 # python deps
-COPY mamboms/*requirements.txt /app/mamboms/
+COPY mamboms/matplotlib-requirements.txt /app/mamboms/
 RUN pip install --upgrade -r mamboms/matplotlib-requirements.txt
+COPY mamboms/test-requirements.txt /app/mamboms/
 RUN pip install --upgrade -r mamboms/test-requirements.txt
+COPY mamboms/dev-requirements.txt /app/mamboms/
 RUN pip install --upgrade -r mamboms/dev-requirements.txt
 
 # Copy code and install the app

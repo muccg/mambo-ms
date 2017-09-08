@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from mamboms.mambomsapp import admin as mamboms_admin
 from django.conf import settings
