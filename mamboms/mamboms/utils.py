@@ -7,7 +7,8 @@ from django.http import HttpResponse
 from django.db.models import Model
 
 #Json Encoding
-from django.utils import simplejson
+# from django.utils import simplejson
+import json as simplejson
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import Promise
 from django.utils.encoding import force_unicode
