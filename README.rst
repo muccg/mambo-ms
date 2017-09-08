@@ -40,211 +40,57 @@ located at the `Centre for Comparative Genomics`_.
 .. _`Centre for Comparative Genomics`:
      http://ccg.murdoch.edu.au/
 
-
-Installation
-------------
-
-The Mambo-MS server is a Django_ application which uses the Apache_ web
-server and PostgreSQL_.
-
-.. _Django: https://docs.djangoproject.com/en/1.4/
-.. _Apache: http://httpd.apache.org/docs/2.2/
-.. _PostgreSQL: http://www.postgresql.org/docs/8.4/
-
-Yum repository setup
-~~~~~~~~~~~~~~~~~~~~
-
-Mambo-MS is distributed as RPM, tested on Centos 6.x (x86_64). To
-satisfy dependencies, `Epel`_ and `REMI`_ repos need to be enabled::
-
-    sudo rpm -Uvh http://repo.ccgapps.com.au/repo/ccg/centos/6/os/noarch/CentOS/RPMS/ccg-release-6-2.noarch.rpm
-    sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-    sudo rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-
-.. _Epel: http://fedoraproject.org/wiki/EPEL
-.. _REMI: http://rpms.famillecollet.com/
-
-Dependencies
-~~~~~~~~~~~~
-
-The database and python database driver aren't dependencies of the
-Mambo-MS RPM, so have to be installed manually::
-
-    sudo yum install postgresql-server python-psycopg2 postgresql-plpython
-
-Install
-~~~~~~~
-
-Install the Mambo-MS RPM, replacing ``X.X.X`` with the desired version::
-
-    sudo yum install mamboms-X.X.X
-
-Server Configuration
---------------------
-
-Database Setup
-~~~~~~~~~~~~~~
-
-If starting from a fresh CentOS install, you will need to configure
-PostgreSQL::
-
-    service postgresql initdb
-    service postgresql start
-    chkconfig postgresql on
-
-To enable password authentication in PostgreSQL, you need to edit
-``/var/lib/pgsql/data/pg_hba.conf``. As described in `the
-documentation`_, add the following line to ``pg_hba.conf``::
-
-    # TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
-    host    all         all         127.0.0.1/32          md5
-
-Then restart postgresql.
-
-.. _the documentation:
-   http://www.postgresql.org/docs/8.4/static/auth-pg-hba-conf.html
-
-
-Database Creation
-~~~~~~~~~~~~~~~~~
-
-The database is created in the normal way for Django/PostgreSQL, but a
-stored procedure file must be installed::
-
-    sudo su postgres
-    createuser -e -DRS -P mamboms
-    createdb -e -O mamboms mamboms
-    psql < /usr/local/webapps/mamboms/lib/django_mamboms-*.egg/mamboms/mambomsapp/migrations/spectra_search_storedproc.sql
-    exit
-
-The default database, username, password are all set to
-*mamboms*. These settings can be changed, see
-(:ref:`django-settings`).
-
-Database Population
-~~~~~~~~~~~~~~~~~~~
-
-Run Django syncdb and South migrate::
-
-    sudo mamboms syncdb --noinput
-    sudo mamboms migrate
-
-The preconfigured user will have e-mail address ``admin@mambo-ms.com``
-with password ``admin``. Once you have set up your own users, the
-``admin@example.com`` user can be deleted.
-
-
-Apache Web Server
-~~~~~~~~~~~~~~~~~
-
-The Mambo-MS RPM installs an example Apache config file at
-``/etc/httpd/conf.d/mamboms.ccg``. This config is designed to work out
-of the box with an otherwise unconfigured CentOS Apache
-installation. All that is needed is to rename ``mamboms.ccg`` to
-``mamboms.conf`` so that Apache will pick it up.
-
-If you have already made changes to the default Apache configuration,
-you may need to tweak ``mamboms.conf`` so that the existing setup is
-not broken. It may be necessary to consult the `Apache`_ and
-`mod_wsgi`_ documentation for this.
-
-.. _Apache: http://httpd.apache.org/docs/2.2/
-.. _mod_wsgi: http://code.google.com/p/modwsgi/wiki/ConfigurationGuidelines
-
-Upload directory
-~~~~~~~~~~~~~~~~
-
-By default, the storage for uploaded files is located at
-``/var/lib/mamboms/scratch``.
-
-There should be ample disk space on this filesystem and some data
-redundancy would be desirable. If this is not the case, then you could
-mount a suitable file system at this path. If the data repository
-needs to be at another location, its path can be configured in the
-settings file.
-
-.. _django-settings:
-
-Django Settings File
-~~~~~~~~~~~~~~~~~~~~
-
-The default settings for Mambo-MS are installed at
-``/usr/local/webapps/mamboms/defaultsettings/mamboms.py``. In case any
-settings need to be overridden, this can be done by creating an
-optional appsettings file. To set up the appsettings file, do::
-
-    mkdir -p /etc/ccgapps/appsettings
-    touch /etc/ccgapps/appsettings/{__init__,mamboms}.py
-
-The Python variable declarations in
-``/etc/ccgapps/appsettings/mamboms.py`` will override the defaults,
-which can be seen in `settings.py`_.
-
-.. _settings.py:
-   https://bitbucket.org/ccgmurdoch/mambo-ms/src/default/mamboms/mamboms/settings.py
-
-SELinux and Mambo-MS
-~~~~~~~~~~~~~~~~~~~~
-
-Mambo-MS does not yet ship with a SELinux policy.  For Mambo-MS to
-function correctly on a CentOS server, SELinux must be disabled.
-
-The CentOS wiki contains `instructions`_ on how to disable SELinux.
-
-.. _instructions:
-   http://wiki.centos.org/HowTos/SELinux#head-430e52f7f8a7b41ad5fc42a2f95d3e495d13d348
-
-
-Upgrading to a new version
---------------------------
-
-New versions of Mambo-MS are made available in the `CCG yum
-repository`_.
-
-.. warning:: Some versions will require "database migrations" to
-   update the database. While every care is taken to ensure smooth
-   upgrades, we still advise to make a backup of the database before
-   upgrading. This can be done with a command such as::
-
-       su - postgres -c "pg_dump mamboms | gzip > /tmp/mamboms-$(date +%Y%m%d).sql.gz"
-
-
-Install the Mambo-MS RPM, replacing ``X.X.X`` with the desired version::
-
-    sudo yum install mamboms-X.X.X
-
-Run Django syncdb and South migrate::
-
-    sudo mamboms syncdb --noinput
-    sudo mamboms migrate
-
-.. _CCG yum repository:
-   http://repo.ccgapps.com.au/
-
-Testing
+Licence
 -------
 
-After changing the configuration or upgrading, start/restart the web
-server with::
+GNU GPL v3. Please contact the Centre for Comparative Genomics if you
+require a licence other than GPL for legal or commercial reasons.
 
-    service httpd restart
+For developers
+--------------
 
-Mambo-MS is available at https://your-web-host/mamboms/. A login page
-should be visible at this URL.
+We do our development using Docker containers. See: https://www.docker.com/.
+You will have to set up Docker on your development machine.
 
-Source Code and Issue Tracking
-------------------------------
+All the development tasks can be done by using the ``develop.sh`` shell script in this directory.
+Please run it without any arguments for help on its usage. The script is a convenience wrapper around docker-compose,
+so naturally docker-compose (or docker for that matter) can be used directly. The script will echo all the docker-compose
+commands it executes.
 
-The Mambo-MS code is hosted at BitBucket.
+We typically run a local squid proxy (https://github.com/muccg/docker-squid-deb-proxy) and pypi proxy (https://github.com/muccg/docker-devpi)
+in our dev environment. You can remove this dependency by editing the ``.env`` file in the top level directory. Specifically
+the variables CCG_PIP_PROXY and CCG_HTTP_PROXY control usage of the local proxies during builds.
 
-    https://bitbucket.org/ccgmurdoch/mambo-ms
+Some typical usages of the convenience develop.sh script are:
 
-Any bugs or questions can be raised on the issue tracker:
+- **./develop.sh build base**
+- **./develop.sh build builder**
+- **./develop.sh build dev**
+        To build all the docker containers needed for dev.
+- **./develop.sh up**
+        To start up all the docker containers needed for dev. 
+        You can access the Mamboms application on http://localhost:8000.
+        You can login with *admin@mambo-ms.com/admin*.
 
-    https://ccgmurdoch.atlassian.net/browse/MAM
+Our production Docker image (``Dockerfile-prod``) is built by creating a tarball of the application and placing it the base image (``Dockerfile-base``)
+which is a Debian image and dependencies. Steps for building prod image:
 
-The Mambo-MS project was originally hosted at Google Code but is no
-longer.
+- **./develop.sh build base builder**
+        Build base image and builder image.
+- **./develop.sh run-builder**
+        Run the builder image to make a tarball of the application.
+- **./develop.sh build prod**
+        Build the prod image.
+
+The prod image exposes the application via uwsgi, we typically deploy that behind nginx. We've also done RPM + Apache + mod_wsgi deployments but are not
+actively updating RPM deployments and will likely remove that from the REPO in the near future.
+
+Contributing
+------------
+
+1. Fork next_release branch
+2. Make changes on a feature branch
+3. Submit pull request
 
 
 Credits

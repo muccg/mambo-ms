@@ -1,0 +1,4 @@
+flake8
+#Werkzeug
+django-debug-toolbar
+safety

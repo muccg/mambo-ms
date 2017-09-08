@@ -10,7 +10,7 @@ from django.db.models import Model
 from django.utils import simplejson
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import Promise
-from django.utils.translation import force_unicode
+from django.utils.encoding import force_unicode
 from django.utils.encoding import smart_unicode
 
 import os
@@ -28,7 +28,7 @@ def makeJsonFriendly(data):
         elif isinstance(data, dict):
             for key in data.keys():
                 data[key] = makeJsonFriendly(data[key])
-            
+
         elif isinstance(data, datetime.datetime):
             return str(data)
         else:
@@ -47,7 +47,7 @@ class ModelJSONEncoder(DjangoJSONEncoder):
     """
     def handle_field(self, obj, field):
         return smart_unicode(getattr(obj, field.name), strings_only=True)
-    
+
     def handle_fk_field(self, obj, field):
         related = getattr(obj, field.name)
         if related is not None:
@@ -58,7 +58,7 @@ class ModelJSONEncoder(DjangoJSONEncoder):
                 # Related to remote object via other field
                 related = getattr(related, field.rel.field_name)
         return smart_unicode(related, strings_only=True)
-    
+
     def handle_m2m_field(self, obj, field):
         if field.creates_table:
             return [
@@ -66,7 +66,7 @@ class ModelJSONEncoder(DjangoJSONEncoder):
                 for related
                 in getattr(obj, field.name).iterator()
                 ]
-    
+
     def handle_model(self, obj):
         dic = {}
         for field in obj._meta.local_fields:
@@ -79,7 +79,7 @@ class ModelJSONEncoder(DjangoJSONEncoder):
             if field.serialize:
                 dic[field.name] = self.handle_m2m_field(obj, field)
         return dic
-    
+
     def default(self, obj):
         if isinstance(obj, Model):
             return self.handle_model(obj)
@@ -117,10 +117,10 @@ def json_decode(data):
 
 def uniqueList(l):
     '''returns unique elements of l.
-       sometimes you can use a set to do this, but 
+       sometimes you can use a set to do this, but
        not if your list contains unhashable types, such as dict.
     '''
- 
+
     seen = []
     result = []
     for i in l:
@@ -143,7 +143,7 @@ def getGroupsForSession(request, force_reload = False):
         request.session['cachedgroups'] = g
         print '\tStored groups for %s: %s' % (request.user.username, request.session.get('cachedgroups') )
         cachedgroups = g
-        
+
         request.session['isNodeRep'] = False
         request.session['isAdmin'] = False
         print 'yes: ', len(cachedgroups), '   ', cachedgroups
@@ -155,7 +155,7 @@ def getGroupsForSession(request, force_reload = False):
             if group == 'Node Reps':
                 request.session['isNodeRep'] = True
 
-    return cachedgroups 
+    return cachedgroups
 
 
 # TODO:
@@ -165,14 +165,14 @@ def setRequestVars(request, success=False, authenticated = 0, authorized = 0, to
     '''
         Make sure we set the session vars the same way each time, with sensible defaults
     '''
-    
+
     if params is None:
         p = request.REQUEST.get('params', None)
         if p is not None:
             p = json_decode(p)
             print '\tSet Request Vars decoded params as : ', p
         params = p
-    
+
     print '\tSet Request Vars params are ', params
 
     store = {}
@@ -187,8 +187,8 @@ def setRequestVars(request, success=False, authenticated = 0, authorized = 0, to
         store['items']            = items
     else:
         store['items']            = list(items)
-    #print 'setSessionVars, mainContentFunction is: ', request.store['mainContentFunction'] 
-    
+    #print 'setSessionVars, mainContentFunction is: ', request.store['mainContentFunction']
+
     if data is not None:
         store['data'] = data
 
@@ -199,8 +199,8 @@ def get_var(dictionary, key, defaultvalue):
     if dictionary.has_key(key):
         v = dictionary[key]
         #if type(v) is list and len(v) ==1:
-        #    v = v[0] 
-        return v 
+        #    v = v[0]
+        return v
     else:
         return defaultvalue
 
@@ -237,7 +237,7 @@ def jsonResponse(request, *args):
     a['isNodeRep'] = request.session.get('isNodeRep', False)
     a['isClient'] = request.session.get('isClient', False)
 
-    #### response 'items' ####    
+    #### response 'items' ####
     resp = {}
     resp['value'] = {}
     i = get_var(s, 'items', None)
@@ -246,21 +246,20 @@ def jsonResponse(request, *args):
         #print dir(i)
         makeJsonFriendly(i)
 
-    resp['value']['items'] = i #i 
+    resp['value']['items'] = i #i
     resp['value']['total_count'] = a['totalRows']
     resp['value']['version'] = 1 #TODO: work out where this comes from.
-    a['response'] = resp 
+    a['response'] = resp
     ###############################
 
     ### Data ###
-    data = get_var(s, 'data', None) 
+    data = get_var(s, 'data', None)
     if data is not None:
         a['data'] = makeJsonFriendly(data)
 
 
     a['mainContentFunction'] = get_var(s, 'mainContentFunction', '')
     a['params'] = s.get('params', [])
-   
+
     retdata = json_encode(a)
     return HttpResponse(retdata)
-

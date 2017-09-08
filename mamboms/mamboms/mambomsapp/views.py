@@ -13,7 +13,7 @@ def graph(request, compound_id):
     compound = get_object_or_404(Compound, pk=compound_id)
     return render_to_response("mamboms/graph.html", {
                 "compound" : compound,
-           }) 
+           })
 
 def graph_image(request, compound_id, datastart, dataend):
     compound = get_object_or_404(Compound, pk=compound_id)
@@ -39,17 +39,17 @@ def graph_image_action(request):
             elif req['action'] == 'moveLeft':
                 graph.move_left()
             elif req['action'] == 'moveRight':
-                graph.move_right() 
-               
+                graph.move_right()
+
         imageinfo = graph.to_imageinfo()
-        cache.put(graph) 
+        cache.put(graph)
         return HttpResponse(encoder.encode(imageinfo))
 
 
 ####################################
 # This is the weighting algotithm,
 # implemented in numpy for efficiency.
-# 
+#
 # The intensity and mass powers can
 # be made configurable.
 #
@@ -57,14 +57,14 @@ def w_N(specimen):
     import numpy as np
     pow_intensity = 0.5
     pow_mass = 3
-    
+
     ints = specimen[1]**pow_intensity
     masses = specimen[0]**pow_mass
 
-    return ints * masses 
+    return ints * masses
 
 #####################################
-# This is the dot product algorithm, 
+# This is the dot product algorithm,
 # implemented in numpy for efficiency.
 #
 # u = unknown sample
@@ -80,7 +80,7 @@ def dot_product_N(u, l, fn):
 
     common_masses = np.intersect1d(ldata[0], udata[0])  #find the intersection of masses
     logger.debug('Common masses: %s'%(str(common_masses)) )   #debug message
-   
+
     #build lists containing each common mass and the corrosponding intensity.
     #We cannot use numpy for this, so we use standard python lists
     '''
@@ -115,7 +115,7 @@ def dot_product_N(u, l, fn):
 
     lr2 = lfn_result**2 #lr2 = lfnresult squared
     ur2 = ufn_result**2 #ur2 = ufnresult squared
-    
+
     #top is the sum of the results multiplied
     top = np.sum(lfn_result * ufn_result)
     #bottom is each squared term sum sqrted and multiplied together
@@ -144,7 +144,7 @@ def dotsearchTest(request, id=0, num=0):
     for sample in u:
         #print count
         count += 1
-        results_list.append( (dot_product_N(l, sample, w_N), sample.link_to_graph()) ) 
+        results_list.append( (dot_product_N(l, sample, w_N), sample.link_to_graph()) )
 
     results_list.sort(cmp=lambda x,y: int(x[0]*100000-y[0]*100000) ) #sort on the 0th element of each tuple
 
@@ -152,7 +152,7 @@ def dotsearchTest(request, id=0, num=0):
     for r in results_list:
         count += 1
         resultstr += "%d: %f : %s<br>" % (count, r[0], r[1])
-        
+
 
     t2 = time.time()
     logger.debug('Time was: %s' %(str(t2-t)))
@@ -176,12 +176,12 @@ def dotsearchJSON(request, id=0, num=0, pagenum=1):
     resultstr += "Reference: %s<br>" % (u.link_to_graph())
     count = 0
     results_list = []
-    
+
     #For each sample, run the dot product against u, using a weighting function w
     for sample in l:
         count += 1
         #the weighting function used is w_N - the numpy version of w
-        results_list.append( (dot_product_N(u, sample, w_N), sample.truncated_name(), sample.link_to_graph() ) ) 
+        results_list.append( (dot_product_N(u, sample, w_N), sample.truncated_name(), sample.link_to_graph() ) )
 
     results_list.sort(cmp=lambda x,y: int(x[0]*100000-y[0]*100000) ) #sort on the 0th element of each tuple
 
@@ -193,17 +193,17 @@ def dotsearchJSON(request, id=0, num=0, pagenum=1):
 
 def dotsearchMain(request, id=0, num=0):
     comp = Compound.objects.get(id=id)
-    from ccg.utils import webhelpers
-    return render_to_response("mamboms/dotsearch.html", 
+    from ccg_django_utils import webhelpers
+    return render_to_response("mamboms/dotsearch.html",
                             {
                                 "compoundid" : id,
                                 "compoundname" : comp.name,
                                 "compoundgraph" : comp.link_to_graph(),
                                 "perpage" : num,
-                                "urlbase" : webhelpers.url('/mamboms/search/dotsearchjson/'), 
+                                "urlbase" : webhelpers.url('/mamboms/search/dotsearchjson/'),
                             })
-                            
 
-        
+
+
 
 

@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 
 urlpatterns = patterns('',
     # Spectra Graph
@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     (r'search/bykeyword/$', 'mamboms.mambomsapp.views.search.keyword_search'),
     (r'search/byspectra/$', 'mamboms.mambomsapp.views.search.spectra_search'),
 
-    #These views are for creating and monitoring the Tokyo Hash. 
+    #These views are for creating and monitoring the Tokyo Hash.
     (r'search/status/$', 'mamboms.mambomsapp.search_admin_views.status'),
     (r'search/create/$', 'mamboms.mambomsapp.search_admin_views.create_hash'),
     (r'search/build/$', 'mamboms.mambomsapp.search_admin_views.build_hash'),

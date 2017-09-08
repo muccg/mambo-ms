@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from mamboms.mambomsapp import admin as mamboms_admin
 from django.conf import settings
@@ -16,11 +16,11 @@ urlpatterns = patterns('',
     (r'^import/fileupload$', 'mamboms.util_scripts.dataimporter.datafile_upload'),
     (r'^import/definefields$', 'mamboms.util_scripts.dataimporter.define_fields'),
     (r'^import/confirmimport$', 'mamboms.util_scripts.dataimporter.confirm_import'),
-    (r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'admin/login.html', 'SSL':settings.SSL_ENABLED }),
+    (r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'admin/login.html'}),
     (r'^logout/$', 'django.contrib.auth.views.logout'),
 )
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root' : settings.STATIC_ROOT, 'SSL' : settings.SSL_ENABLED} ),
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root' : settings.STATIC_ROOT} ),
     )
