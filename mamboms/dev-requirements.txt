@@ -1,4 +1,4 @@
 flake8
-Werkzeug
+Werkzeug==0.8.3
 django-debug-toolbar
 safety
