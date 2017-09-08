@@ -3,7 +3,7 @@ from django.contrib import admin
 from mamboms.mambomsapp import admin as mamboms_admin
 from django.conf import settings
 
-#admin.autodiscover()
+admin.autodiscover()
 
 urlpatterns = patterns('',
     # Example:
