@@ -160,6 +160,29 @@ SHORT_DATE_FORMAT = "d/m/Y"
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#use-x-forwarded-host
 USE_X_FORWARDED_HOST = env.get("use_x_forwarded_host", True)
 
+if env.get("memcache", ""):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': env.getlist("memcache"),
+            'KEY_PREFIX': env.get("key_prefix", "mambo")
+        }
+    }
+
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'mambo_cache',
+            'TIMEOUT': 3600,
+            'MAX_ENTRIES': 600
+        }
+    }
+
+    SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    SESSION_FILE_PATH = CCG_WRITABLE_DIRECTORY
+
 # Log directory created and enforced by puppet
 CCG_LOG_DIRECTORY = env.get('log_directory', os.path.join(BASE_DIR, "log"))
 
