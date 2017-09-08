@@ -228,7 +228,7 @@ fi
 
 # runserver_plus entrypoint
 if [ "$1" = 'runserver_plus' ]; then
-    info "[Run] Starting runserver_plus"
+    info "[Run] Starting runserver"
     RUNSERVER_CMD=runserver
     _runserver
 fi
