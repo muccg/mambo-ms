@@ -249,8 +249,5 @@ def json_reference_data(qs):
     return json_encode(json)
 
 def get_node_name(request):
-    node = request.user.get_profile().node
+    node = request.user.profile.node
     return None if node is None else node.name
-
-
-

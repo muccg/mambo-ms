@@ -11,7 +11,7 @@ class RestrictedModelAdmin(admin.ModelAdmin):
 
     def is_admin(self, user):
         return (user.is_superuser
-            or (user.get_profile() and user.get_profile().get_details().get('isAdmin')))
+            or (user.profile and user.profile.get_details().get('isAdmin')))
 
     def queryset(self, request):
         queryset = super(RestrictedModelAdmin, self).queryset(request)
@@ -46,13 +46,13 @@ class RestrictedModelAdmin(admin.ModelAdmin):
 
 class RestrictedByNodeAdmin(RestrictedModelAdmin):
     def filter_user_form(self, form, request):
-        user_node = request.user.get_profile().node
+        user_node = request.user.profile.node
         form.base_fields['node'].queryset = models.Node.objects.filter(name = user_node)
         form.base_fields['node'].empty_label = None
         return form
 
     def filter_user_queryset(self, queryset, request):
-        user_node = request.user.get_profile().node
+        user_node = request.user.profile.node
         return queryset.filter(node__name = user_node)
 
 class InstrumentAdmin(RestrictedByNodeAdmin):

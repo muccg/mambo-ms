@@ -9,7 +9,7 @@ def save_user_details(uinfo):
     print username
     print uinfo
     user = User.objects.get(username=username)
-    user_profile = user.get_profile()
+    user_profile = user.profile
     user_profile.title = uinfo.get('title', ('',))[0]
     user_profile.first_name = uinfo.get('givenname', ('',))[0]
     user_profile.last_name = uinfo.get('sn', ('',))[0]

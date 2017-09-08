@@ -48,7 +48,7 @@ def set_properties(obj, props, dictionary):
             setattr(obj, prop, value)
 
 def list_users():
-    return [u.get_profile().get_details() for u in User.objects.all()]
+    return [u.profile.get_details() for u in User.objects.all()]
 
 def list_mamboms_nodes():
     return [ {"name": n.name, "id": n.id} for n in mambomsapp.models.Node.objects.all()]
@@ -60,7 +60,7 @@ class UserStatus(models.Model):
         return self.name
 
 class MambomsLDAPProfile(models.Model):
-    user = models.ForeignKey(User, unique = True, related_name='+') #related_name to satisfy south, but we don't actually want a related name
+    user = models.OneToOneField(User, unique = True, related_name='profile') #related_name to satisfy south, but we don't actually want a related name
     title  = models.CharField(null=True,max_length=50)
     first_name  = models.CharField(null=True,max_length=50)
     last_name = models.CharField(null=True,max_length=50)

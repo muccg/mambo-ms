@@ -16,7 +16,7 @@ def clients_forbidden(f):
         request = args[0]
         if not request.user.is_authenticated():
             return HttpResponseUnauthorized()
-        if request.user.get_profile().is_client:
+        if request.user.profile.is_client:
             return HttpResponseForbidden()
         return f(*args, **kwargs)
     return new_function
@@ -27,7 +27,7 @@ def admins_only(f):
         request = args[0]
         if not request.user.is_authenticated():
             return HttpResponseUnauthorized()
-        if not request.user.get_profile().is_admin:
+        if not request.user.profile.is_admin:
             return HttpResponseForbidden()
         return f(*args, **kwargs)
     return new_function
@@ -38,8 +38,7 @@ def admins_and_nodereps_only(f):
         request = args[0]
         if not request.user.is_authenticated():
             return HttpResponseUnauthorized()
-        if not (request.user.get_profile().is_admin or request.user.get_profile().is_noderep):
+        if not (request.user.profile.is_admin or request.user.profile.is_noderep):
             return HttpResponseForbidden()
         return f(*args, **kwargs)
     return new_function
-

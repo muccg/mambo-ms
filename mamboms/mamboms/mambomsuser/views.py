@@ -36,10 +36,10 @@ def load_user(request, *args):
         logger.debug('Exception: No django user existed with username %s' % (uname))
 
     # Non-admin users are allowed to load only their details
-    if not request.user.get_profile().is_admin and user != request.user:
+    if not request.user.profile.is_admin and user != request.user:
         return HttpResponseForbidden
 
-    data = user.get_profile().get_details()
+    data = user.profile.get_details()
 
     setRequestVars(request, success=True, data=data, totalRows=len(data.keys()), authenticated=True, authorized=True)
     return jsonResponse(request, [])
@@ -47,11 +47,11 @@ def load_user(request, *args):
 @authentication_required
 def save_user(request, *args):
     r = request.POST
-    uname = r['originalEmail'] 
+    uname = r['originalEmail']
     u = User.objects.get(username = uname)
 
     # Non-admin users are allowed to save only their details
-    if not request.user.get_profile().is_admin and u != request.user:
+    if not request.user.profile.is_admin and u != request.user:
         return HttpResponseForbidden
 
     originalEmail = str(uname)
@@ -61,7 +61,7 @@ def save_user(request, *args):
         'originalEmail': originalEmail, #the username of the user to change
         'username': str(r.get('email', originalEmail)), #if empty, set to originalEmail
         'email': str(r.get('email', originalEmail)), #if empty, set to originalEmail
-        'password': password, 
+        'password': password,
         'firstname': str(r.get('firstname', '')),
         'lastname': str(r.get('lastname', '')),
         'telephoneNumber': str(r.get('telephoneNumber', '')),
@@ -75,7 +75,7 @@ def save_user(request, *args):
         'areaOfInterest': str(r.get('areaOfInterest', '')),
         'country': str(r.get('country', ''))
     }
-    
+
     isAdmin = r.get('isAdmin', 'false')
     isNodeRep = r.get('isNodeRep', 'false')
     isAdmin = (str(isAdmin) in ('true', 'True', '1'))
@@ -90,13 +90,13 @@ def save_user(request, *args):
     infoDict['noderepCheckbox'] = isNodeRep
     infoDict['password'] = password
 
-    success = False 
+    success = False
     try:
-        u.get_profile().save_details(updateDict, infoDict, request.user)
+        u.profile.save_details(updateDict, infoDict, request.user)
         success = True
     except Exception, e:
         logger.debug('\tException saving details: %s' % (str(e)) )
-    
+
     if success:
         mail_functions.sendAccountModificationEmail(request, uname)
 
@@ -105,24 +105,24 @@ def save_user(request, *args):
     setRequestVars(request, success=success, authenticated=True, authorized=True, mainContentFunction = nextview)
     logger.debug('*** exit ***')
 
-    return jsonResponse(request, []) 
+    return jsonResponse(request, [])
 
 @authentication_required
 def get_user_info(request):
     user = request.user
     node_id, node = None, None
-    if user.get_profile().node is not None:
-        node_id = user.get_profile().node.id
-        node = user.get_profile().node.name
+    if user.profile.node is not None:
+        node_id = user.profile.node.id
+        node = user.profile.node.name
     response_map = {
         'success': True,
         'username': user.username,
-        'fullname': user.get_profile().full_name,
+        'fullname': user.profile.full_name,
         'node': node,
         'nodeid': node_id,
-        'isAdmin': user.get_profile().is_admin,
-        'isNodeRep': user.get_profile().is_noderep,
-        'isClient': user.get_profile().is_client
+        'isAdmin': user.profile.is_admin,
+        'isNodeRep': user.profile.is_noderep,
+        'isClient': user.profile.is_client
     }
     return HttpResponse(json_encode(response_map))
 
@@ -137,13 +137,13 @@ from django.contrib.auth.decorators import login_required
 @authentication_required
 @cache_page(60 * 30)
 def list_node_users(request):
-    usernode = request.user.get_profile().node
+    usernode = request.user.profile.node
 
     data = []
-    for user in [user for user in User.objects.all() if user.get_profile().node == usernode]:
+    for user in [user for user in User.objects.all() if user.profile.node == usernode]:
         data.append({
             'username': user.username,
-            'name': user.get_profile().full_name,
+            'name': user.profile.full_name,
             'id': user.id
         })
     return json_response(data)
@@ -157,15 +157,15 @@ def list_users(request):
     '''
     if request.GET.get('all', False):
         pool = [user for user in User.objects.all()]
-    else:    
-        usernode = request.user.get_profile().node
-        pool = [user for user in User.objects.all() if user.get_profile().node == usernode]
+    else:
+        usernode = request.user.profile.node
+        pool = [user for user in User.objects.all() if user.profile.node == usernode]
 
     data = []
     for user in pool:
         data.append({
             'username': user.username,
-            'name': user.get_profile().full_name,
+            'name': user.profile.full_name,
             'id': user.id
         })
     return json_response(data)
@@ -174,7 +174,7 @@ def list_users(request):
 def list_all_nodes(request, *args, **kwargs):
     logger.debug('***enter***')
     groups = [
-        {'name':'Don\'t Know', 'id':None} 
+        {'name':'Don\'t Know', 'id':None}
     ]
 
     group_dicts = models.list_mamboms_nodes()
@@ -195,7 +195,7 @@ def forgot_password(request):
         if form.is_valid():
             try:
                 user = User.objects.get(username=form.cleaned_data["username"], email=form.cleaned_data["email"])
-                profile = user.get_profile()
+                profile = user.profile
 
                 token = profile.generate_password_reset_token()
                 profile.password_reset_token = token
@@ -231,7 +231,7 @@ def reset_password(request):
         return render_to_response("user/reset_password_bad_token.html", csrf(request))
 
     error = None
-        
+
     if request.method == "POST":
         form = forms.PasswordChangeForm(request.POST)
 

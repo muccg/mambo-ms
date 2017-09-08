@@ -17,7 +17,7 @@ def create_django_user(user_name):
 
 def create_user_profile_for(django_user):
     try:
-        django_user.get_profile()
+        django_user.profile
     # except SiteProfileNotAvailable:
     #     print 'Profiles are not enabled for this app'
     except models.MambomsLDAPProfile.DoesNotExist:
