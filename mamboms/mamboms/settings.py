@@ -3,18 +3,27 @@ import os
 import logging
 import logging.handlers
 
-CCG_INSTALL_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from ccg_django_utils.conf import EnvConfig
 
-CCG_WRITEABLE_DIRECTORY = os.path.join(CCG_INSTALL_ROOT,"scratch")
+env = EnvConfig()
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+SCRIPT_NAME = env.get("script_name", os.environ.get("HTTP_SCRIPT_NAME", ""))
+FORCE_SCRIPT_NAME = env.get("force_script_name", "") or SCRIPT_NAME or None
+
+
+CCG_WRITEABLE_DIRECTORY = os.path.join(BASE_DIR,"scratch")
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'webapp',
-        'NAME': 'webapp',
-        'PASSWORD': 'webapp',
-        'HOST': 'db',
-        'PORT': '',
+        'USER': env.get("dbuser", "webapp"),
+        'NAME': env.get("dbname", "webapp"),
+        'PASSWORD': env.get("dbpass", "webapp"),
+        'HOST': env.get("dbhost", "db"),
+        'PORT': env.get("dbport", ""),
     }
 }
 
@@ -54,25 +63,43 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # We have a puppet function to generate these by hashing appname and a secret
-SECRET_KEY = 'change-it'
+SECRET_KEY = env.get("secret_key", "changeme")
+
+# General site config
+PRODUCTION = env.get("production", False)
+DEBUG = env.get("debug", not PRODUCTION)
 
 # Default SSL on and forced, turn off if necessary
-SSL_ENABLED = False # !!!Changed from default True!!!
-SSL_FORCE = False # !!!Change from default True!!!
-
-# Debug off by default
-DEBUG = True
-PRODUCTION = False
+SSL_ENABLED = env.get("ssl_enabled", PRODUCTION)
+SSL_FORCE = env.get("ssl_force", PRODUCTION)
 
 # django-secure
-SECURE_SSL_REDIRECT = PRODUCTION
+SECURE_SSL_REDIRECT = env.get("secure_ssl_redirect", PRODUCTION)
 SECURE_HSTS_SECONDS = 500
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_FRAME_DENY = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_HTTPONLY = True
+SECURE_FRAME_DENY = env.get("secure_frame_deny", PRODUCTION)
+SECURE_CONTENT_TYPE_NOSNIFF = env.get("secure_content_type_nosniff", PRODUCTION)
+SECURE_BROWSER_XSS_FILTER = env.get("secure_browser_xss_filter", PRODUCTION)
+
+# session and cookies
+SESSION_COOKIE_AGE = env.get("session_cookie_age", 60 * 60)
+SESSION_COOKIE_PATH = '{0}/'.format(SCRIPT_NAME)
+SESSION_SAVE_EVERY_REQUEST = env.get("session_save_every_request", True)
+SESSION_COOKIE_HTTPONLY = env.get("session_cookie_httponly", True)
+SESSION_COOKIE_SECURE = env.get("session_cookie_secure", PRODUCTION)
+SESSION_COOKIE_NAME = env.get(
+    "session_cookie_name", "rdrf_{0}".format(SCRIPT_NAME.replace("/", "")))
+SESSION_COOKIE_DOMAIN = env.get("session_cookie_domain", "") or None
+
+CSRF_COOKIE_NAME = env.get("csrf_cookie_name", "csrf_{0}".format(SESSION_COOKIE_NAME))
+CSRF_COOKIE_DOMAIN = env.get("csrf_cookie_domain", "") or SESSION_COOKIE_DOMAIN
+CSRF_COOKIE_PATH = env.get("csrf_cookie_path", SESSION_COOKIE_PATH)
+CSRF_COOKIE_SECURE = env.get("csrf_cookie_secure", PRODUCTION)
+CSRF_COOKIE_HTTPONLY = env.get("csrf_cookie_httponly", True)
+CSRF_COOKIE_AGE = env.get("csrf_cookie_age", 31449600)
+CSRF_FAILURE_VIEW = env.get("csrf_failure_view", "django.views.csrf.csrf_failure")
+CSRF_HEADER_NAME = env.get("csrf_header_name", 'HTTP_X_CSRFTOKEN')
+CSRF_TRUSTED_ORIGINS = env.getlist("csrf_trusted_origins", ['localhost'])
 
 # Default the site ID to 1, even if the sites framework isn't being used
 SITE_ID = 1
@@ -82,19 +109,15 @@ ROOT_URLCONF = 'mamboms.urls'
 
 # This one's a constant, where puppet will have collect static files to
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#static-root
-STATIC_ROOT=os.path.join(CCG_INSTALL_ROOT, 'static')
+STATIC_ROOT=os.path.join(BASE_DIR, 'static')
 
 # These may be overridden, but it would be nice to stick to this convention
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#static-url
-STATIC_URL = '{0}/static/'.format(os.environ.get("SCRIPT_NAME", ""))
+STATIC_URL = '{0}/static/'.format(SCRIPT_NAME)
 
-# Another puppet-enforced content for location of user-uploaded data
-# see: https://docs.djangoproject.com/en/1.4/ref/settings/#media-root
-MEDIA_ROOT = os.path.join(CCG_WRITEABLE_DIRECTORY,"static","media")
-
-# This may be overridden
-# see: https://docs.djangoproject.com/en/1.4/ref/settings/#media-url
-MEDIA_URL = '{0}/static/media/'.format(os.environ.get("SCRIPT_NAME", ""))
+# settings used when FileSystemStorage is enabled
+MEDIA_ROOT = env.get('media_root', os.path.join(BASE_DIR, 'uploads'))
+MEDIA_URL = '{0}/uploads/'.format(SCRIPT_NAME)
 
 # All templates must be loaded from within an app, so these are the only
 # ones that should be enabled.
@@ -108,35 +131,26 @@ TEMPLATE_LOADERS = [
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#admins
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#managers
 ADMINS = [
-    ( 'alert', 'root@localhost' )
+    ('alerts', env.get("alert_email", "root@localhost"))
 ]
 MANAGERS = ADMINS
 
-# Mail relay settings for those projects that need it
-# Local non-smtp delivery and forwarding is the alternative
-EMAIL_USE_TLS = False
-EMAIL_HOST = '127.0.0.1'
-EMAIL_PORT = 25
-EMAIL_APP_NAME = "Mamboms"
-SERVER_EMAIL = "apache@localhost"  # from address
+# email
+EMAIL_USE_TLS = env.get("email_use_tls", False)
+EMAIL_HOST = env.get("email_host", 'smtp')
+EMAIL_PORT = env.get("email_port", 25)
+EMAIL_HOST_USER = env.get("email_host_user", "webmaster@localhost")
+EMAIL_HOST_PASSWORD = env.get("email_host_password", "")
+EMAIL_APP_NAME = env.get("email_app_name", "RDRF {0}".format(SCRIPT_NAME))
+EMAIL_SUBJECT_PREFIX = env.get("email_subject_prefix", "DEV {0}".format(SCRIPT_NAME))
 
-# Default cookie settings
-# see: https://docs.djangoproject.com/en/1.4/ref/settings/#session-cookie-age and following
-SESSION_COOKIE_AGE = 60*60
-SESSION_COOKIE_PATH = '/'
-SESSION_COOKIE_NAME = 'mamboms_sessionid'
-SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_HTTPONLY = False # Changed from default True
-SESSION_COOKIE_SECURE = False # Changed from default True
 
-# see: https://docs.djangoproject.com/en/1.4/ref/settings/#csrf-cookie-name and following
-CSRF_COOKIE_NAME = "csrftoken_mamboms"
-CSRF_COOKIE_SECURE = False # !!!Changed from default True!!!
+# TODO UP TO HEREE
 
 # Default date input formats, may be overridden
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#date-input-formats
-TIME_ZONE = 'Australia/Perth'
-LANGUAGE_CODE = 'en-us'
+TIME_ZONE = env.get("time_zone", 'Australia/Perth')
+LANGUAGE_CODE = env.get("language_code", 'en')
 USE_I18N = False
 USE_L10N = False
 DATE_INPUT_FORMATS = ('%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y','%d %m %Y','%d %m %y', '%d %b %Y')
@@ -146,10 +160,10 @@ SHORT_DATE_FORMAT = "d/m/Y"
 # This honours the X-Forwarded-Host header set by our nginx frontend when
 # constructing redirect URLS.
 # see: https://docs.djangoproject.com/en/1.4/ref/settings/#use-x-forwarded-host
-USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_HOST = env.get("use_x_forwarded_host", True)
 
 # Log directory created and enforced by puppet
-CCG_LOG_DIRECTORY = os.path.join(CCG_INSTALL_ROOT, "log")
+CCG_LOG_DIRECTORY = env.get('log_directory', os.path.join(BASE_DIR, "log"))
 
 # Default logging configuration, can be overridden
 LOGGING = {
@@ -184,13 +198,6 @@ LOGGING = {
             'when': 'midnight',
             'formatter': 'verbose'
         },
-        'db_logfile':{
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(CCG_LOG_DIRECTORY, 'mamboms_db.log'),
-            'when': 'midnight',
-            'formatter': 'db'
-        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -202,21 +209,17 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console', 'file', ],
-            'level': 'WARNING',
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': True
         },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
         },
-        'django.db.backends': {
-            'handlers': ['db_logfile', 'mail_admins'],
-            'level': 'CRITICAL',
-            'propagate': False,
-        },
         'mamboms': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },
     }
@@ -225,9 +228,9 @@ LOGGING = {
 #-=-=-=-=-=-=-=-=-=-=-#
 
 # see: https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = '{0}/login/'.format(os.environ.get("SCRIPT_NAME", ""))
-LOGOUT_URL = '{0}/logout/'.format(os.environ.get("SCRIPT_NAME", ""))
-LOGIN_REDIRECT_URL = '{0}/'.format(os.environ.get("SCRIPT_NAME", ""))
+LOGIN_URL = '{0}/login/'.format(SCRIPT_NAME)
+LOGOUT_URL = '{0}/logout/'.format(SCRIPT_NAME)
+LOGIN_REDIRECT_URL = '{0}/'.format(SCRIPT_NAME)
 
 PERSISTENT_FILESTORE = CCG_WRITEABLE_DIRECTORY #os.path.normpath(os.path.join(PROJECT_DIRECTORY, 'files'))
 PERSISTENT_FILESTORE_URL = '/mamboms/files/'
