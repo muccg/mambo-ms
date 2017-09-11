@@ -32,7 +32,7 @@ def vet(request):
 @transaction.commit_on_success
 def save_lc(request):
     req = request.POST
-    profile = request.user.get_profile()
+    profile = request.user.profile
     if not (profile.is_admin or profile.is_noderep):
         return HttpResponseForbidden()
 
@@ -66,7 +66,7 @@ def save_lc(request):
         lc_rec.sample_run_by = User.objects.get(id=sample_run_by) 
     if not lc_rec.id:
         lc_rec.dataset = models.Dataset.objects.get(name='MA LC')
-        lc_rec.node = request.user.get_profile().node
+        lc_rec.node = request.user.profile.node
         lc_rec.record_uploaded_by = request.user
     lc_rec.compound_name = req.get('compound_name')
     biosys_ids = req.getlist('biological_systems')
@@ -171,7 +171,7 @@ def save_lc(request):
 @transaction.commit_on_success
 def save(request):
     req = request.REQUEST
-    profile = request.user.get_profile()
+    profile = request.user.profile
     if not (profile.is_admin or profile.is_noderep):
         return HttpResponseForbidden()
 
@@ -204,7 +204,7 @@ def save(request):
         gc_rec.sample_run_by = User.objects.get(id=sample_run_by) 
     if not gc_rec.id:
         gc_rec.dataset = models.Dataset.objects.get(name='MA GC')
-        gc_rec.node = request.user.get_profile().node
+        gc_rec.node = request.user.profile.node
         gc_rec.record_uploaded_by = request.user
     gc_rec.compound_name = req.get('compound_name')
     biosys_ids = req.getlist('biological_systems')
@@ -298,7 +298,7 @@ class CompoundLoader(object):
             'method_summary': file_field_to_url(gc_rec.method.method_summary),
             'column': gc_rec.column_id,
             'sample_run_by': gc_rec.sample_run_by.id,
-            'uploaded_by': gc_rec.record_uploaded_by.get_profile().full_name,
+            'uploaded_by': gc_rec.record_uploaded_by.profile.full_name,
             'uploaded_date': str(gc_rec.record_uploaded_on),
             'vetted_by': vetted_by(gc_rec),
             'can_vet': gc_rec.can_be_vetted_by(self.user),
@@ -380,7 +380,7 @@ def vetted_by(compound):
     if compound.is_lcma:
         filter = {'lc_record': models.LCMARecord.objects.get(pk=compound.pk)}
         
-    vetted_by = "\n".join(["%s on %s" % (rv.user.get_profile().full_name, rv.record_vetted_on) 
+    vetted_by = "\n".join(["%s on %s" % (rv.user.profile.full_name, rv.record_vetted_on) 
         for rv in models.MARecordVet.objects.filter(**filter)])
 
     return vetted_by

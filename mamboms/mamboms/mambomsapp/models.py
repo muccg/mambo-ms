@@ -96,7 +96,7 @@ class Compound(models.Model):
     def can_be_deleted_by(self, user):
         if not (self.is_gcma or self.is_lcma):
             return False
-        profile = user.get_profile()
+        profile = user.profile
         return (profile.is_admin or (profile.is_noderep and profile.node == self.node.name))
 
     def delete_by(self, user):
@@ -113,7 +113,7 @@ class Compound(models.Model):
             return self.lcmarecord.record_vets
 
     def can_be_vetted_by(self, user):
-        profile = user.get_profile()
+        profile = user.profile
         return (
             self.record_uploaded_by != user
             and user not in self.record_vets.all()

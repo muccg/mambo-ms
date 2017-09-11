@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.models import User
 import models
 
 def django_user_exists(user_name):
@@ -17,9 +17,9 @@ def create_django_user(user_name):
 
 def create_user_profile_for(django_user):
     try:
-        django_user.get_profile()
-    except SiteProfileNotAvailable:
-        print 'Profiles are not enabled for this app'
+        django_user.profile
+    # except SiteProfileNotAvailable:
+    #     print 'Profiles are not enabled for this app'
     except models.MambomsLDAPProfile.DoesNotExist:
         from ccg.auth.ldap_helper import LDAPHandler
         print 'No profile exists for %s: I will create one.' % (django_user.username)

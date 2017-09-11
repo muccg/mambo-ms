@@ -118,7 +118,7 @@ def spectra_search(request, algorithm=stored_procedure_search):
 
 def build_search_queryset(req_params, user):
     datasets = req_params.getlist('dataset')
-    if user.get_profile().is_client:
+    if user.profile.is_client:
         # Clients can't search NIST records
         valid_datasets = set(('MA LC', 'MA GC'))
     else:

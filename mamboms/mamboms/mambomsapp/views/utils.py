@@ -1,5 +1,6 @@
 from django.http import HttpResponse
-from django.utils import simplejson
+#from django.utils import simplejson
+import json as simplejson
 import decimal
 
 def int_param(req_params, name, default=None):
@@ -21,7 +22,7 @@ def decimal_param(req_params, name, default=None, max_digits=10):
     if raw_value[0] == '-':
         sign = '-'
         raw_value = raw_value[1:]
-    # if greater than max_digits use the largest allowed value 
+    # if greater than max_digits use the largest allowed value
     if len(raw_value) > max_digits:
         raw_value = '9' * max_digits
 
@@ -40,4 +41,3 @@ def json_encode(str):
 def json_decode(str):
     decoder = simplejson.JSONDecoder()
     return decoder.decode(str)
-
